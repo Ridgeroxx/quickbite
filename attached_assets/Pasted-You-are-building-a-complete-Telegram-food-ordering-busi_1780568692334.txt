@@ -1,0 +1,62 @@
+You are building a complete Telegram food ordering business system. I need full code for:
+
+1. A Telegram Mini App (web app) for customers to order food.
+   - Built with HTML, pure CSS, JavaScript (no frameworks).
+   - Animated UI: food items float slightly, plates have subtle bounce, cart icon shakes on add.
+   - Responsive design, works on mobile (Telegram WebView).
+   - Menu grid with categories (Burgers, Sides, Drinks), each item: name, price, image placeholder (FontAwesome or emoji), "Add to Cart" button.
+   - Cart sidebar or modal showing items, quantities, total. Checkout button.
+   - Checkout page: displays my mobile money number (to be provided), asks user to enter payment reference after manual payment. Also collects delivery address.
+   - After user submits reference and address, send order to backend.
+
+2. Backend API (Node.js/Express or Python/Flask – I prefer Node.js for simplicity with Netlify functions or separate server).
+   - Exposes endpoints: /api/menu (GET), /api/place-order (POST).
+   - Stores orders in SQLite database.
+   - Integrates with Telegram bot to send new order notifications to admin.
+   - Admin will confirm payment and assign riders via bot commands (not web interface).
+
+3. Telegram Bot (using node-telegram-bot-api or telegraf).
+   - Bot handles:
+     - /start -> welcome message with link to Mini App (using inline keyboard button "Open Food App").
+     - Admin commands: /admin -> shows pending orders, buttons to confirm payment, assign rider.
+     - Rider commands: /rider -> shows assigned deliveries, button to mark as delivered.
+   - Manual payment flow: user sends /paid REF123 to bot after paying. Bot forwards to admin for confirmation.
+   - Notifications: when order placed, admin gets message with order details, user's reference, address, and buttons "Confirm Payment" and "Reject".
+   - After admin confirms, bot asks admin to choose a rider from list, then notifies rider.
+
+4. Database schema:
+   - users (telegram_id, role: customer/admin/rider, name, phone)
+   - orders (id, user_telegram_id, items_json, total, address, payment_reference, status: pending_payment, paid, confirmed, assigned, delivered, completed)
+   - menu (id, name, price, category, image_url)
+   - riders (telegram_id, name, is_available)
+
+5. Admin dashboard: Not a separate web UI – all inside Telegram bot using inline keyboards. Admin can:
+   - View all orders grouped by status.
+   - Confirm payment (mark order as paid).
+   - Assign rider to a paid order (select from available riders).
+   - View sales summary (today, week, month).
+
+6. Rider flow:
+   - Rider gets message: "New delivery #123. Address: ... Items: ..." with "Accept" and "Reject" buttons.
+   - After accept, rider sees "Mark as Delivered" button.
+   - When rider marks delivered, order status updates and user gets notification: "Your food is delivered! Enjoy."
+
+7. Deployment instructions:
+   - Provide a detailed README.md with steps to:
+     - Set up backend on Render (free tier) using GitHub.
+     - Set up frontend on Netlify (free).
+     - Set bot webhook to backend URL.
+     - Configure environment variables (BOT_TOKEN, ADMIN_IDS, MOMO_NUMBER, DELIVERY_FEE, SERVICE_FEE, etc.)
+   - Include all necessary files: package.json, index.js (or app.js), database init script, public folder with HTML/CSS/JS, and .env example.
+
+8. Ask me for the following information before generating final code:
+   - Telegram Bot Token (from BotFather)
+   - Admin Telegram user IDs (numeric, from @userinfobot)
+   - Mobile Money number (e.g., +233 50 123 4567)
+   - Delivery fee amount (e.g., 5.00)
+   - Service fee amount (e.g., 0 or 2.00)
+   - Currency symbol (e.g., GHS, UGX)
+   - Initial menu items (list of name, price, category) or use placeholders
+   - List of rider Telegram IDs and names (optional, can add later via admin command)
+
+Generate the complete project code with clear file structure. Do NOT use Replit's hosting – produce code that runs on standard Node.js environment. Include animations and make the Mini App beautiful.
