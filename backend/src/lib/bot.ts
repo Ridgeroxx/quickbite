@@ -1,5 +1,5 @@
 import TelegramBot from "node-telegram-bot-api";
-import { db, ordersTable, ridersTable, usersTable } from "@workspace/db";
+import { db, ordersTable, ridersTable, usersTable } from "./lib/index";
 import { eq, and } from "drizzle-orm";
 import { logger } from "./logger";
 

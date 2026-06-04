@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { db, ordersTable, menuTable } from "@workspace/db";
+import { db, ordersTable, menuTable } from "./lib/index";
 import { eq, desc, and } from "drizzle-orm";
 import { sendOrderNotification } from "../lib/bot";
 

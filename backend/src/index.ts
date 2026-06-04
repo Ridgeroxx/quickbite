@@ -1,7 +1,6 @@
 import app from "./app";
-import { logger } from "./lib/logger";
+import { logger } from "./lib/index";
 import { getBot } from "./lib/bot";
-import { seedMenu } from "./lib/seed";
 
 const rawPort = process.env["PORT"];
 
@@ -17,7 +16,7 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
-app.listen(port, async (err) => {
+app.listen(port, (err) => {
   if (err) {
     logger.error({ err }, "Error listening on port");
     process.exit(1);
@@ -25,15 +24,11 @@ app.listen(port, async (err) => {
 
   logger.info({ port }, "Server listening");
 
-  try {
-    await seedMenu();
-  } catch (e) {
-    logger.warn({ err: e }, "Seed failed (DB may not be ready yet)");
-  }
-
+  // Start the Telegram bot (polling)
   try {
     getBot();
+    logger.info("Telegram bot started with polling");
   } catch (e) {
-    logger.warn({ err: e }, "Bot failed to start");
+    logger.error({ err: e }, "Bot failed to start");
   }
 });
