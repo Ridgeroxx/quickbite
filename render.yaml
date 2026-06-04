@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: quickbite-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 22.22.3
+      # Add all your environment variables here (see step 2)
