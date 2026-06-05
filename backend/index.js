@@ -58,7 +58,7 @@ const pendingAddress = new Map();
 const app = express();
 app.use(express.json());
 
-// ✅ CORS middleware – allow Netlify frontend
+// CORS middleware – allow Netlify frontend
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', 'https://hungerbite.netlify.app');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
@@ -67,7 +67,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// ✅ Override restrictive CSP headers (allow external fonts, scripts for frontend)
+// Override restrictive CSP headers (allow external fonts, scripts for frontend)
 app.use((req, res, next) => {
   res.setHeader(
     'Content-Security-Policy',
@@ -255,6 +255,44 @@ function setupBotHandlers(bot) {
   bot.onText(/\/start/, (msg) => {
     bot.sendMessage(msg.chat.id, `🇬🇭 Welcome to QuickBite Ghana!\nOrder authentic dishes with any add-ons you like.\nUse our web app: https://hungerbite.netlify.app`);
   });
+
+  // ----- Admin Commands -----
+  bot.onText(/\/admin_orders/, (msg) => {
+    if (!ADMIN_IDS.includes(msg.from.id)) return;
+    if (orders.length === 0) return bot.sendMessage(msg.chat.id, "No orders.");
+    let text = "*📋 Orders*\n";
+    orders.slice(-10).forEach(o => {
+      text += `#${o.id} – ${o.status} – GHS ${o.total}\n`;
+    });
+    bot.sendMessage(msg.chat.id, text, { parse_mode: 'Markdown' });
+  });
+
+  bot.onText(/\/pending/, (msg) => {
+    if (!ADMIN_IDS.includes(msg.from.id)) return;
+    const pending = orders.filter(o => o.status === 'waiting_confirm' || o.status === 'pending_payment');
+    if (!pending.length) return bot.sendMessage(msg.chat.id, "No pending orders.");
+    let text = "*⏳ Pending*\n";
+    pending.forEach(o => {
+      text += `#${o.id} – ${o.status} – GHS ${o.total}\nRef: ${o.paymentReference || '-'}\n`;
+    });
+    bot.sendMessage(msg.chat.id, text, { parse_mode: 'Markdown' });
+  });
+
+  bot.onText(/\/order (\d+)/, (msg, match) => {
+    if (!ADMIN_IDS.includes(msg.from.id)) return;
+    const order = orders.find(o => o.id == match[1]);
+    if (!order) return bot.sendMessage(msg.chat.id, "Not found");
+    let items = order.items.map(i => `${i.name} ${i.addons?.map(a=>a.name).join(',')} x${i.qty}`).join('\n');
+    bot.sendMessage(msg.chat.id, `*Order #${order.id}*\nStatus: ${order.status}\nTotal: GHS ${order.total}\nAddress: ${order.address}\nItems:\n${items}`, { parse_mode: 'Markdown' });
+  });
+
+  bot.onText(/\/stats/, (msg) => {
+    if (!ADMIN_IDS.includes(msg.from.id)) return;
+    const total = orders.reduce((s,o)=> s+o.total, 0);
+    bot.sendMessage(msg.chat.id, `📊 *Stats*\nTotal orders: ${orders.length}\nRevenue: GHS ${total}\nPending: ${orders.filter(o=>o.status==='pending_payment').length}`, { parse_mode: 'Markdown' });
+  });
+
+  // ----- Callback queries (confirm, assign, deliver) -----
   bot.on('callback_query', async (cq) => {
     const chatId = cq.message.chat.id;
     const data = cq.data;
@@ -299,6 +337,8 @@ function setupBotHandlers(bot) {
       }
     }
   });
+
+  // ----- Payment reference from user -----
   bot.onText(/\/paid (\d+) (.+)/, (msg, match) => {
     const orderId = parseInt(match[1]);
     const ref = match[2];
@@ -316,10 +356,12 @@ function setupBotHandlers(bot) {
       });
     } else bot.sendMessage(userId, 'Order not found or already paid.');
   });
+
   bot.onText(/\/admin/, (msg) => {
     if (!ADMIN_IDS.includes(msg.from.id)) return;
     bot.sendMessage(msg.chat.id, 'Admin panel is at your web app URL. Use the HTML dashboard.');
   });
+
   bot.onText(/\/add_rider (\d+) (.+)/, (msg, match) => {
     if (!ADMIN_IDS.includes(msg.from.id)) return;
     const id = parseInt(match[1]), name = match[2];
