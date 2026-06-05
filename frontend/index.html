@@ -164,6 +164,16 @@
   localStorage.setItem('userId', userId);
   let isCheckingOut = false;
 
+  // Helper: validate name (letters, spaces, hyphens, apostrophes – no numbers)
+  function isValidName(name) {
+    return /^[A-Za-z\s\-']+$/.test(name) && name.trim().length > 0;
+  }
+
+  // Helper: validate Ghana phone number (exactly 10 digits, starts with 0, all numbers)
+  function isValidPhone(phone) {
+    return /^0\d{9}$/.test(phone);
+  }
+
   function showToast(msg) {
     let toast = document.querySelector('.toast');
     if (!toast) { toast = document.createElement('div'); toast.className = 'toast'; document.body.appendChild(toast); }
@@ -278,6 +288,7 @@
     saveCart();
   };
 
+  // ✅ Updated placeOrder with validation prompts
   async function placeOrder(customerName, customerPhone, address) {
     if (isCheckingOut) return;
     isCheckingOut = true;
@@ -297,14 +308,14 @@
         saveCart();
         closeCart();
         showToast(`✅ Order #${data.orderId} placed!`);
-        await loadOrderHistory(); // refresh immediately
         alert(`✅ Order #${data.orderId}\nTotal: GHS ${data.total}\nSend payment to: ${data.momoNumber}\nAfter payment, type /paid ${data.orderId} YOUR_REFERENCE in Telegram.\nRider contact: ${data.riderContact}`);
+        await loadOrderHistory();
       } else {
         alert('Order failed: ' + (data.error || 'Unknown error'));
       }
     } catch (err) {
       console.error(err);
-      alert('Network error. Please try again. If the problem persists, contact support.');
+      alert('Network error. Please try again.');
     } finally {
       isCheckingOut = false;
       btn.disabled = false;
@@ -368,22 +379,48 @@
     return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m] || m));
   }
 
+  // Cart drawer controls
   const overlay = document.getElementById('cartOverlay');
   function openCart() { overlay.classList.add('open'); renderCartDrawer(); }
   function closeCart() { overlay.classList.remove('open'); }
   document.getElementById('cartIcon').addEventListener('click', openCart);
   document.getElementById('closeCartBtn').addEventListener('click', closeCart);
   document.getElementById('clearCartDrawerBtn').addEventListener('click', () => { cart = []; saveCart(); renderCartDrawer(); showToast('Cart cleared'); });
-  document.getElementById('checkoutDrawerBtn').addEventListener('click', () => {
+  
+  // Updated checkout button with validation
+  document.getElementById('checkoutDrawerBtn').addEventListener('click', async () => {
     if (!cart.length) return alert('Cart empty');
-    const name = prompt('Enter your full name:');
-    if (!name) return;
-    const phone = prompt('Enter your phone number (e.g., 024XXXXXXX):');
-    if (!phone) return;
-    const address = prompt('Enter delivery address (e.g., Gihoc IT Department, Accra):');
-    if (!address) return;
-    placeOrder(name, phone, address);
+    
+    // Get and validate name
+    let name = '';
+    while (true) {
+      name = prompt('Enter your full name (letters only):');
+      if (name === null) return; // user cancelled
+      if (isValidName(name)) break;
+      alert('❌ Invalid name. Use only letters, spaces, hyphens, or apostrophes. No numbers.');
+    }
+    
+    // Get and validate phone (10 digits, starts with 0)
+    let phone = '';
+    while (true) {
+      phone = prompt('Enter your phone number (10 digits, e.g., 024XXXXXXX):');
+      if (phone === null) return;
+      if (isValidPhone(phone)) break;
+      alert('❌ Invalid phone number. Must be exactly 10 digits starting with 0 (e.g., 0241234567).');
+    }
+    
+    // Get address (non-empty)
+    let address = '';
+    while (true) {
+      address = prompt('Enter delivery address (street, city, landmark):');
+      if (address === null) return;
+      if (address.trim().length > 0) break;
+      alert('❌ Address cannot be empty.');
+    }
+    
+    await placeOrder(name, phone, address);
   });
+  
   overlay.addEventListener('click', (e) => { if (e.target === overlay) closeCart(); });
 
   loadMenu();
