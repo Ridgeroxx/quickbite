@@ -250,8 +250,7 @@ function getBotInstance() {
   if (!botInstance) {
     console.log('Initializing Telegram bot...');
     const bot = new TelegramBot(BOT_TOKEN, { polling: true });
-    // Remove any existing webhook to avoid conflict
-    bot.deleteWebhook().catch(e => console.log('Webhook delete error (ignored):', e.message));
+   
     setupBotHandlers(bot);
     botInstance = bot;
     console.log('🤖 Telegram bot started with polling');
