@@ -54,16 +54,25 @@ function saveRiders() { fs.writeFileSync(RIDERS_FILE, JSON.stringify(riders, nul
 
 const pendingAddress = new Map();
 
-// ---------- Express API with PROPER CORS ----------
+// ---------- Express API with CORS and relaxed CSP ----------
 const app = express();
 app.use(express.json());
 
-// ✅ CORS middleware – essential for Netlify communication
+// ✅ CORS middleware – allow Netlify frontend
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', 'https://hungerbite.netlify.app');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
   if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
+
+// ✅ Override restrictive CSP headers (allow external fonts, scripts for frontend)
+app.use((req, res, next) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-inline' blob: https://hungerbite.netlify.app; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://hungerbite.netlify.app https://quickbite-joi1.onrender.com"
+  );
   next();
 });
 
@@ -118,7 +127,7 @@ app.get('/api/orders/:userId', (req, res) => {
   res.json(userOrders);
 });
 
-// ---------- Admin API Endpoints (for your HTML dashboard) ----------
+// ---------- Admin API Endpoints ----------
 app.get('/api/orders', (req, res) => {
   res.json({ orders });
 });
@@ -218,9 +227,7 @@ app.delete('/api/riders/:id', (req, res) => {
 
 app.get('/health', (req, res) => res.send('OK'));
 
-// ---------- Telegram Bot (polling) ----------
-
-// ---------- Bot polling with retry to avoid 409 conflict ----------
+// ---------- Telegram Bot with retry ----------
 let botInstance = null;
 let retryCount = 0;
 
@@ -237,21 +244,6 @@ function getBotInstance() {
       console.error('Failed to start bot:', err.message);
       if (retryCount < 5) {
         retryCount++;
-        setTimeout(() => { botInstance = null; getBotInstance(); }, 5000);
-      }
-    }
-  }
-  return botInstance;
-});
-      // Remove any webhook to ensure polling works
-      botInstance.deleteWebhook().catch(e => console.log('Webhook delete error:', e.message));
-      setupBotHandlers(botInstance);
-      console.log('🤖 Telegram bot started with polling');
-    } catch (err) {
-      console.error('Failed to start bot:', err.message);
-      // Retry after 5 seconds
-      if (retries < 5) {
-        retries++;
         setTimeout(() => { botInstance = null; getBotInstance(); }, 5000);
       }
     }
