@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -377,7 +377,7 @@
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
   <div class="sidebar-logo">
-    <div class="logo-text">🍔 <span>QuickBite</span></div>
+    <div class="logo-text">ðŸ” <span>QuickBite</span></div>
     <div class="logo-sub">Admin Dashboard</div>
   </div>
   <div class="nav-section">
@@ -426,7 +426,7 @@
           <div class="stat-icon orange"><i class="fa fa-calendar-day"></i></div>
           <div>
             <div class="stat-label">Today's Orders</div>
-            <div class="stat-value" id="statTodayCount">—</div>
+            <div class="stat-value" id="statTodayCount">â€”</div>
             <div class="stat-sub" id="statTodayTotal">GHS 0.00</div>
           </div>
         </div>
@@ -434,7 +434,7 @@
           <div class="stat-icon green"><i class="fa fa-calendar-week"></i></div>
           <div>
             <div class="stat-label">This Week</div>
-            <div class="stat-value" id="statWeekCount">—</div>
+            <div class="stat-value" id="statWeekCount">â€”</div>
             <div class="stat-sub" id="statWeekTotal">GHS 0.00</div>
           </div>
         </div>
@@ -442,7 +442,7 @@
           <div class="stat-icon blue"><i class="fa fa-calendar-alt"></i></div>
           <div>
             <div class="stat-label">This Month</div>
-            <div class="stat-value" id="statMonthCount">—</div>
+            <div class="stat-value" id="statMonthCount">â€”</div>
             <div class="stat-sub" id="statMonthTotal">GHS 0.00</div>
           </div>
         </div>
@@ -450,7 +450,7 @@
           <div class="stat-icon yellow"><i class="fa fa-box-archive"></i></div>
           <div>
             <div class="stat-label">All Time</div>
-            <div class="stat-value" id="statAllCount">—</div>
+            <div class="stat-value" id="statAllCount">â€”</div>
             <div class="stat-sub" id="statAllTotal">GHS 0.00</div>
           </div>
         </div>
@@ -589,9 +589,9 @@
       <div class="form-group">
         <label class="form-label">Category *</label>
         <select class="form-select" id="menuCategory">
-          <option value="Burgers">🍔 Burgers</option>
-          <option value="Sides">🍟 Sides</option>
-          <option value="Drinks">🥤 Drinks</option>
+          <option value="Burgers">ðŸ” Burgers</option>
+          <option value="Sides">ðŸŸ Sides</option>
+          <option value="Drinks">ðŸ¥¤ Drinks</option>
         </select>
       </div>
     </div>
@@ -641,16 +641,17 @@
 </div>
 
 <script>
-const API = '/api';
+const API_BASE = 'https://quickbite-joi1.onrender.com';
+const API = API_BASE + '/api';
 const CURRENCY = 'GHS';
-const EMOJI = { Burgers: '🍔', Sides: '🍟', Drinks: '🥤' };
+const EMOJI = { Burgers: 'ðŸ”', Sides: 'ðŸŸ', Drinks: 'ðŸ¥¤' };
 
 let allOrders = [];
 let allRiders = [];
 let currentOrderFilter = 'all';
 let currentPage = 'dashboard';
 
-// ─── Navigation ───────────────────────────────────────────
+// â”€â”€â”€ Navigation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -674,7 +675,7 @@ function loadPage(name) {
   else if (name === 'riders') loadRiders();
 }
 
-// ─── Dashboard ────────────────────────────────────────────
+// â”€â”€â”€ Dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadDashboard() {
   try {
     const [statsRes, ordersRes] = await Promise.all([
@@ -711,7 +712,7 @@ function renderDashboardOrders(orders) {
   }
   tbody.innerHTML = orders.map(o => {
     const items = JSON.parse(o.itemsJson);
-    const summary = items.slice(0,2).map(i => `${i.name} x${i.quantity}`).join(', ') + (items.length > 2 ? `…` : '');
+    const summary = items.slice(0,2).map(i => `${i.name} x${i.quantity}`).join(', ') + (items.length > 2 ? `â€¦` : '');
     return `<tr>
       <td><strong>#${o.id}</strong></td>
       <td>${esc(o.userName || 'Unknown')}</td>
@@ -724,7 +725,7 @@ function renderDashboardOrders(orders) {
   }).join('');
 }
 
-// ─── Orders ───────────────────────────────────────────────
+// â”€â”€â”€ Orders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadOrders() {
   const tbody = document.getElementById('ordersBody');
   tbody.innerHTML = '<tr class="loading-row"><td colspan="8"><div class="spinner"></div></td></tr>';
@@ -769,7 +770,7 @@ function renderOrders(orders) {
     <tr>
       <td><strong>#${o.id}</strong></td>
       <td>${esc(o.userName||'Unknown')}${o.userUsername ? `<br><span style="font-size:12px;color:var(--text-muted)">@${esc(o.userUsername)}</span>` : ''}</td>
-      <td style="max-width:160px;font-size:13px">${esc(o.address.slice(0,50))}${o.address.length>50?'…':''}</td>
+      <td style="max-width:160px;font-size:13px">${esc(o.address.slice(0,50))}${o.address.length>50?'â€¦':''}</td>
       <td><code style="font-size:12px;background:var(--bg);padding:3px 7px;border-radius:6px">${esc(o.paymentReference||'-')}</code></td>
       <td><strong>${CURRENCY} ${o.total}</strong></td>
       <td>${statusBadge(o.status)}</td>
@@ -800,21 +801,21 @@ async function viewOrder(id) {
       <span style="font-size:13px;color:var(--text-muted)">${new Date(order.createdAt).toLocaleString()}</span>
     </div>
     <div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:14px">
-      <div style="font-size:13px;color:var(--text-muted);margin-bottom:6px">👤 Customer</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:6px">ðŸ‘¤ Customer</div>
       <div style="font-weight:600">${esc(order.userName||'Unknown')}</div>
       ${order.userUsername ? `<div style="font-size:13px;color:var(--text-muted)">@${esc(order.userUsername)}</div>` : ''}
     </div>
     <div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:14px">
-      <div style="font-size:13px;color:var(--text-muted);margin-bottom:6px">📍 Delivery Address</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:6px">ðŸ“ Delivery Address</div>
       <div style="font-weight:600">${esc(order.address)}</div>
     </div>
     <div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:14px">
-      <div style="font-size:13px;color:var(--text-muted);margin-bottom:6px">🧾 Payment Reference</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:6px">ðŸ§¾ Payment Reference</div>
       <div style="font-weight:700;color:var(--primary);font-size:16px">${esc(order.paymentReference||'-')}</div>
     </div>
     <div style="background:var(--bg);border-radius:10px;padding:14px">
-      <div style="font-size:13px;color:var(--text-muted);margin-bottom:10px">🛒 Items</div>
-      ${items.map(i => `<div class="order-item-row"><span>${esc(i.name)} × ${i.quantity}</span><span>${CURRENCY} ${(i.price*i.quantity).toFixed(2)}</span></div>`).join('')}
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:10px">ðŸ›’ Items</div>
+      ${items.map(i => `<div class="order-item-row"><span>${esc(i.name)} Ã— ${i.quantity}</span><span>${CURRENCY} ${(i.price*i.quantity).toFixed(2)}</span></div>`).join('')}
       <div class="order-total-row"><span>Total</span><span>${CURRENCY} ${order.total}</span></div>
     </div>`;
 
@@ -833,7 +834,7 @@ async function viewOrder(id) {
 async function confirmOrder(id) {
   try {
     await fetch(`${API}/orders/${id}/status`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({status:'confirmed'}) });
-    showToast(`Order #${id} confirmed ✓`, 'success');
+    showToast(`Order #${id} confirmed âœ“`, 'success');
     loadPage(currentPage);
   } catch(e) { showToast('Failed', 'error'); }
 }
@@ -859,7 +860,7 @@ async function openAssignModal(orderId) {
       document.getElementById('assignModalBody').innerHTML = available.map(r => `
         <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
           <div>
-            <div style="font-weight:600">🛵 ${esc(r.name)}</div>
+            <div style="font-weight:600">ðŸ›µ ${esc(r.name)}</div>
             <div style="font-size:13px;color:var(--text-muted)">ID: ${r.telegramId}</div>
           </div>
           <button class="btn btn-primary btn-sm" onclick="assignRider(${orderId},${r.telegramId})">Assign</button>
@@ -874,12 +875,12 @@ async function assignRider(orderId, riderId) {
     await fetch(`${API}/orders/${orderId}/status`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({status:'assigned',riderTelegramId:riderId}) });
     await fetch(`${API}/riders/${riderId}/availability`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({isAvailable:'false'}) });
     closeModal('assignModal');
-    showToast(`Rider assigned to Order #${orderId} ✓`, 'success');
+    showToast(`Rider assigned to Order #${orderId} âœ“`, 'success');
     loadPage(currentPage);
   } catch(e) { showToast('Failed to assign', 'error'); }
 }
 
-// ─── Menu ─────────────────────────────────────────────────
+// â”€â”€â”€ Menu â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadMenu() {
   document.getElementById('menuGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px"><div class="spinner"></div></div>';
   try {
@@ -896,7 +897,7 @@ function renderMenuGrid(items) {
   }
   document.getElementById('menuGrid').innerHTML = items.map(item => `
     <div class="item-card">
-      <div class="item-card-icon">${EMOJI[item.category]||'🍽️'}</div>
+      <div class="item-card-icon">${EMOJI[item.category]||'ðŸ½ï¸'}</div>
       <div class="item-card-body">
         <div class="item-card-name">${esc(item.name)}</div>
         <div class="item-card-cat">${esc(item.category)}</div>
@@ -942,10 +943,10 @@ async function saveMenuItem() {
   try {
     if (id) {
       await fetch(`${API}/menu/${id}`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name,price,category}) });
-      showToast('Item updated ✓', 'success');
+      showToast('Item updated âœ“', 'success');
     } else {
       await fetch(`${API}/menu`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name,price,category}) });
-      showToast('Item added ✓', 'success');
+      showToast('Item added âœ“', 'success');
     }
     closeModal('menuModal');
     loadMenu();
@@ -956,7 +957,7 @@ async function toggleMenuItem(id, current) {
   const newVal = current === 'true' ? 'false' : 'true';
   try {
     await fetch(`${API}/menu/${id}`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({available:newVal}) });
-    showToast(newVal==='true' ? 'Item enabled ✓' : 'Item hidden', newVal==='true'?'success':'');
+    showToast(newVal==='true' ? 'Item enabled âœ“' : 'Item hidden', newVal==='true'?'success':'');
     loadMenu();
   } catch(e) { showToast('Failed', 'error'); }
 }
@@ -970,7 +971,7 @@ async function deleteMenuItem(id) {
   } catch(e) { showToast('Failed', 'error'); }
 }
 
-// ─── Riders ───────────────────────────────────────────────
+// â”€â”€â”€ Riders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadRiders() {
   const tbody = document.getElementById('ridersBody');
   tbody.innerHTML = '<tr class="loading-row"><td colspan="4"><div class="spinner"></div></td></tr>';
@@ -1018,7 +1019,7 @@ async function saveRider() {
   if (!telegramId || !name) { showToast('Telegram ID and name required', 'error'); return; }
   try {
     await fetch(`${API}/riders`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({telegramId,name}) });
-    showToast(`${name} added as rider ✓`, 'success');
+    showToast(`${name} added as rider âœ“`, 'success');
     closeModal('riderModal');
     loadRiders();
   } catch(e) { showToast('Failed to add rider', 'error'); }
@@ -1042,14 +1043,14 @@ async function deleteRider(id) {
   } catch(e) { showToast('Failed', 'error'); }
 }
 
-// ─── Modal helpers ────────────────────────────────────────
+// â”€â”€â”€ Modal helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 document.querySelectorAll('.modal-overlay').forEach(el => {
   el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
 });
 
-// ─── Toast ────────────────────────────────────────────────
+// â”€â”€â”€ Toast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let toastTimer;
 function showToast(msg, type='') {
   const t = document.getElementById('toast');
@@ -1059,20 +1060,20 @@ function showToast(msg, type='') {
   toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// ─── Helpers ──────────────────────────────────────────────
+// â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function esc(str) {
   return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function statusBadge(status) {
   const labels = {
-    pending_payment: '⏳ Pending',
-    paid: '💳 Paid',
-    confirmed: '✅ Confirmed',
-    assigned: '🛵 In Transit',
-    delivered: '📦 Delivered',
-    completed: '✔️ Completed',
-    rejected: '❌ Rejected',
+    pending_payment: 'â³ Pending',
+    paid: 'ðŸ’³ Paid',
+    confirmed: 'âœ… Confirmed',
+    assigned: 'ðŸ›µ In Transit',
+    delivered: 'ðŸ“¦ Delivered',
+    completed: 'âœ”ï¸ Completed',
+    rejected: 'âŒ Rejected',
   };
   return `<span class="badge ${status}">${labels[status]||status}</span>`;
 }
@@ -1087,8 +1088,8 @@ function timeAgo(dateStr) {
   return `${Math.floor(h/24)}d ago`;
 }
 
-// ─── Delete rider endpoint (add to webhook if missing) ────
-// ─── Init ─────────────────────────────────────────────────
+// â”€â”€â”€ Delete rider endpoint (add to webhook if missing) â”€â”€â”€â”€
+// â”€â”€â”€ Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 loadDashboard();
 </script>
 </body>
