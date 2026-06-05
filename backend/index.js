@@ -219,13 +219,30 @@ app.delete('/api/riders/:id', (req, res) => {
 app.get('/health', (req, res) => res.send('OK'));
 
 // ---------- Telegram Bot (polling) ----------
+
+// ---------- Bot polling with retry to avoid 409 conflict ----------
 let botInstance = null;
-let retries = 0;
+let retryCount = 0;
 
 function getBotInstance() {
   if (!botInstance) {
     try {
-      botInstance = new TelegramBot(BOT_TOKEN, { polling: true });
+      const bot = new TelegramBot(BOT_TOKEN, { polling: true });
+      bot.deleteWebhook().catch(e => console.log('Webhook delete:', e.message));
+      setupBotHandlers(bot);
+      botInstance = bot;
+      console.log('🤖 Telegram bot started with polling');
+      retryCount = 0;
+    } catch (err) {
+      console.error('Failed to start bot:', err.message);
+      if (retryCount < 5) {
+        retryCount++;
+        setTimeout(() => { botInstance = null; getBotInstance(); }, 5000);
+      }
+    }
+  }
+  return botInstance;
+});
       // Remove any webhook to ensure polling works
       botInstance.deleteWebhook().catch(e => console.log('Webhook delete error:', e.message));
       setupBotHandlers(botInstance);
