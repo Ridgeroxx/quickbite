@@ -8,10 +8,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ORDERS_FILE = path.join(__dirname, 'orders.json');
 const RIDERS_FILE = path.join(__dirname, 'riders.json');
 const MENU_FILE = path.join(__dirname, 'menu.json');
+const ADMIN_ROLES_FILE = path.join(__dirname, 'admin_roles.json');
 
 // ---------- Environment ----------
 const BOT_TOKEN = process.env.BOT_TOKEN;
-const ADMIN_IDS = process.env.ADMIN_IDS ? process.env.ADMIN_IDS.split(',').map(id => parseInt(id)) : [];
 const MOMO_NUMBER = process.env.MOMO_NUMBER || '+233206802552';
 const DELIVERY_FEE = parseFloat(process.env.DELIVERY_FEE) || 5.0;
 const SERVICE_FEE = parseFloat(process.env.SERVICE_FEE) || 0;
@@ -20,7 +20,31 @@ const RIDER_CONTACT = process.env.RIDER_CONTACT || '+233 20 000 0000';
 
 if (!BOT_TOKEN) throw new Error('BOT_TOKEN missing');
 
-// ---------- Advanced Menu (Ghanaian Dishes with Add-ons) ----------
+// ---------- Admin Roles ----------
+let adminRoles = {};
+if (fs.existsSync(ADMIN_ROLES_FILE)) {
+  adminRoles = JSON.parse(fs.readFileSync(ADMIN_ROLES_FILE));
+} else {
+  // First run: read ADMIN_IDS from env to set super admin(s)
+  const envAdminIds = process.env.ADMIN_IDS ? process.env.ADMIN_IDS.split(',').map(id => parseInt(id)) : [];
+  for (const id of envAdminIds) {
+    adminRoles[id] = 'super';
+  }
+  fs.writeFileSync(ADMIN_ROLES_FILE, JSON.stringify(adminRoles, null, 2));
+}
+function saveAdminRoles() { fs.writeFileSync(ADMIN_ROLES_FILE, JSON.stringify(adminRoles, null, 2)); }
+
+function hasRole(userId, requiredRole) {
+  const role = adminRoles[userId];
+  if (!role) return false;
+  if (role === 'super') return true;
+  if (requiredRole === 'payment') return role === 'payment';
+  if (requiredRole === 'order') return role === 'order';
+  if (requiredRole === 'rider') return role === 'rider';
+  return false;
+}
+
+// ---------- Advanced Menu ----------
 const DEFAULT_MENU = [
   { id: 1, name: 'Jollof Rice', category: 'Rice Dishes', basePrice: 25, emoji: '🍚', addons: [{ id: 'egg', name: 'Egg', price: 3 }, { id: 'plantain', name: 'Plantain', price: 4 }, { id: 'spaghetti', name: 'Spaghetti', price: 4 }, { id: 'salad', name: 'Salad', price: 3 }, { id: 'meat', name: 'Meat (beef)', price: 8 }, { id: 'chicken', name: 'Chicken', price: 10 }] },
   { id: 2, name: 'Plain Rice', category: 'Rice Dishes', basePrice: 15, emoji: '🍚', addons: [{ id: 'egg', name: 'Egg', price: 3 }, { id: 'plantain', name: 'Plantain', price: 4 }, { id: 'spaghetti', name: 'Spaghetti', price: 4 }, { id: 'salad', name: 'Salad', price: 3 }, { id: 'meat', name: 'Meat (beef)', price: 8 }] },
@@ -54,11 +78,10 @@ function saveRiders() { fs.writeFileSync(RIDERS_FILE, JSON.stringify(riders, nul
 
 const pendingAddress = new Map();
 
-// ---------- Express API with CORS and relaxed CSP ----------
+// ---------- Express API ----------
 const app = express();
 app.use(express.json());
 
-// CORS middleware – allow Netlify frontend
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', 'https://hungerbite.netlify.app');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
@@ -67,7 +90,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Override restrictive CSP headers (allow external fonts, scripts for frontend)
 app.use((req, res, next) => {
   res.setHeader(
     'Content-Security-Policy',
@@ -76,14 +98,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// ---------- Public API Endpoints ----------
-app.get('/api/menu', (req, res) => {
-  res.json(menu);
-});
+// ---------- Public API ----------
+app.get('/api/menu', (req, res) => { res.json(menu); });
 
 app.post('/api/orders', (req, res) => {
-  const { userId, items, address } = req.body;
-  if (!userId || !items || !address) return res.status(400).json({ error: 'Missing fields' });
+  const { userId, items, address, customerName, customerPhone } = req.body;
+  if (!userId || !items || !address || !customerName || !customerPhone) {
+    return res.status(400).json({ error: 'Missing customer name, phone, or address' });
+  }
 
   let subtotal = 0;
   const processedItems = items.map(item => {
@@ -95,29 +117,25 @@ app.post('/api/orders', (req, res) => {
   const total = subtotal + DELIVERY_FEE + SERVICE_FEE;
   const orderId = orders.length + 1;
   const newOrder = {
-    id: orderId,
-    userId,
-    items: processedItems,
-    subtotal,
-    deliveryFee: DELIVERY_FEE,
-    serviceFee: SERVICE_FEE,
-    total,
-    address,
-    status: 'pending_payment',
-    createdAt: new Date().toISOString(),
-    paymentReference: null,
+    id: orderId, userId, customerName, customerPhone, items: processedItems,
+    subtotal, deliveryFee: DELIVERY_FEE, serviceFee: SERVICE_FEE, total, address,
+    status: 'pending_payment', createdAt: new Date().toISOString(), paymentReference: null,
+    riderId: null, riderName: null, riderPhone: null
   };
   orders.push(newOrder);
   saveOrders();
 
-  ADMIN_IDS.forEach(adminId => {
-    const bot = getBotInstance();
-    let itemsText = processedItems.map(i => `${i.name}${i.addons?.length ? ` (${i.addons.map(a => a.name).join(', ')})` : ''}`).join('\n');
-    bot.sendMessage(adminId, `🆕 *New Order #${orderId}*\nUser: ${userId}\nItems:\n${itemsText}\nSubtotal: ${CURRENCY}${subtotal}\nDelivery: ${CURRENCY}${DELIVERY_FEE}\nTotal: ${CURRENCY}${total}\nAddress: ${address}`, {
-      parse_mode: 'Markdown',
-      reply_markup: { inline_keyboard: [[{ text: '✅ Confirm Payment', callback_data: `confirm_${orderId}` }]] }
-    });
-  });
+  // Notify only payment admins (super or payment)
+  const bot = getBotInstance();
+  let itemsText = processedItems.map(i => `${i.name}${i.addons?.length ? ` (${i.addons.map(a => a.name).join(', ')})` : ''}`).join('\n');
+  for (const [adminId, role] of Object.entries(adminRoles)) {
+    if (role === 'payment' || role === 'super') {
+      bot.sendMessage(parseInt(adminId), `🆕 *New Order #${orderId}*\nCustomer: ${customerName}\nPhone: ${customerPhone}\nItems:\n${itemsText}\nSubtotal: ${CURRENCY}${subtotal}\nDelivery: ${CURRENCY}${DELIVERY_FEE}\nTotal: ${CURRENCY}${total}\nAddress: ${address}\n\n*Waiting for payment*`, {
+        parse_mode: 'Markdown',
+        reply_markup: { inline_keyboard: [[{ text: '✅ Confirm Payment', callback_data: `confirm_${orderId}` }]] }
+      });
+    }
+  }
 
   res.json({ orderId, total, momoNumber: MOMO_NUMBER, riderContact: RIDER_CONTACT });
 });
@@ -127,20 +145,14 @@ app.get('/api/orders/:userId', (req, res) => {
   res.json(userOrders);
 });
 
-// ---------- Admin API Endpoints ----------
-app.get('/api/orders', (req, res) => {
-  res.json({ orders });
-});
-
+app.get('/api/orders', (req, res) => { res.json({ orders }); });
 app.get('/api/orders/stats/summary', (req, res) => {
   const today = new Date().toISOString().slice(0, 10);
   const weekAgo = new Date(Date.now() - 7 * 24 * 3600000).toISOString();
   const monthAgo = new Date(Date.now() - 30 * 24 * 3600000).toISOString();
   const stats = {
-    today: { count: 0, total: 0 },
-    week: { count: 0, total: 0 },
-    month: { count: 0, total: 0 },
-    all: { count: orders.length, total: orders.reduce((s, o) => s + o.total, 0) }
+    today: { count: 0, total: 0 }, week: { count: 0, total: 0 },
+    month: { count: 0, total: 0 }, all: { count: orders.length, total: orders.reduce((s, o) => s + o.total, 0) }
   };
   orders.forEach(o => {
     if (o.createdAt.startsWith(today)) { stats.today.count++; stats.today.total += o.total; }
@@ -156,25 +168,34 @@ app.patch('/api/orders/:id/status', (req, res) => {
   if (!order) return res.status(404).json({ error: 'Order not found' });
   const { status, riderTelegramId } = req.body;
   if (status) order.status = status;
-  if (riderTelegramId) order.riderId = riderTelegramId;
+  if (riderTelegramId) {
+    const rider = riders.find(r => r.telegramId == riderTelegramId);
+    if (rider) {
+      order.riderId = riderTelegramId;
+      order.riderName = rider.name;
+      order.riderPhone = rider.phone || 'No phone';
+    }
+  }
   saveOrders();
   const bot = getBotInstance();
   if (status === 'confirmed') {
-    bot.sendMessage(order.userId, `✅ Your order #${id} has been confirmed and is being prepared.`);
+    bot.sendMessage(order.userId, `✅ Your order #${id} payment has been confirmed. We are preparing your meal.`);
   }
-  if (status === 'assigned' && riderTelegramId) {
-    const rider = riders.find(r => r.telegramId == riderTelegramId);
-    if (rider) {
-      bot.sendMessage(order.userId, `🚴 Your order #${id} is out for delivery with ${rider.name}.`);
-      bot.sendMessage(riderTelegramId, `📦 New delivery: Order #${id}\nItems: ${order.items.map(i => i.name).join(', ')}\nAddress: ${order.address}\nTotal: ${CURRENCY}${order.total}\nMark delivered when done.`, {
-        reply_markup: { inline_keyboard: [[{ text: '✅ Mark Delivered', callback_data: `deliver_${id}` }]] }
-      });
-    }
+  if (status === 'processing') {
+    bot.sendMessage(order.userId, `⚙️ Your order #${id} is being prepared.`);
+  }
+  if (status === 'completed') {
+    bot.sendMessage(order.userId, `✅ Your order #${id} is ready for pickup/delivery. We will assign a rider soon.`);
+  }
+  if (status === 'assigned_to_rider' && order.riderName) {
+    bot.sendMessage(order.userId, `🚴 Your order #${id} has been assigned to ${order.riderName}. Contact: ${order.riderPhone || 'N/A'}. They will deliver soon.`);
+  }
+  if (status === 'delivered') {
+    bot.sendMessage(order.userId, `🎉 Order #${id} delivered! Enjoy your meal.`);
   }
   res.json({ success: true });
 });
 
-// Menu management endpoints
 app.get('/api/menu/all', (req, res) => { res.json({ items: menu }); });
 app.post('/api/menu', (req, res) => {
   const { name, price, category } = req.body;
@@ -200,13 +221,12 @@ app.delete('/api/menu/:id', (req, res) => {
   res.json({ success: true });
 });
 
-// Riders management
 app.get('/api/riders', (req, res) => { res.json({ riders }); });
 app.post('/api/riders', (req, res) => {
-  const { telegramId, name } = req.body;
+  const { telegramId, name, phone } = req.body;
   if (!telegramId || !name) return res.status(400).json({ error: 'Missing fields' });
   if (riders.find(r => r.telegramId == telegramId)) return res.status(400).json({ error: 'Rider already exists' });
-  riders.push({ telegramId: parseInt(telegramId), name, isAvailable: 'true' });
+  riders.push({ telegramId: parseInt(telegramId), name, phone: phone || '', isAvailable: 'true' });
   saveRiders();
   res.json({ success: true });
 });
@@ -227,7 +247,7 @@ app.delete('/api/riders/:id', (req, res) => {
 
 app.get('/health', (req, res) => res.send('OK'));
 
-// ---------- Telegram Bot with retry ----------
+// ---------- Telegram Bot ----------
 let botInstance = null;
 let retryCount = 0;
 
@@ -253,92 +273,103 @@ function getBotInstance() {
 
 function setupBotHandlers(bot) {
   bot.onText(/\/start/, (msg) => {
-    bot.sendMessage(msg.chat.id, `🇬🇭 Welcome to QuickBite Ghana!\nOrder authentic dishes with any add-ons you like.\nUse our web app: https://hungerbite.netlify.app`);
+    bot.sendMessage(msg.chat.id, `🇬🇭 Welcome to QuickBite!\nOrder authentic Ghanaian dishes.\nUse our web app: https://hungerbite.netlify.app\n\n*To get your Telegram ID (for admin roles), send a message to @userinfobot.`, { parse_mode: 'Markdown' });
   });
 
-  // ----- Admin Commands -----
+  bot.onText(/\/order/, (msg) => {
+    bot.sendMessage(msg.chat.id, '🍔 Click below to order:', {
+      reply_markup: { inline_keyboard: [[{ text: '🛒 Open QuickBite', web_app: { url: 'https://hungerbite.netlify.app' } }]] }
+    });
+  });
+
+  // ----- Admin commands (strict role check) -----
   bot.onText(/\/admin_orders/, (msg) => {
-    if (!ADMIN_IDS.includes(msg.from.id)) return;
+    if (!hasRole(msg.from.id, null)) return;
     if (orders.length === 0) return bot.sendMessage(msg.chat.id, "No orders.");
     let text = "*📋 Orders*\n";
     orders.slice(-10).forEach(o => {
-      text += `#${o.id} – ${o.status} – GHS ${o.total}\n`;
+      text += `#${o.id} – ${o.status} – GHS ${o.total}\nCustomer: ${o.customerName || '?'}\n`;
     });
     bot.sendMessage(msg.chat.id, text, { parse_mode: 'Markdown' });
   });
 
   bot.onText(/\/pending/, (msg) => {
-    if (!ADMIN_IDS.includes(msg.from.id)) return;
-    const pending = orders.filter(o => o.status === 'waiting_confirm' || o.status === 'pending_payment');
-    if (!pending.length) return bot.sendMessage(msg.chat.id, "No pending orders.");
-    let text = "*⏳ Pending*\n";
+    if (!hasRole(msg.from.id, 'payment')) return;
+    const pending = orders.filter(o => o.status === 'pending_payment');
+    if (!pending.length) return bot.sendMessage(msg.chat.id, "No pending payments.");
+    let text = "*⏳ Pending Payments*\n";
     pending.forEach(o => {
-      text += `#${o.id} – ${o.status} – GHS ${o.total}\nRef: ${o.paymentReference || '-'}\n`;
+      text += `#${o.id} – ${o.customerName} – GHS ${o.total}\n`;
     });
     bot.sendMessage(msg.chat.id, text, { parse_mode: 'Markdown' });
   });
 
   bot.onText(/\/order (\d+)/, (msg, match) => {
-    if (!ADMIN_IDS.includes(msg.from.id)) return;
+    if (!hasRole(msg.from.id, null)) return;
     const order = orders.find(o => o.id == match[1]);
     if (!order) return bot.sendMessage(msg.chat.id, "Not found");
     let items = order.items.map(i => `${i.name} ${i.addons?.map(a=>a.name).join(',')} x${i.qty}`).join('\n');
-    bot.sendMessage(msg.chat.id, `*Order #${order.id}*\nStatus: ${order.status}\nTotal: GHS ${order.total}\nAddress: ${order.address}\nItems:\n${items}`, { parse_mode: 'Markdown' });
+    bot.sendMessage(msg.chat.id, `*Order #${order.id}*\nCustomer: ${order.customerName}\nPhone: ${order.customerPhone}\nStatus: ${order.status}\nTotal: GHS ${order.total}\nAddress: ${order.address}\nItems:\n${items}`, { parse_mode: 'Markdown' });
   });
 
   bot.onText(/\/stats/, (msg) => {
-    if (!ADMIN_IDS.includes(msg.from.id)) return;
+    if (!hasRole(msg.from.id, null)) return;
     const total = orders.reduce((s,o)=> s+o.total, 0);
     bot.sendMessage(msg.chat.id, `📊 *Stats*\nTotal orders: ${orders.length}\nRevenue: GHS ${total}\nPending: ${orders.filter(o=>o.status==='pending_payment').length}`, { parse_mode: 'Markdown' });
   });
 
-  // ----- Callback queries (confirm, assign, deliver) -----
-  bot.on('callback_query', async (cq) => {
-    const chatId = cq.message.chat.id;
-    const data = cq.data;
-    if (data.startsWith('confirm_')) {
-      const orderId = parseInt(data.split('_')[1]);
-      const order = orders.find(o => o.id === orderId);
-      if (order && order.status === 'pending_payment') {
-        order.status = 'paid';
-        saveOrders();
-        bot.sendMessage(order.userId, `✅ Payment confirmed for order #${orderId}. We'll prepare your meal.`);
-        bot.sendMessage(chatId, `Order #${orderId} marked paid. Now assign a rider.`);
-        const availableRiders = riders.filter(r => r.isAvailable === 'true');
-        if (availableRiders.length) {
-          const buttons = availableRiders.map(r => ([{ text: r.name, callback_data: `assign_${orderId}_${r.telegramId}` }]));
-          bot.sendMessage(chatId, 'Select a rider:', { reply_markup: { inline_keyboard: buttons } });
-        } else bot.sendMessage(chatId, 'No riders available. Use /add_rider');
-      }
-    } else if (data.startsWith('assign_')) {
-      const parts = data.split('_');
-      const orderId = parseInt(parts[1]);
-      const riderId = parseInt(parts[2]);
-      const order = orders.find(o => o.id === orderId);
-      const rider = riders.find(r => r.telegramId === riderId);
-      if (order && rider && order.status === 'paid') {
-        order.status = 'assigned';
-        order.riderId = riderId;
-        saveOrders();
-        bot.sendMessage(order.userId, `🚴 Order #${orderId} assigned to ${rider.name}. They will deliver soon.`);
-        let itemsText = order.items.map(i => `${i.name} ${i.addons?.length ? `(+${i.addons.map(a=>a.name).join(',')})` : ''}`).join('\n');
-        bot.sendMessage(riderId, `📦 New delivery: Order #${orderId}\nItems:\n${itemsText}\nAddress: ${order.address}\nTotal: ${CURRENCY}${order.total}`, {
-          reply_markup: { inline_keyboard: [[{ text: '✅ Mark Delivered', callback_data: `deliver_${orderId}` }]] }
-        });
-      }
-    } else if (data.startsWith('deliver_')) {
-      const orderId = parseInt(data.split('_')[1]);
-      const order = orders.find(o => o.id === orderId);
-      if (order && order.status === 'assigned') {
-        order.status = 'completed';
-        saveOrders();
-        bot.sendMessage(order.userId, `🎉 Order #${orderId} delivered! Enjoy your meal.`);
-        bot.sendMessage(chatId, `Order #${orderId} delivered.`);
-      }
-    }
+  bot.onText(/\/add_rider (\d+) (.+)/, (msg, match) => {
+    if (!hasRole(msg.from.id, 'rider')) return;
+    const id = parseInt(match[1]), name = match[2];
+    if (!riders.find(r => r.telegramId === id)) {
+      riders.push({ telegramId: id, name, phone: '', isAvailable: 'true' });
+      saveRiders();
+      bot.sendMessage(msg.chat.id, `Rider ${name} added. Use /rider_phone ${id} <number> to add phone.`);
+    } else bot.sendMessage(msg.chat.id, 'Rider already exists.');
   });
 
-  // ----- Payment reference from user -----
+  bot.onText(/\/rider_phone (\d+) (.+)/, (msg, match) => {
+    if (!hasRole(msg.from.id, 'rider')) return;
+    const id = parseInt(match[1]), phone = match[2];
+    const rider = riders.find(r => r.telegramId === id);
+    if (rider) {
+      rider.phone = phone;
+      saveRiders();
+      bot.sendMessage(msg.chat.id, `Phone for ${rider.name} set to ${phone}`);
+    } else bot.sendMessage(msg.chat.id, 'Rider not found.');
+  });
+
+  bot.onText(/\/riders/, (msg) => {
+    if (!hasRole(msg.from.id, 'rider')) return;
+    if (riders.length === 0) return bot.sendMessage(msg.chat.id, "No riders.");
+    let text = "*🛵 Riders*\n";
+    riders.forEach(r => {
+      text += `${r.name} – ${r.isAvailable === 'true' ? 'Available' : 'Busy'} – ${r.phone || 'No phone'}\n`;
+    });
+    bot.sendMessage(msg.chat.id, text, { parse_mode: 'Markdown' });
+  });
+
+  bot.onText(/\/set_role (\d+) (\w+)/, (msg, match) => {
+    if (!hasRole(msg.from.id, 'super')) return;
+    const targetId = parseInt(match[1]);
+    const role = match[2];
+    if (!['payment', 'order', 'rider', 'super'].includes(role)) {
+      bot.sendMessage(msg.chat.id, 'Invalid role. Use: payment, order, rider, super');
+      return;
+    }
+    adminRoles[targetId] = role;
+    saveAdminRoles();
+    bot.sendMessage(msg.chat.id, `User ${targetId} is now a ${role} admin.`);
+  });
+
+  bot.onText(/\/admin_panel/, (msg) => {
+    if (!hasRole(msg.from.id, null)) return;
+    bot.sendMessage(msg.chat.id, '📊 Admin Dashboard', {
+      reply_markup: { inline_keyboard: [[{ text: '📋 Open Admin Panel', web_app: { url: 'https://hungerbite.netlify.app/admin.html' } }]] }
+    });
+  });
+
+  // ----- Payment command from user -----
   bot.onText(/\/paid (\d+) (.+)/, (msg, match) => {
     const orderId = parseInt(match[1]);
     const ref = match[2];
@@ -348,38 +379,116 @@ function setupBotHandlers(bot) {
       order.paymentReference = ref;
       order.status = 'paid';
       saveOrders();
-      bot.sendMessage(userId, 'Payment recorded. Your order will be confirmed soon.');
-      ADMIN_IDS.forEach(adminId => {
-        bot.sendMessage(adminId, `💳 Payment ref ${ref} for order #${orderId}`, {
-          reply_markup: { inline_keyboard: [[{ text: '✅ Confirm', callback_data: `confirm_${orderId}` }]] }
-        });
-      });
-    } else bot.sendMessage(userId, 'Order not found or already paid.');
-  });
-
-  bot.onText(/\/admin/, (msg) => {
-    if (!ADMIN_IDS.includes(msg.from.id)) return;
-    bot.sendMessage(msg.chat.id, 'Admin panel is at your web app URL. Use the HTML dashboard.');
-  });
-
-  bot.onText(/\/add_rider (\d+) (.+)/, (msg, match) => {
-    if (!ADMIN_IDS.includes(msg.from.id)) return;
-    const id = parseInt(match[1]), name = match[2];
-    if (!riders.find(r => r.telegramId === id)) {
-      riders.push({ telegramId: id, name, isAvailable: 'true' });
-      saveRiders();
-      bot.sendMessage(msg.chat.id, `Rider ${name} added.`);
-    } else bot.sendMessage(msg.chat.id, 'Rider already exists.');
-  });
-
-   // User command to open ordering web app
-   bot.onText(/\/order/, (msg) => {
-   const webAppUrl = 'https://hungerbite.netlify.app';
-   bot.sendMessage(msg.chat.id, '🍔 Click below to start ordering:', {
-    reply_markup: {
-      inline_keyboard: [[{ text: '🛒 Open QuickBite', web_app: { url: webAppUrl } }]]
+      bot.sendMessage(userId, '✅ Payment recorded. Your order will be confirmed soon.');
+      // Notify only payment admins (super or payment)
+      for (const [adminId, role] of Object.entries(adminRoles)) {
+        if (role === 'payment' || role === 'super') {
+          bot.sendMessage(parseInt(adminId), `💳 Payment reference received for order #${orderId}\nRef: ${ref}\nCustomer: ${order.customerName}\nAmount: GHS ${order.total}`, {
+            reply_markup: { inline_keyboard: [[{ text: '✅ Confirm Payment', callback_data: `confirm_${orderId}` }]] }
+          });
+        }
+      }
+    } else {
+      bot.sendMessage(userId, 'Order not found, already paid, or you are not the customer.');
     }
   });
+
+  // ----- Callback queries (role-restricted) -----
+  bot.on('callback_query', async (cq) => {
+    const chatId = cq.message.chat.id;
+    const data = cq.data;
+    if (data.startsWith('confirm_')) {
+      if (!hasRole(cq.from.id, 'payment')) {
+        await bot.answerCallbackQuery(cq.id, { text: '❌ Only payment managers can confirm payments.' });
+        return;
+      }
+      const orderId = parseInt(data.split('_')[1]);
+      const order = orders.find(o => o.id === orderId);
+      if (order && order.status === 'paid') {
+        order.status = 'confirmed';  // or 'confirmed' as payment confirmed
+        saveOrders();
+        bot.sendMessage(order.userId, `✅ Payment confirmed for order #${orderId}. We'll prepare your meal.`);
+        bot.sendMessage(chatId, `✅ Order #${orderId} payment confirmed. Now you can move it to 'processing'.`);
+        // Optionally, notify order managers to start preparing
+        for (const [adminId, role] of Object.entries(adminRoles)) {
+          if (role === 'order' || role === 'super') {
+            bot.sendMessage(parseInt(adminId), `🔄 Order #${orderId} is now confirmed and ready for processing.`);
+          }
+        }
+      } else {
+        bot.sendMessage(chatId, `Order #${orderId} not in 'paid' status or not found.`);
+      }
+    } else if (data.startsWith('assign_')) {
+      if (!hasRole(cq.from.id, 'order')) {
+        await bot.answerCallbackQuery(cq.id, { text: '❌ Only order managers can assign riders.' });
+        return;
+      }
+      const parts = data.split('_');
+      const orderId = parseInt(parts[1]);
+      const riderId = parseInt(parts[2]);
+      const order = orders.find(o => o.id === orderId);
+      const rider = riders.find(r => r.telegramId === riderId);
+      if (order && rider && (order.status === 'completed' || order.status === 'ready')) {
+        order.status = 'assigned_to_rider';
+        order.riderId = riderId;
+        order.riderName = rider.name;
+        order.riderPhone = rider.phone || 'No phone';
+        saveOrders();
+        bot.sendMessage(order.userId, `🚴 Your order #${orderId} has been assigned to ${rider.name}. Contact: ${rider.phone || 'N/A'}. They will deliver soon.`);
+        let itemsText = order.items.map(i => `${i.name} ${i.addons?.length ? `(+${i.addons.map(a=>a.name).join(',')})` : ''}`).join('\n');
+        bot.sendMessage(riderId, `📦 *New delivery* Order #${orderId}\nCustomer: ${order.customerName}\nPhone: ${order.customerPhone}\nAddress: ${order.address}\nItems:\n${itemsText}\nTotal: ${CURRENCY}${order.total}\n\nClick 'Mark Delivered' when done.`, {
+          parse_mode: 'Markdown',
+          reply_markup: { inline_keyboard: [[{ text: '✅ Mark Delivered', callback_data: `deliver_${orderId}` }]] }
+        });
+        bot.sendMessage(chatId, `Order #${orderId} assigned to ${rider.name}.`);
+      } else {
+        bot.sendMessage(chatId, `Order #${orderId} not ready for rider assignment.`);
+      }
+    } else if (data.startsWith('deliver_')) {
+      const orderId = parseInt(data.split('_')[1]);
+      const order = orders.find(o => o.id === orderId);
+      if (order && order.status === 'assigned_to_rider') {
+        order.status = 'delivered';
+        saveOrders();
+        bot.sendMessage(order.userId, `🎉 Order #${orderId} delivered! Enjoy your meal.`);
+        bot.sendMessage(chatId, `Order #${orderId} marked as delivered.`);
+      }
+    }
+  });
+
+  // ----- Status update commands for order managers (optional) -----
+  bot.onText(/\/process (\d+)/, (msg, match) => {
+    if (!hasRole(msg.from.id, 'order')) return;
+    const orderId = parseInt(match[1]);
+    const order = orders.find(o => o.id === orderId);
+    if (order && order.status === 'confirmed') {
+      order.status = 'processing';
+      saveOrders();
+      bot.sendMessage(order.userId, `⚙️ Your order #${orderId} is now being prepared.`);
+      bot.sendMessage(msg.chat.id, `Order #${orderId} is now processing.`);
+    } else {
+      bot.sendMessage(msg.chat.id, 'Order not found or not confirmed.');
+    }
+  });
+
+  bot.onText(/\/ready (\d+)/, (msg, match) => {
+    if (!hasRole(msg.from.id, 'order')) return;
+    const orderId = parseInt(match[1]);
+    const order = orders.find(o => o.id === orderId);
+    if (order && order.status === 'processing') {
+      order.status = 'completed';
+      saveOrders();
+      bot.sendMessage(order.userId, `✅ Your order #${orderId} is ready. We will assign a rider soon.`);
+      bot.sendMessage(msg.chat.id, `Order #${orderId} is ready. Now you can assign a rider using the callback button from the admin panel or via /assign.`);
+      // Notify rider managers
+      for (const [adminId, role] of Object.entries(adminRoles)) {
+        if (role === 'rider' || role === 'super') {
+          bot.sendMessage(parseInt(adminId), `🚚 Order #${orderId} is ready for rider assignment.`);
+        }
+      }
+    } else {
+      bot.sendMessage(msg.chat.id, 'Order not found or not processing.');
+    }
   });
 }
 
