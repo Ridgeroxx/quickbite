@@ -79,19 +79,27 @@ function saveRiders() { fs.writeFileSync(RIDERS_FILE, JSON.stringify(riders, nul
 const app = express();
 app.use(express.json());
 
-// CORS
+// ✅ UPDATED CORS – allow both Netlify and GitHub Pages
+const allowedOrigins = [
+  'https://hungerbite.netlify.app',
+  'https://Ridgeroxx.github.io'
+];
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://hungerbite.netlify.app');
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
   if (req.method === 'OPTIONS') return res.sendStatus(200);
   next();
 });
 
+// ✅ UPDATED CSP – allow both frontend domains
 app.use((req, res, next) => {
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' blob: https://hungerbite.netlify.app; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://hungerbite.netlify.app https://quickbite-joi1.onrender.com"
+    "default-src 'self'; script-src 'self' 'unsafe-inline' blob: https://hungerbite.netlify.app https://Ridgeroxx.github.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://hungerbite.netlify.app https://Ridgeroxx.github.io https://quickbite-joi1.onrender.com"
   );
   next();
 });
@@ -250,7 +258,6 @@ function getBotInstance() {
   if (!botInstance) {
     console.log('Initializing Telegram bot...');
     const bot = new TelegramBot(BOT_TOKEN, { polling: true });
-   
     setupBotHandlers(bot);
     botInstance = bot;
     console.log('🤖 Telegram bot started with polling');
@@ -260,12 +267,12 @@ function getBotInstance() {
 
 function setupBotHandlers(bot) {
   bot.onText(/\/start/, (msg) => {
-    bot.sendMessage(msg.chat.id, `🇬🇭 Welcome to QuickBite!\nOrder authentic Ghanaian dishes.\nUse our web app: https://hungerbite.netlify.app\n\n*To get your Telegram ID, send a message to @userinfobot.`, { parse_mode: 'Markdown' });
+    bot.sendMessage(msg.chat.id, `🇬🇭 Welcome to QuickBite!\nOrder authentic Ghanaian dishes.\nUse our web app: https://Ridgeroxx.github.io/quickbite/\n\n*To get your Telegram ID, send a message to @userinfobot.`, { parse_mode: 'Markdown' });
   });
 
   bot.onText(/\/order/, (msg) => {
     bot.sendMessage(msg.chat.id, '🍔 Click below to order:', {
-      reply_markup: { inline_keyboard: [[{ text: '🛒 Open QuickBite', web_app: { url: 'https://hungerbite.netlify.app' } }]] }
+      reply_markup: { inline_keyboard: [[{ text: '🛒 Open QuickBite', web_app: { url: 'https://Ridgeroxx.github.io/quickbite/' } }]] }
     });
   });
 
@@ -339,7 +346,7 @@ function setupBotHandlers(bot) {
   bot.onText(/\/admin_panel/, (msg) => {
     if (!hasRole(msg.from.id, null)) return;
     bot.sendMessage(msg.chat.id, '📊 Admin Dashboard', {
-      reply_markup: { inline_keyboard: [[{ text: '📋 Open Admin Panel', web_app: { url: 'https://hungerbite.netlify.app/admin.html' } }]] }
+      reply_markup: { inline_keyboard: [[{ text: '📋 Open Admin Panel', web_app: { url: 'https://Ridgeroxx.github.io/quickbite/admin.html' } }]] }
     });
   });
 
