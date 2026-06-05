@@ -9,10 +9,6 @@
     :root {
       --primary: #ff6b35;
       --primary-dark: #e5521a;
-      --primary-light: #fff5f0;
-      --sidebar-bg: #1a1a2e;
-      --sidebar-hover: #16213e;
-      --sidebar-active: #ff6b35;
       --bg: #f4f6fb;
       --card: #ffffff;
       --text: #1a1a2e;
@@ -25,13 +21,13 @@
       --shadow: 0 2px 16px rgba(0,0,0,0.07);
       --radius: 14px;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
 
     /* Sidebar */
     .sidebar {
-      width: 240px;
-      background: var(--sidebar-bg);
+      width: 260px;
+      background: #1a1a2e;
       display: flex;
       flex-direction: column;
       position: fixed;
@@ -39,31 +35,27 @@
       z-index: 100;
       transition: transform 0.3s;
     }
-    .sidebar-logo {
-      padding: 28px 24px 20px;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
-    }
-    .sidebar-logo .logo-text { font-size: 20px; font-weight: 800; color: white; }
+    .sidebar-logo { padding: 28px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .sidebar-logo .logo-text { font-size: 22px; font-weight: 800; color: white; }
     .sidebar-logo .logo-text span { color: var(--primary); }
-    .sidebar-logo .logo-sub { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 3px; }
-    .nav-section { padding: 12px 0; }
-    .nav-label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 1.5px; padding: 0 24px 8px; }
+    .sidebar-logo .logo-sub { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+    .nav-section { padding: 16px 0; }
+    .nav-label { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 1px; padding: 0 24px 8px; }
     .nav-item {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       padding: 12px 24px;
-      color: rgba(255,255,255,0.6);
+      color: rgba(255,255,255,0.7);
       cursor: pointer;
       font-size: 14px;
       font-weight: 500;
       transition: all 0.2s;
       border-left: 3px solid transparent;
-      text-decoration: none;
     }
-    .nav-item:hover { background: var(--sidebar-hover); color: white; }
+    .nav-item:hover { background: #16213e; color: white; }
     .nav-item.active { background: rgba(255,107,53,0.15); color: var(--primary); border-left-color: var(--primary); }
-    .nav-item i { width: 18px; text-align: center; font-size: 15px; }
+    .nav-item i { width: 20px; text-align: center; }
     .nav-badge {
       margin-left: auto;
       background: var(--primary);
@@ -78,15 +70,15 @@
       padding: 20px 24px;
       border-top: 1px solid rgba(255,255,255,0.07);
       font-size: 12px;
-      color: rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.4);
     }
 
     /* Main */
-    .main { margin-left: 240px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
     .topbar {
       background: var(--card);
       border-bottom: 1px solid var(--border);
-      padding: 18px 32px;
+      padding: 16px 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -94,1003 +86,543 @@
       top: 0;
       z-index: 50;
     }
-    .topbar-title { font-size: 18px; font-weight: 700; }
-    .topbar-actions { display: flex; align-items: center; gap: 12px; }
+    .topbar-title { font-size: 20px; font-weight: 700; }
     .refresh-btn {
       background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 8px 16px;
+      border-radius: 30px;
+      padding: 8px 20px;
       cursor: pointer;
       font-size: 13px;
       font-weight: 600;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.15s;
+      transition: 0.2s;
     }
     .refresh-btn:hover { background: var(--border); }
-
     .content { padding: 28px 32px; flex: 1; }
-
-    /* Pages */
     .page { display: none; animation: fadeIn 0.25s ease; }
     .page.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Stats cards */
+    /* Stats */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 20px;
-      margin-bottom: 28px;
+      margin-bottom: 30px;
     }
     .stat-card {
       background: var(--card);
       border-radius: var(--radius);
-      padding: 22px 24px;
-      box-shadow: var(--shadow);
+      padding: 20px 24px;
       display: flex;
       align-items: center;
       gap: 18px;
+      box-shadow: var(--shadow);
     }
     .stat-icon {
       width: 52px;
       height: 52px;
-      border-radius: 14px;
+      border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 22px;
-      flex-shrink: 0;
+      font-size: 24px;
     }
     .stat-icon.orange { background: #fff5f0; color: var(--primary); }
     .stat-icon.green { background: #f0faf4; color: var(--success); }
     .stat-icon.blue { background: #f0f7ff; color: var(--info); }
     .stat-icon.yellow { background: #fffbf0; color: var(--warning); }
-    .stat-label { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-bottom: 4px; }
-    .stat-value { font-size: 24px; font-weight: 800; color: var(--text); }
-    .stat-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .stat-label { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
+    .stat-value { font-size: 28px; font-weight: 800; color: var(--text); }
+    .stat-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
 
-    /* Section header */
-    .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 18px;
+    /* Tables */
+    .table-wrap {
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow-x: auto;
+      box-shadow: var(--shadow);
     }
-    .section-title { font-size: 16px; font-weight: 700; }
-
-    /* Tabs */
-    .tabs { display: flex; gap: 6px; background: var(--bg); border-radius: 12px; padding: 4px; width: fit-content; margin-bottom: 20px; }
-    .tab {
-      padding: 8px 18px;
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      color: var(--text-muted);
-      background: none;
-      border: none;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .tab.active { background: var(--card); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-    .tab .count { background: var(--primary); color: white; border-radius: 50px; padding: 1px 7px; font-size: 11px; }
-    .tab.active .count { background: var(--primary); }
-
-    /* Table */
-    .table-wrap { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
     table { width: 100%; border-collapse: collapse; }
-    thead tr { background: var(--bg); }
-    th { text-align: left; padding: 13px 18px; font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
-    td { padding: 14px 18px; font-size: 14px; border-top: 1px solid var(--border); vertical-align: middle; }
+    th { text-align: left; padding: 14px 18px; background: var(--bg); font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    td { padding: 14px 18px; border-top: 1px solid var(--border); vertical-align: middle; }
     tr:hover td { background: #fafbfd; }
 
     /* Badges */
     .badge {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 4px 10px;
+      gap: 6px;
+      padding: 4px 12px;
       border-radius: 50px;
       font-size: 12px;
       font-weight: 600;
     }
     .badge.pending_payment { background: #fef9f0; color: var(--warning); }
-    .badge.confirmed, .badge.paid { background: #f0faf4; color: var(--success); }
-    .badge.assigned { background: #f0f7ff; color: var(--info); }
-    .badge.completed { background: #f4f6fb; color: var(--text-muted); }
-    .badge.rejected { background: #fff5f5; color: var(--danger); }
-    .badge.available { background: #f0faf4; color: var(--success); }
+    .badge.received { background: #e3f2fd; color: #1976d2; }
+    .badge.processing { background: #fff3e0; color: #f57c00; }
+    .badge.completed { background: #e8f5e9; color: #388e3c; }
+    .badge.assigned_to_rider { background: #e0f7fa; color: #00838f; }
+    .badge.out_for_delivery { background: #f3e5f5; color: #8e24aa; }
+    .badge.delivered { background: #d4e0f0; color: #1a237e; }
+    .badge.available { background: #e8f5e9; color: var(--success); }
     .badge.unavailable { background: #fff5f5; color: var(--danger); }
 
-    /* Action buttons */
+    /* Buttons */
     .btn {
       border: none;
-      border-radius: 8px;
-      padding: 7px 14px;
-      font-size: 13px;
+      border-radius: 30px;
+      padding: 6px 16px;
+      font-size: 12px;
       font-weight: 600;
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: opacity 0.15s, transform 0.1s;
+      margin: 2px;
+      transition: 0.1s;
     }
-    .btn:active { transform: scale(0.96); }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-sm { padding: 4px 12px; font-size: 11px; }
     .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
     .btn-success { background: var(--success); color: white; }
-    .btn-danger { background: var(--danger); color: white; }
     .btn-info { background: var(--info); color: white; }
-    .btn-ghost { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
-    .btn-sm { padding: 5px 10px; font-size: 12px; }
-    .btn-actions { display: flex; gap: 6px; }
-
-    /* Cards grid */
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 18px;
-    }
-    .item-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      transition: transform 0.2s;
-    }
-    .item-card:hover { transform: translateY(-2px); }
-    .item-card-icon {
-      height: 90px;
-      background: linear-gradient(135deg, #fff5f0, #ffe8d6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 44px;
-    }
-    .item-card-body { padding: 14px; }
-    .item-card-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
-    .item-card-cat { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
-    .item-card-price { font-size: 17px; font-weight: 800; color: var(--primary); margin-bottom: 12px; }
-    .item-card-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn-warning { background: var(--warning); color: white; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-ghost { background: var(--bg); border: 1px solid var(--border); }
 
     /* Modal */
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.4);
-      z-index: 500;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
       display: none;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      backdrop-filter: blur(4px);
     }
     .modal-overlay.open { display: flex; }
     .modal {
-      background: var(--card);
-      border-radius: 20px;
+      background: white;
+      border-radius: 28px;
       width: 100%;
       max-width: 480px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-      animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
     }
-    @keyframes modalIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     .modal-header {
-      padding: 22px 24px 0;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-    }
-    .modal-title { font-size: 17px; font-weight: 700; }
-    .modal-close {
-      background: var(--bg);
-      border: none;
-      border-radius: 50%;
-      width: 32px; height: 32px;
-      cursor: pointer;
-      font-size: 15px;
-      color: var(--text-muted);
-      display: flex;
       align-items: center;
-      justify-content: center;
+      margin-bottom: 20px;
+      font-size: 18px;
+      font-weight: 700;
     }
-    .modal-body { padding: 20px 24px; }
-    .modal-footer { padding: 0 24px 22px; display: flex; gap: 10px; justify-content: flex-end; }
-
-    /* Form */
-    .form-group { margin-bottom: 16px; }
-    .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+    .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; }
+    .form-group { margin-bottom: 18px; }
+    .form-label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: var(--text-muted); }
     .form-input, .form-select {
       width: 100%;
-      background: var(--bg);
+      padding: 10px 14px;
       border: 2px solid var(--border);
-      border-radius: 10px;
-      padding: 11px 14px;
+      border-radius: 16px;
       font-size: 14px;
-      color: var(--text);
-      outline: none;
-      font-family: inherit;
-      transition: border-color 0.2s;
     }
-    .form-input:focus, .form-select:focus { border-color: var(--primary); }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-
-    /* Loading */
-    .loading-row td { text-align: center; padding: 40px; color: var(--text-muted); }
-    .spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Toast */
     .toast {
       position: fixed;
       bottom: 24px;
       right: 24px;
-      background: var(--text);
+      background: #333;
       color: white;
-      padding: 13px 20px;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 500;
-      z-index: 999;
+      padding: 12px 20px;
+      border-radius: 40px;
+      z-index: 1100;
       opacity: 0;
-      transform: translateY(10px);
-      transition: all 0.25s;
-      pointer-events: none;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      transition: opacity 0.2s;
+      font-size: 13px;
     }
-    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.show { opacity: 1; }
     .toast.success { background: var(--success); }
     .toast.error { background: var(--danger); }
 
-    /* Empty state */
-    .empty-state { text-align: center; padding: 50px; color: var(--text-muted); }
-    .empty-state i { font-size: 48px; margin-bottom: 14px; display: block; opacity: 0.25; }
-
-    /* Order detail modal items */
-    .order-item-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
-    .order-total-row { display: flex; justify-content: space-between; padding: 10px 0; font-weight: 700; font-size: 15px; color: var(--primary); }
-
-    /* Responsive */
-    @media (max-width: 1100px) {
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    /* Admin card */
+    .admin-card {
+      background: var(--bg);
+      border-radius: 20px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
     @media (max-width: 768px) {
       .sidebar { transform: translateX(-100%); }
       .sidebar.open { transform: translateX(0); }
       .main { margin-left: 0; }
       .content { padding: 20px 16px; }
-      .topbar { padding: 16px 20px; }
       .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
     }
   </style>
 </head>
 <body>
-
-<!-- Sidebar -->
 <div class="sidebar" id="sidebar">
   <div class="sidebar-logo">
-    <div class="logo-text">ðŸ” <span>QuickBite</span></div>
+    <div class="logo-text">🍔 <span>QuickBite</span></div>
     <div class="logo-sub">Admin Dashboard</div>
   </div>
   <div class="nav-section">
     <div class="nav-label">Overview</div>
-    <a class="nav-item active" onclick="showPage('dashboard')">
-      <i class="fa fa-chart-line"></i> Dashboard
-    </a>
+    <div class="nav-item" onclick="showPage('dashboard')"><i class="fa fa-chart-line"></i> Dashboard</div>
   </div>
   <div class="nav-section">
     <div class="nav-label">Orders</div>
-    <a class="nav-item" onclick="showPage('orders')">
+    <div class="nav-item" onclick="showPage('orders')">
       <i class="fa fa-receipt"></i> All Orders
       <span class="nav-badge" id="pendingBadge">0</span>
-    </a>
+    </div>
   </div>
   <div class="nav-section">
     <div class="nav-label">Management</div>
-    <a class="nav-item" onclick="showPage('menu')">
-      <i class="fa fa-utensils"></i> Menu Items
-    </a>
-    <a class="nav-item" onclick="showPage('riders')">
-      <i class="fa fa-motorcycle"></i> Riders
-    </a>
+    <div class="nav-item" onclick="showPage('menu')"><i class="fa fa-utensils"></i> Menu Items</div>
+    <div class="nav-item" onclick="showPage('riders')"><i class="fa fa-motorcycle"></i> Riders</div>
+    <div class="nav-item" id="adminsNavBtn" style="display: none;" onclick="showPage('admins')"><i class="fa fa-users"></i> Admins</div>
   </div>
-  <div class="sidebar-footer">
-    QuickBite v1.0 &bull; Admin Panel
-  </div>
+  <div class="sidebar-footer">QuickBite v2.0 | <span id="userRoleSpan"></span></div>
 </div>
 
-<!-- Main -->
 <div class="main">
   <div class="topbar">
     <div class="topbar-title" id="topbarTitle">Dashboard</div>
-    <div class="topbar-actions">
-      <button class="refresh-btn" onclick="refreshCurrentPage()">
-        <i class="fa fa-rotate-right"></i> Refresh
-      </button>
-    </div>
+    <button class="refresh-btn" onclick="refreshCurrentPage()"><i class="fa fa-rotate-right"></i> Refresh</button>
   </div>
   <div class="content">
 
-    <!-- Dashboard Page -->
+    <!-- DASHBOARD -->
     <div class="page active" id="page-dashboard">
       <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon orange"><i class="fa fa-calendar-day"></i></div>
-          <div>
-            <div class="stat-label">Today's Orders</div>
-            <div class="stat-value" id="statTodayCount">â€”</div>
-            <div class="stat-sub" id="statTodayTotal">GHS 0.00</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon green"><i class="fa fa-calendar-week"></i></div>
-          <div>
-            <div class="stat-label">This Week</div>
-            <div class="stat-value" id="statWeekCount">â€”</div>
-            <div class="stat-sub" id="statWeekTotal">GHS 0.00</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon blue"><i class="fa fa-calendar-alt"></i></div>
-          <div>
-            <div class="stat-label">This Month</div>
-            <div class="stat-value" id="statMonthCount">â€”</div>
-            <div class="stat-sub" id="statMonthTotal">GHS 0.00</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon yellow"><i class="fa fa-box-archive"></i></div>
-          <div>
-            <div class="stat-label">All Time</div>
-            <div class="stat-value" id="statAllCount">â€”</div>
-            <div class="stat-sub" id="statAllTotal">GHS 0.00</div>
-          </div>
-        </div>
+        <div class="stat-card"><div class="stat-icon orange"><i class="fa fa-calendar-day"></i></div><div><div class="stat-label">Today's Orders</div><div class="stat-value" id="statTodayCount">—</div><div class="stat-sub" id="statTodayTotal">GHS 0</div></div></div>
+        <div class="stat-card"><div class="stat-icon green"><i class="fa fa-calendar-week"></i></div><div><div class="stat-label">This Week</div><div class="stat-value" id="statWeekCount">—</div><div class="stat-sub" id="statWeekTotal">GHS 0</div></div></div>
+        <div class="stat-card"><div class="stat-icon blue"><i class="fa fa-calendar-alt"></i></div><div><div class="stat-label">This Month</div><div class="stat-value" id="statMonthCount">—</div><div class="stat-sub" id="statMonthTotal">GHS 0</div></div></div>
+        <div class="stat-card"><div class="stat-icon yellow"><i class="fa fa-chart-simple"></i></div><div><div class="stat-label">Revenue</div><div class="stat-value" id="statRevenue">GHS 0</div></div></div>
       </div>
-
-      <div class="section-header">
-        <div class="section-title">Recent Orders</div>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Order</th>
-              <th>Customer</th>
-              <th>Items</th>
-              <th>Total</th>
-              <th>Status</th>
-              <th>Time</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="dashboardOrdersBody">
-            <tr class="loading-row"><td colspan="7"><div class="spinner"></div></td></tr>
-          </tbody>
-        </table>
-      </div>
+      <div class="table-wrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Time</th><th>Actions</th></tr></thead><tbody id="dashboardOrdersBody"><tr><td colspan="7"><div class="spinner">Loading...</div></td></tr></tbody></table></div>
     </div>
 
-    <!-- Orders Page -->
+    <!-- ORDERS -->
     <div class="page" id="page-orders">
-      <div class="tabs" id="orderTabs">
-        <button class="tab active" onclick="filterOrders('all')" data-status="all">All <span class="count" id="countAll">0</span></button>
-        <button class="tab" onclick="filterOrders('pending_payment')" data-status="pending_payment">Pending <span class="count" id="countPending">0</span></button>
-        <button class="tab" onclick="filterOrders('confirmed')" data-status="confirmed">Confirmed <span class="count" id="countConfirmed">0</span></button>
-        <button class="tab" onclick="filterOrders('assigned')" data-status="assigned">In Transit <span class="count" id="countAssigned">0</span></button>
-        <button class="tab" onclick="filterOrders('completed')" data-status="completed">Completed <span class="count" id="countCompleted">0</span></button>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Customer</th>
-              <th>Address</th>
-              <th>Reference</th>
-              <th>Total</th>
-              <th>Status</th>
-              <th>Time</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="ordersBody">
-            <tr class="loading-row"><td colspan="8"><div class="spinner"></div></td></tr>
-          </tbody>
-        </table>
-      </div>
+      <div class="table-wrap"><table><thead><tr><th>#</th><th>User</th><th>Address</th><th>Ref</th><th>Total</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead><tbody id="ordersBody"><tr><td colspan="8">Loading...</td></tr></tbody></table></div>
     </div>
 
-    <!-- Menu Page -->
+    <!-- MENU -->
     <div class="page" id="page-menu">
-      <div class="section-header">
-        <div class="section-title">Menu Items</div>
-        <button class="btn btn-primary" onclick="openMenuModal()">
-          <i class="fa fa-plus"></i> Add Item
-        </button>
-      </div>
-      <div id="menuGrid" class="cards-grid">
-        <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">
-          <div class="spinner"></div>
-        </div>
-      </div>
+      <button class="btn btn-primary" onclick="openMenuModal()"><i class="fa fa-plus"></i> Add Item</button>
+      <div id="menuGrid" class="cards-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 16px; margin-top: 20px;">Loading...</div>
     </div>
 
-    <!-- Riders Page -->
+    <!-- RIDERS -->
     <div class="page" id="page-riders">
-      <div class="section-header">
-        <div class="section-title">Riders</div>
-        <button class="btn btn-primary" onclick="openRiderModal()">
-          <i class="fa fa-plus"></i> Add Rider
-        </button>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Telegram ID</th>
-              <th>Name</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="ridersBody">
-            <tr class="loading-row"><td colspan="4"><div class="spinner"></div></td></tr>
-          </tbody>
-        </table>
-      </div>
+      <button class="btn btn-primary" onclick="openRiderModal()"><i class="fa fa-plus"></i> Add Rider</button>
+      <div class="table-wrap" style="margin-top: 20px;"><table><thead><tr><th>Telegram ID</th><th>Name</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ridersBody"></tbody></table></div>
+    </div>
+
+    <!-- ADMINS -->
+    <div class="page" id="page-admins">
+      <button class="btn btn-primary" onclick="openAdminModal()"><i class="fa fa-user-plus"></i> Add Admin</button>
+      <div id="adminsList" style="margin-top: 20px;"></div>
     </div>
 
   </div>
 </div>
 
-<!-- Toast -->
-<div class="toast" id="toast"></div>
+<div id="toast" class="toast"></div>
 
-<!-- Order Detail Modal -->
-<div class="modal-overlay" id="orderModal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="orderModalTitle">Order Details</div>
-      <button class="modal-close" onclick="closeModal('orderModal')"><i class="fa fa-times"></i></button>
-    </div>
-    <div class="modal-body" id="orderModalBody"></div>
-    <div class="modal-footer" id="orderModalFooter"></div>
-  </div>
-</div>
-
-<!-- Menu Modal -->
-<div class="modal-overlay" id="menuModal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="menuModalTitle">Add Menu Item</div>
-      <button class="modal-close" onclick="closeModal('menuModal')"><i class="fa fa-times"></i></button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="menuItemId" />
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Item Name *</label>
-          <input class="form-input" id="menuName" placeholder="e.g. Classic Burger" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Price (GHS) *</label>
-          <input class="form-input" id="menuPrice" type="number" step="0.01" placeholder="25.00" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Category *</label>
-        <select class="form-select" id="menuCategory">
-          <option value="Burgers">ðŸ” Burgers</option>
-          <option value="Sides">ðŸŸ Sides</option>
-          <option value="Drinks">ðŸ¥¤ Drinks</option>
-        </select>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('menuModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveMenuItem()"><i class="fa fa-check"></i> Save</button>
-    </div>
-  </div>
-</div>
-
-<!-- Rider Modal -->
-<div class="modal-overlay" id="riderModal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Add Rider</div>
-      <button class="modal-close" onclick="closeModal('riderModal')"><i class="fa fa-times"></i></button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Telegram ID (numeric) *</label>
-        <input class="form-input" id="riderTelegramId" type="number" placeholder="e.g. 123456789" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Rider Name *</label>
-        <input class="form-input" id="riderName" placeholder="e.g. Kwame Mensah" />
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('riderModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveRider()"><i class="fa fa-check"></i> Add Rider</button>
-    </div>
-  </div>
-</div>
-
-<!-- Assign Rider Modal -->
-<div class="modal-overlay" id="assignModal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="assignModalTitle">Assign Rider</div>
-      <button class="modal-close" onclick="closeModal('assignModal')"><i class="fa fa-times"></i></button>
-    </div>
-    <div class="modal-body" id="assignModalBody"></div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('assignModal')">Cancel</button>
-    </div>
-  </div>
-</div>
+<!-- Modals -->
+<div id="orderModal" class="modal-overlay"><div class="modal"><div class="modal-header"><span>Order Details</span><button class="modal-close" onclick="closeModal('orderModal')">&times;</button></div><div id="orderModalBody"></div><div class="modal-footer" id="orderModalFooter" style="margin-top: 20px;"></div></div></div>
+<div id="menuModal" class="modal-overlay"><div class="modal"><div class="modal-header"><span id="menuModalTitle">Add Menu Item</span><button class="modal-close" onclick="closeModal('menuModal')">&times;</button></div><div class="modal-body"><input type="hidden" id="menuItemId"><div class="form-group"><label class="form-label">Name</label><input class="form-input" id="menuName"></div><div class="form-group"><label class="form-label">Price (GHS)</label><input class="form-input" id="menuPrice" type="number" step="0.01"></div><div class="form-group"><label class="form-label">Category</label><select class="form-select" id="menuCategory"><option>Burgers</option><option>Sides</option><option>Drinks</option></select></div><button class="btn btn-primary" onclick="saveMenuItem()">Save</button></div></div></div>
+<div id="riderModal" class="modal-overlay"><div class="modal"><div class="modal-header"><span>Add Rider</span><button class="modal-close" onclick="closeModal('riderModal')">&times;</button></div><div class="modal-body"><div class="form-group"><label class="form-label">Telegram ID</label><input class="form-input" id="riderTelegramId" type="number"></div><div class="form-group"><label class="form-label">Name</label><input class="form-input" id="riderName"></div><button class="btn btn-primary" onclick="saveRider()">Save</button></div></div></div>
+<div id="adminModal" class="modal-overlay"><div class="modal"><div class="modal-header"><span>Add Admin</span><button class="modal-close" onclick="closeModal('adminModal')">&times;</button></div><div class="modal-body"><div class="form-group"><label class="form-label">Telegram ID</label><input class="form-input" id="adminTelegramId" type="number"></div><div class="form-group"><label class="form-label">Role</label><select class="form-select" id="adminRole"><option value="payment">Payment Manager</option><option value="order">Order Manager</option><option value="rider">Rider Manager</option></select></div><button class="btn btn-primary" onclick="addAdmin()">Add</button></div></div></div>
+<div id="assignModal" class="modal-overlay"><div class="modal"><div class="modal-header"><span>Assign Rider</span><button class="modal-close" onclick="closeModal('assignModal')">&times;</button></div><div id="assignModalBody" class="modal-body"></div></div></div>
 
 <script>
+// ======================= CONFIGURATION =======================
 const API_BASE = 'https://quickbite-joi1.onrender.com';
 const API = API_BASE + '/api';
-const CURRENCY = 'GHS';
-const EMOJI = { Burgers: 'ðŸ”', Sides: 'ðŸŸ', Drinks: 'ðŸ¥¤' };
+let currentUserTelegramId = null; // will be set from session or prompt
+let currentUserRole = 'guest';
+let allOrders = [], allRiders = [], allAdmins = [], menuItems = [];
 
-let allOrders = [];
-let allRiders = [];
-let currentOrderFilter = 'all';
-let currentPage = 'dashboard';
+// Helper: toast
+function showToast(msg, type = '') {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = `toast ${type} show`;
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
 
-// â”€â”€â”€ Navigation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function showPage(name) {
+// Helper: escape HTML
+function esc(str) { return String(str || '').replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m; }); }
+
+// ======================= NAVIGATION =======================
+function showPage(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById(`page-${name}`).classList.add('active');
-  event?.target?.closest('.nav-item')?.classList.add('active');
-  currentPage = name;
-  const titles = { dashboard: 'Dashboard', orders: 'All Orders', menu: 'Menu Items', riders: 'Riders' };
-  document.getElementById('topbarTitle').textContent = titles[name] || name;
-  loadPage(name);
+  document.getElementById(`page-${page}`).classList.add('active');
+  const titles = { dashboard: 'Dashboard', orders: 'Orders', menu: 'Menu', riders: 'Riders', admins: 'Admins' };
+  document.getElementById('topbarTitle').innerText = titles[page] || page;
+  if (page === 'dashboard') loadDashboard();
+  else if (page === 'orders') loadOrders();
+  else if (page === 'menu') loadMenu();
+  else if (page === 'riders') loadRiders();
+  else if (page === 'admins') loadAdmins();
 }
-
 function refreshCurrentPage() {
-  loadPage(currentPage);
-  showToast('Refreshed', 'success');
+  const activePage = document.querySelector('.page.active').id.replace('page-', '');
+  showPage(activePage);
 }
 
-function loadPage(name) {
-  if (name === 'dashboard') loadDashboard();
-  else if (name === 'orders') loadOrders();
-  else if (name === 'menu') loadMenu();
-  else if (name === 'riders') loadRiders();
-}
-
-// â”€â”€â”€ Dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ======================= DASHBOARD =======================
 async function loadDashboard() {
   try {
-    const [statsRes, ordersRes] = await Promise.all([
-      fetch(`${API}/orders/stats/summary`),
-      fetch(`${API}/orders`)
-    ]);
+    const statsRes = await fetch(`${API}/orders/stats/summary`);
     const stats = await statsRes.json();
+    document.getElementById('statTodayCount').innerText = stats.today.count;
+    document.getElementById('statTodayTotal').innerHTML = `GHS ${stats.today.total}`;
+    document.getElementById('statWeekCount').innerText = stats.week.count;
+    document.getElementById('statWeekTotal').innerHTML = `GHS ${stats.week.total}`;
+    document.getElementById('statMonthCount').innerText = stats.month.count;
+    document.getElementById('statMonthTotal').innerHTML = `GHS ${stats.month.total}`;
+    document.getElementById('statRevenue').innerHTML = `GHS ${stats.all.total}`;
+    const ordersRes = await fetch(`${API}/orders`);
     const { orders } = await ordersRes.json();
     allOrders = orders;
-
-    document.getElementById('statTodayCount').textContent = stats.today.count;
-    document.getElementById('statTodayTotal').textContent = `${CURRENCY} ${stats.today.total}`;
-    document.getElementById('statWeekCount').textContent = stats.week.count;
-    document.getElementById('statWeekTotal').textContent = `${CURRENCY} ${stats.week.total}`;
-    document.getElementById('statMonthCount').textContent = stats.month.count;
-    document.getElementById('statMonthTotal').textContent = `${CURRENCY} ${stats.month.total}`;
-    document.getElementById('statAllCount').textContent = stats.all.count;
-    document.getElementById('statAllTotal').textContent = `${CURRENCY} ${stats.all.total}`;
-
     const pending = orders.filter(o => o.status === 'pending_payment').length;
-    document.getElementById('pendingBadge').textContent = pending;
-
-    renderDashboardOrders(orders.slice(0, 10));
-  } catch (e) {
-    showToast('Failed to load dashboard', 'error');
-  }
+    document.getElementById('pendingBadge').innerText = pending;
+    renderDashboardOrders(orders.slice(0, 8));
+  } catch (e) { showToast('Failed to load dashboard', 'error'); }
 }
-
 function renderDashboardOrders(orders) {
   const tbody = document.getElementById('dashboardOrdersBody');
-  if (!orders.length) {
-    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="fa fa-receipt"></i>No orders yet</div></td></tr>';
-    return;
-  }
-  tbody.innerHTML = orders.map(o => {
-    const items = JSON.parse(o.itemsJson);
-    const summary = items.slice(0,2).map(i => `${i.name} x${i.quantity}`).join(', ') + (items.length > 2 ? `â€¦` : '');
-    return `<tr>
+  if (!orders.length) { tbody.innerHTML = '<tr><td colspan="7">No orders yet</td></tr>'; return; }
+  tbody.innerHTML = orders.map(o => `
+    <tr>
       <td><strong>#${o.id}</strong></td>
-      <td>${esc(o.userName || 'Unknown')}</td>
-      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(summary)}</td>
-      <td><strong>${CURRENCY} ${o.total}</strong></td>
+      <td>${esc(o.userId)}</td>
+      <td>${esc(o.items?.map(i=>i.name).join(', ') || '')}</td>
+      <td><strong>GHS ${o.total}</strong></td>
       <td>${statusBadge(o.status)}</td>
-      <td style="color:var(--text-muted);font-size:13px">${timeAgo(o.createdAt)}</td>
+      <td>${timeAgo(o.createdAt)}</td>
       <td><button class="btn btn-ghost btn-sm" onclick="viewOrder(${o.id})"><i class="fa fa-eye"></i></button></td>
-    </tr>`;
-  }).join('');
+    </tr>
+  `).join('');
 }
 
-// â”€â”€â”€ Orders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ======================= ORDERS (with workflow) =======================
 async function loadOrders() {
-  const tbody = document.getElementById('ordersBody');
-  tbody.innerHTML = '<tr class="loading-row"><td colspan="8"><div class="spinner"></div></td></tr>';
   try {
     const res = await fetch(`${API}/orders`);
     const { orders } = await res.json();
     allOrders = orders;
-    updateOrderCounts(orders);
-    renderOrders(orders);
-  } catch(e) {
-    showToast('Failed to load orders', 'error');
-  }
+    renderOrdersTable(orders);
+  } catch(e) { showToast('Error loading orders', 'error'); }
 }
-
-function updateOrderCounts(orders) {
-  const counts = {};
-  for (const o of orders) counts[o.status] = (counts[o.status]||0) + 1;
-  document.getElementById('countAll').textContent = orders.length;
-  document.getElementById('countPending').textContent = counts['pending_payment']||0;
-  document.getElementById('countConfirmed').textContent = counts['confirmed']||0;
-  document.getElementById('countAssigned').textContent = counts['assigned']||0;
-  document.getElementById('countCompleted').textContent = counts['completed']||0;
-  document.getElementById('pendingBadge').textContent = counts['pending_payment']||0;
-}
-
-function filterOrders(status) {
-  currentOrderFilter = status;
-  document.querySelectorAll('#orderTabs .tab').forEach(t => {
-    t.classList.toggle('active', t.dataset.status === status);
-  });
-  const filtered = status === 'all' ? allOrders : allOrders.filter(o => o.status === status);
-  renderOrders(filtered);
-}
-
-function renderOrders(orders) {
+function renderOrdersTable(orders) {
   const tbody = document.getElementById('ordersBody');
-  if (!orders.length) {
-    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="fa fa-receipt"></i>No orders in this category</div></td></tr>`;
-    return;
-  }
+  if (!orders.length) { tbody.innerHTML = '<tr><td colspan="8">No orders found</td></tr>'; return; }
   tbody.innerHTML = orders.map(o => `
     <tr>
       <td><strong>#${o.id}</strong></td>
-      <td>${esc(o.userName||'Unknown')}${o.userUsername ? `<br><span style="font-size:12px;color:var(--text-muted)">@${esc(o.userUsername)}</span>` : ''}</td>
-      <td style="max-width:160px;font-size:13px">${esc(o.address.slice(0,50))}${o.address.length>50?'â€¦':''}</td>
-      <td><code style="font-size:12px;background:var(--bg);padding:3px 7px;border-radius:6px">${esc(o.paymentReference||'-')}</code></td>
-      <td><strong>${CURRENCY} ${o.total}</strong></td>
+      <td>${esc(o.userId)}</td>
+      <td style="max-width:150px; overflow:hidden;">${esc(o.address.substring(0, 40))}</td>
+      <td><code>${esc(o.paymentReference || '-')}</code></td>
+      <td>GHS ${o.total}</td>
       <td>${statusBadge(o.status)}</td>
-      <td style="color:var(--text-muted);font-size:13px">${timeAgo(o.createdAt)}</td>
-      <td>
-        <div class="btn-actions">
-          <button class="btn btn-ghost btn-sm" onclick="viewOrder(${o.id})"><i class="fa fa-eye"></i></button>
-          ${o.status === 'pending_payment' ? `
-            <button class="btn btn-success btn-sm" onclick="confirmOrder(${o.id})"><i class="fa fa-check"></i></button>
-            <button class="btn btn-danger btn-sm" onclick="rejectOrder(${o.id})"><i class="fa fa-times"></i></button>
-          ` : ''}
-          ${o.status === 'confirmed' ? `
-            <button class="btn btn-info btn-sm" onclick="openAssignModal(${o.id})"><i class="fa fa-motorcycle"></i> Assign</button>
-          ` : ''}
-        </div>
-      </td>
-    </tr>`).join('');
+      <td>${new Date(o.createdAt).toLocaleString()}</td>
+      <td>${getOrderActions(o)}</td>
+    </tr>
+  `).join('');
 }
-
-async function viewOrder(id) {
-  const order = allOrders.find(o => o.id === id);
-  if (!order) return;
-  const items = JSON.parse(order.itemsJson);
-  document.getElementById('orderModalTitle').textContent = `Order #${id}`;
-  document.getElementById('orderModalBody').innerHTML = `
-    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
-      ${statusBadge(order.status)}
-      <span style="font-size:13px;color:var(--text-muted)">${new Date(order.createdAt).toLocaleString()}</span>
-    </div>
-    <div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:14px">
-      <div style="font-size:13px;color:var(--text-muted);margin-bottom:6px">ðŸ‘¤ Customer</div>
-      <div style="font-weight:600">${esc(order.userName||'Unknown')}</div>
-      ${order.userUsername ? `<div style="font-size:13px;color:var(--text-muted)">@${esc(order.userUsername)}</div>` : ''}
-    </div>
-    <div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:14px">
-      <div style="font-size:13px;color:var(--text-muted);margin-bottom:6px">ðŸ“ Delivery Address</div>
-      <div style="font-weight:600">${esc(order.address)}</div>
-    </div>
-    <div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:14px">
-      <div style="font-size:13px;color:var(--text-muted);margin-bottom:6px">ðŸ§¾ Payment Reference</div>
-      <div style="font-weight:700;color:var(--primary);font-size:16px">${esc(order.paymentReference||'-')}</div>
-    </div>
-    <div style="background:var(--bg);border-radius:10px;padding:14px">
-      <div style="font-size:13px;color:var(--text-muted);margin-bottom:10px">ðŸ›’ Items</div>
-      ${items.map(i => `<div class="order-item-row"><span>${esc(i.name)} Ã— ${i.quantity}</span><span>${CURRENCY} ${(i.price*i.quantity).toFixed(2)}</span></div>`).join('')}
-      <div class="order-total-row"><span>Total</span><span>${CURRENCY} ${order.total}</span></div>
-    </div>`;
-
-  const footer = document.getElementById('orderModalFooter');
-  footer.innerHTML = '';
-  if (order.status === 'pending_payment') {
-    footer.innerHTML = `
-      <button class="btn btn-danger" onclick="rejectOrder(${id});closeModal('orderModal')"><i class="fa fa-times"></i> Reject</button>
-      <button class="btn btn-success" onclick="confirmOrder(${id});closeModal('orderModal')"><i class="fa fa-check"></i> Confirm Payment</button>`;
-  } else if (order.status === 'confirmed') {
-    footer.innerHTML = `<button class="btn btn-info" onclick="closeModal('orderModal');openAssignModal(${id})"><i class="fa fa-motorcycle"></i> Assign Rider</button>`;
-  }
-  openModal('orderModal');
+function getOrderActions(order) {
+  let buttons = '';
+  const canManageOrders = (currentUserRole === 'order' || currentUserRole === 'super');
+  const canManageRiders = (currentUserRole === 'rider' || currentUserRole === 'super');
+  if (order.status === 'pending_payment' && canManageOrders) buttons += `<button class="btn btn-success btn-sm" onclick="updateOrderStatus(${order.id}, 'received')">📦 Received</button>`;
+  if (order.status === 'received' && canManageOrders) buttons += `<button class="btn btn-info btn-sm" onclick="updateOrderStatus(${order.id}, 'processing')">⚙️ Processing</button>`;
+  if (order.status === 'processing' && canManageOrders) buttons += `<button class="btn btn-primary btn-sm" onclick="updateOrderStatus(${order.id}, 'completed')">✅ Completed</button>`;
+  if (order.status === 'completed' && canManageRiders) buttons += `<button class="btn btn-warning btn-sm" onclick="openAssignToRiderModal(${order.id})">🛵 Assign Rider</button>`;
+  if (order.status === 'assigned_to_rider' && canManageRiders) buttons += `<span>👤 Rider: ${order.riderId || '?'}</span>`;
+  buttons += `<button class="btn btn-ghost btn-sm" onclick="viewOrder(${order.id})"><i class="fa fa-info-circle"></i></button>`;
+  return buttons;
 }
-
-async function confirmOrder(id) {
+async function updateOrderStatus(orderId, newStatus) {
   try {
-    await fetch(`${API}/orders/${id}/status`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({status:'confirmed'}) });
-    showToast(`Order #${id} confirmed âœ“`, 'success');
-    loadPage(currentPage);
-  } catch(e) { showToast('Failed', 'error'); }
+    await fetch(`${API}/orders/${orderId}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: newStatus }) });
+    showToast(`Order #${orderId} updated to ${newStatus}`, 'success');
+    loadOrders();
+    loadDashboard();
+  } catch(e) { showToast('Failed to update', 'error'); }
 }
-
-async function rejectOrder(id) {
-  if (!confirm(`Reject order #${id}?`)) return;
-  try {
-    await fetch(`${API}/orders/${id}/status`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({status:'pending_payment'}) });
-    showToast(`Order #${id} rejected`, 'error');
-    loadPage(currentPage);
-  } catch(e) { showToast('Failed', 'error'); }
-}
-
-async function openAssignModal(orderId) {
-  document.getElementById('assignModalTitle').textContent = `Assign Rider to Order #${orderId}`;
+async function openAssignToRiderModal(orderId) {
   try {
     const res = await fetch(`${API}/riders`);
     const { riders } = await res.json();
     const available = riders.filter(r => r.isAvailable === 'true');
-    if (!available.length) {
-      document.getElementById('assignModalBody').innerHTML = '<div class="empty-state"><i class="fa fa-motorcycle"></i>No available riders right now</div>';
-    } else {
-      document.getElementById('assignModalBody').innerHTML = available.map(r => `
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
-          <div>
-            <div style="font-weight:600">ðŸ›µ ${esc(r.name)}</div>
-            <div style="font-size:13px;color:var(--text-muted)">ID: ${r.telegramId}</div>
-          </div>
-          <button class="btn btn-primary btn-sm" onclick="assignRider(${orderId},${r.telegramId})">Assign</button>
-        </div>`).join('');
-    }
-    openModal('assignModal');
-  } catch(e) { showToast('Failed to load riders', 'error'); }
+    if (!available.length) { showToast('No available riders', 'error'); return; }
+    const body = available.map(r => `<div><input type="radio" name="riderPick" value="${r.telegramId}"> ${esc(r.name)} (${r.isAvailable === 'true' ? '✅ Available' : '❌ Busy'})</div>`).join('');
+    document.getElementById('assignModalBody').innerHTML = `<h4>Assign Order #${orderId}</h4>${body}<button class="btn btn-primary" onclick="assignRiderToOrder(${orderId})">Assign</button>`;
+    document.getElementById('assignModal').classList.add('open');
+  } catch(e) { showToast('Error loading riders', 'error'); }
 }
-
-async function assignRider(orderId, riderId) {
+async function assignRiderToOrder(orderId) {
+  const selected = document.querySelector('input[name="riderPick"]:checked');
+  if (!selected) { showToast('Select a rider', 'error'); return; }
+  const riderId = selected.value;
   try {
-    await fetch(`${API}/orders/${orderId}/status`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({status:'assigned',riderTelegramId:riderId}) });
-    await fetch(`${API}/riders/${riderId}/availability`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({isAvailable:'false'}) });
+    await fetch(`${API}/orders/${orderId}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'assigned_to_rider', riderTelegramId: parseInt(riderId) }) });
     closeModal('assignModal');
-    showToast(`Rider assigned to Order #${orderId} âœ“`, 'success');
-    loadPage(currentPage);
-  } catch(e) { showToast('Failed to assign', 'error'); }
+    showToast(`Order #${orderId} assigned to rider`, 'success');
+    loadOrders();
+  } catch(e) { showToast('Assignment failed', 'error'); }
+}
+async function viewOrder(orderId) {
+  const order = allOrders.find(o => o.id === orderId);
+  if (!order) return;
+  let timelineHtml = `<div style="margin-bottom: 16px;"><strong>Timeline</strong><ul>`;
+  const statusFlow = ['pending_payment','received','processing','completed','assigned_to_rider','out_for_delivery','delivered'];
+  for (const s of statusFlow) {
+    const checked = statusFlow.indexOf(order.status) >= statusFlow.indexOf(s);
+    timelineHtml += `<li style="color:${checked ? '#27ae60' : '#ccc'}">✓ ${s.replace(/_/g,' ')}</li>`;
+  }
+  timelineHtml += `</ul></div>`;
+  const itemsHtml = order.items.map(i => `<div>${i.name} x${i.qty} = GHS ${i.totalPrice * i.qty}</div>`).join('');
+  document.getElementById('orderModalBody').innerHTML = `<h3>Order #${order.id}</h3>${timelineHtml}<strong>Address:</strong> ${esc(order.address)}<br><strong>Total:</strong> GHS ${order.total}<br><strong>Items:</strong><br>${itemsHtml}`;
+  document.getElementById('orderModalFooter').innerHTML = `<button class="btn btn-ghost" onclick="closeModal('orderModal')">Close</button>`;
+  document.getElementById('orderModal').classList.add('open');
 }
 
-// â”€â”€â”€ Menu â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ======================= MENU =======================
 async function loadMenu() {
-  document.getElementById('menuGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px"><div class="spinner"></div></div>';
   try {
     const res = await fetch(`${API}/menu/all`);
     const { items } = await res.json();
+    menuItems = items;
     renderMenuGrid(items);
   } catch(e) { showToast('Failed to load menu', 'error'); }
 }
-
 function renderMenuGrid(items) {
-  if (!items.length) {
-    document.getElementById('menuGrid').innerHTML = '<div class="empty-state" style="grid-column:1/-1"><i class="fa fa-utensils"></i>No menu items yet</div>';
-    return;
-  }
-  document.getElementById('menuGrid').innerHTML = items.map(item => `
-    <div class="item-card">
-      <div class="item-card-icon">${EMOJI[item.category]||'ðŸ½ï¸'}</div>
-      <div class="item-card-body">
-        <div class="item-card-name">${esc(item.name)}</div>
-        <div class="item-card-cat">${esc(item.category)}</div>
-        <div class="item-card-price">${CURRENCY} ${parseFloat(item.price).toFixed(2)}</div>
-        <div class="item-card-actions">
-          <button class="btn btn-ghost btn-sm" onclick="editMenuItem(${item.id},'${esc(item.name)}','${item.price}','${item.category}')">
-            <i class="fa fa-pen"></i>
-          </button>
-          <button class="btn ${item.available==='true'?'btn-success':'btn-ghost'} btn-sm" onclick="toggleMenuItem(${item.id},'${item.available}')">
-            <i class="fa fa-${item.available==='true'?'eye':'eye-slash'}"></i> ${item.available==='true'?'On':'Off'}
-          </button>
-          <button class="btn btn-danger btn-sm" onclick="deleteMenuItem(${item.id})"><i class="fa fa-trash"></i></button>
-        </div>
-      </div>
-    </div>`).join('');
+  const container = document.getElementById('menuGrid');
+  if (!items.length) { container.innerHTML = 'No items'; return; }
+  container.innerHTML = items.map(item => `
+    <div class="item-card" style="background:white; border-radius:20px; padding:12px; text-align:center;">
+      <div style="font-size:36px;">${item.emoji || '🍽️'}</div>
+      <div><strong>${esc(item.name)}</strong></div>
+      <div>GHS ${item.basePrice}</div>
+      <div><button class="btn btn-ghost btn-sm" onclick="editMenuItem(${item.id})">✏️ Edit</button><button class="btn btn-danger btn-sm" onclick="deleteMenuItem(${item.id})">🗑️</button></div>
+    </div>
+  `).join('');
 }
-
-function openMenuModal() {
-  document.getElementById('menuModalTitle').textContent = 'Add Menu Item';
-  document.getElementById('menuItemId').value = '';
-  document.getElementById('menuName').value = '';
-  document.getElementById('menuPrice').value = '';
-  document.getElementById('menuCategory').value = 'Burgers';
-  openModal('menuModal');
-}
-
-function editMenuItem(id, name, price, category) {
-  document.getElementById('menuModalTitle').textContent = 'Edit Menu Item';
-  document.getElementById('menuItemId').value = id;
-  document.getElementById('menuName').value = name;
-  document.getElementById('menuPrice').value = parseFloat(price).toFixed(2);
-  document.getElementById('menuCategory').value = category;
-  openModal('menuModal');
-}
-
+function openMenuModal() { document.getElementById('menuModal').classList.add('open'); document.getElementById('menuModalTitle').innerText = 'Add Menu Item'; document.getElementById('menuItemId').value = ''; document.getElementById('menuName').value = ''; document.getElementById('menuPrice').value = ''; }
 async function saveMenuItem() {
   const id = document.getElementById('menuItemId').value;
   const name = document.getElementById('menuName').value.trim();
-  const price = document.getElementById('menuPrice').value.trim();
-  const category = document.getElementById('menuCategory').value;
-  if (!name || !price) { showToast('Name and price are required', 'error'); return; }
-
+  const price = parseFloat(document.getElementById('menuPrice').value);
+  if (!name || !price) { showToast('Name and price required', 'error'); return; }
   try {
-    if (id) {
-      await fetch(`${API}/menu/${id}`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name,price,category}) });
-      showToast('Item updated âœ“', 'success');
-    } else {
-      await fetch(`${API}/menu`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name,price,category}) });
-      showToast('Item added âœ“', 'success');
-    }
+    if (id) await fetch(`${API}/menu/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, basePrice: price }) });
+    else await fetch(`${API}/menu`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, price, category: 'Other' }) });
+    showToast('Saved', 'success');
     closeModal('menuModal');
     loadMenu();
-  } catch(e) { showToast('Failed to save', 'error'); }
-}
-
-async function toggleMenuItem(id, current) {
-  const newVal = current === 'true' ? 'false' : 'true';
-  try {
-    await fetch(`${API}/menu/${id}`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({available:newVal}) });
-    showToast(newVal==='true' ? 'Item enabled âœ“' : 'Item hidden', newVal==='true'?'success':'');
-    loadMenu();
   } catch(e) { showToast('Failed', 'error'); }
 }
+async function deleteMenuItem(id) { if (confirm('Delete?')) { await fetch(`${API}/menu/${id}`, { method: 'DELETE' }); loadMenu(); } }
 
-async function deleteMenuItem(id) {
-  if (!confirm('Delete this menu item?')) return;
-  try {
-    await fetch(`${API}/menu/${id}`, { method:'DELETE' });
-    showToast('Item deleted', 'success');
-    loadMenu();
-  } catch(e) { showToast('Failed', 'error'); }
-}
-
-// â”€â”€â”€ Riders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ======================= RIDERS =======================
 async function loadRiders() {
-  const tbody = document.getElementById('ridersBody');
-  tbody.innerHTML = '<tr class="loading-row"><td colspan="4"><div class="spinner"></div></td></tr>';
   try {
     const res = await fetch(`${API}/riders`);
     const { riders } = await res.json();
     allRiders = riders;
-    renderRiders(riders);
+    renderRidersTable(riders);
   } catch(e) { showToast('Failed to load riders', 'error'); }
 }
-
-function renderRiders(riders) {
+function renderRidersTable(riders) {
   const tbody = document.getElementById('ridersBody');
-  if (!riders.length) {
-    tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><i class="fa fa-motorcycle"></i>No riders yet. Add one!</div></td></tr>';
-    return;
-  }
+  if (!riders.length) { tbody.innerHTML = '<tr><td colspan="4">No riders</td></tr>'; return; }
   tbody.innerHTML = riders.map(r => `
     <tr>
-      <td><code style="font-size:13px;background:var(--bg);padding:3px 8px;border-radius:6px">${r.telegramId}</code></td>
-      <td><strong>${esc(r.name)}</strong></td>
-      <td>${r.isAvailable==='true'
-        ? '<span class="badge available"><i class="fa fa-circle" style="font-size:8px"></i> Available</span>'
-        : '<span class="badge unavailable"><i class="fa fa-circle" style="font-size:8px"></i> Busy</span>'}</td>
-      <td>
-        <div class="btn-actions">
-          <button class="btn btn-ghost btn-sm" onclick="toggleRider(${r.telegramId},'${r.isAvailable}')">
-            <i class="fa fa-toggle-${r.isAvailable==='true'?'on':'off'}"></i> Toggle
-          </button>
-          <button class="btn btn-danger btn-sm" onclick="deleteRider(${r.telegramId})"><i class="fa fa-trash"></i></button>
-        </div>
-      </td>
-    </tr>`).join('');
+      <td>${r.telegramId}</td>
+      <td>${esc(r.name)}</td>
+      <td><span class="badge ${r.isAvailable === 'true' ? 'available' : 'unavailable'}">${r.isAvailable === 'true' ? '✅ Available' : '❌ Busy'}</span></td>
+      <td><button class="btn btn-sm btn-info" onclick="toggleRider(${r.telegramId}, '${r.isAvailable}')"><i class="fa fa-toggle-${r.isAvailable === 'true' ? 'on' : 'off'}"></i> Toggle</button> <button class="btn btn-sm btn-danger" onclick="deleteRider(${r.telegramId})"><i class="fa fa-trash"></i></button></td>
+    </tr>
+  `).join('');
 }
-
-function openRiderModal() {
-  document.getElementById('riderTelegramId').value = '';
-  document.getElementById('riderName').value = '';
-  openModal('riderModal');
-}
-
+function openRiderModal() { document.getElementById('riderModal').classList.add('open'); }
 async function saveRider() {
-  const telegramId = parseInt(document.getElementById('riderTelegramId').value);
+  const id = parseInt(document.getElementById('riderTelegramId').value);
   const name = document.getElementById('riderName').value.trim();
-  if (!telegramId || !name) { showToast('Telegram ID and name required', 'error'); return; }
+  if (!id || !name) { showToast('All fields required', 'error'); return; }
   try {
-    await fetch(`${API}/riders`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({telegramId,name}) });
-    showToast(`${name} added as rider âœ“`, 'success');
+    await fetch(`${API}/riders`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ telegramId: id, name }) });
+    showToast('Rider added', 'success');
     closeModal('riderModal');
     loadRiders();
-  } catch(e) { showToast('Failed to add rider', 'error'); }
+  } catch(e) { showToast('Failed', 'error'); }
 }
-
 async function toggleRider(id, current) {
-  const newVal = current === 'true' ? 'false' : 'true';
+  const newStatus = current === 'true' ? 'false' : 'true';
+  await fetch(`${API}/riders/${id}/availability`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ isAvailable: newStatus }) });
+  loadRiders();
+}
+async function deleteRider(id) { if (confirm('Remove rider?')) { await fetch(`${API}/riders/${id}`, { method: 'DELETE' }); loadRiders(); } }
+
+// ======================= ADMINS (Super only) =======================
+async function loadAdmins() {
   try {
-    await fetch(`${API}/riders/${id}/availability`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({isAvailable:newVal}) });
-    showToast(newVal==='true' ? 'Rider set available' : 'Rider set busy');
-    loadRiders();
+    const res = await fetch(`${API}/admins`);
+    const admins = await res.json();
+    allAdmins = admins;
+    const container = document.getElementById('adminsList');
+    if (!admins.length) { container.innerHTML = 'No admins'; return; }
+    container.innerHTML = admins.map(a => `<div class="admin-card"><span>👤 ${a.telegramId} – <strong>${a.role}</strong></span><button class="btn btn-danger btn-sm" onclick="deleteAdmin(${a.telegramId})">Delete</button></div>`).join('');
+  } catch(e) { showToast('Failed to load admins', 'error'); }
+}
+function openAdminModal() { document.getElementById('adminModal').classList.add('open'); }
+async function addAdmin() {
+  const id = parseInt(document.getElementById('adminTelegramId').value);
+  const role = document.getElementById('adminRole').value;
+  if (!id) { showToast('Telegram ID required', 'error'); return; }
+  try {
+    await fetch(`${API}/admins`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ telegramId: id, role }) });
+    showToast('Admin added', 'success');
+    closeModal('adminModal');
+    loadAdmins();
   } catch(e) { showToast('Failed', 'error'); }
 }
+async function deleteAdmin(id) { if (confirm('Remove admin?')) { await fetch(`${API}/admins/${id}`, { method: 'DELETE' }); loadAdmins(); } }
 
-async function deleteRider(id) {
-  if (!confirm('Remove this rider?')) return;
-  try {
-    await fetch(`${API}/riders/${id}`, { method:'DELETE' });
-    showToast('Rider removed', 'success');
-    loadRiders();
-  } catch(e) { showToast('Failed', 'error'); }
-}
-
-// â”€â”€â”€ Modal helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.modal-overlay').forEach(el => {
-  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
-});
-
-// â”€â”€â”€ Toast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-let toastTimer;
-function showToast(msg, type='') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = `toast ${type} show`;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
-}
-
-// â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function esc(str) {
-  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
+// ======================= UTILITIES =======================
 function statusBadge(status) {
-  const labels = {
-    pending_payment: 'â³ Pending',
-    paid: 'ðŸ’³ Paid',
-    confirmed: 'âœ… Confirmed',
-    assigned: 'ðŸ›µ In Transit',
-    delivered: 'ðŸ“¦ Delivered',
-    completed: 'âœ”ï¸ Completed',
-    rejected: 'âŒ Rejected',
-  };
-  return `<span class="badge ${status}">${labels[status]||status}</span>`;
+  const labels = { pending_payment: '💳 Pending', received: '📦 Received', processing: '⚙️ Processing', completed: '✅ Completed', assigned_to_rider: '🛵 Assigned', out_for_delivery: '🚚 Out for delivery', delivered: '🎉 Delivered' };
+  return `<span class="badge ${status}">${labels[status] || status}</span>`;
 }
-
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();
-  const m = Math.floor(diff/60000);
-  if (m < 1) return 'just now';
-  if (m < 60) return `${m}m ago`;
-  const h = Math.floor(m/60);
-  if (h < 24) return `${h}h ago`;
-  return `${Math.floor(h/24)}d ago`;
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
 }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => { m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('open'); }); });
 
-// â”€â”€â”€ Delete rider endpoint (add to webhook if missing) â”€â”€â”€â”€
-// â”€â”€â”€ Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-loadDashboard();
+// ======================= INIT =======================
+// Simulate getting current user ID (in production, you'd get from Telegram WebApp initData)
+currentUserTelegramId = prompt('Enter your Telegram ID (admin)') || '5784859374';
+// For demo, we assume super admin if ID matches your known super admin
+if (currentUserTelegramId == '5784859374') currentUserRole = 'super';
+else currentUserRole = 'order'; // fallback
+document.getElementById('userRoleSpan').innerText = `Role: ${currentUserRole}`;
+if (currentUserRole === 'super') document.getElementById('adminsNavBtn').style.display = 'flex';
+showPage('dashboard');
 </script>
 </body>
 </html>
