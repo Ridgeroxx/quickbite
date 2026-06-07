@@ -99,20 +99,32 @@
     .empty-cart { text-align: center; color: #aaa; padding: 40px 0; }
     .history-section { margin-top: 30px; background: white; border-radius: 24px; padding: 16px; }
     .history-title { font-weight: bold; margin-bottom: 10px; }
-    .order-history-item { border-bottom: 1px solid #eee; padding: 8px 0; }
-    .btn-reorder { background: #e67e22; border: none; color: white; padding: 4px 12px; border-radius: 20px; margin-top: 5px; font-size: 0.7rem; cursor: pointer; }
-    .btn-track {
-      background: #2d6a4f; border: none; color: white; padding: 4px 12px; border-radius: 20px;
-      margin-left: 8px; font-size: 0.7rem; cursor: pointer;
+    .order-history-item {
+      border-bottom: 1px solid #eee; padding: 8px 0;
     }
+    .order-buttons {
+      display: flex; gap: 8px; margin-top: 5px;
+    }
+    .btn-reorder, .btn-view-details, .btn-track {
+      background: #e67e22; border: none; color: white; padding: 4px 12px; border-radius: 20px;
+      font-size: 0.7rem; cursor: pointer;
+    }
+    .btn-view-details { background: #3498db; }
+    .btn-track { background: #2d6a4f; }
     .modal {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7);
       z-index: 2000; display: none; align-items: center; justify-content: center;
     }
     .modal.active { display: flex; }
     .modal-content {
-      background: white; border-radius: 28px; padding: 24px; width: 80%; max-width: 320px;
-      text-align: center;
+      background: white; border-radius: 28px; padding: 24px; width: 90%; max-width: 500px;
+      max-height: 80vh; overflow-y: auto;
+    }
+    .modal-content h3 { margin-bottom: 12px; }
+    .modal-content p { margin-bottom: 8px; }
+    .modal-content .items-list { margin: 12px 0; padding-left: 20px; }
+    .modal-close {
+      float: right; background: none; border: none; font-size: 24px; cursor: pointer;
     }
     .loading { text-align: center; padding: 40px; color: #e67e22; }
   </style>
@@ -145,13 +157,11 @@
   </div>
 </div>
 
-<div id="trackModal" class="modal">
+<!-- Modal for Order Details -->
+<div id="orderDetailsModal" class="modal">
   <div class="modal-content">
-    <h3>🚴 Rider Status</h3>
-    <p id="trackRiderName"></p>
-    <p id="trackRiderPhone"></p>
-    <p id="trackOrderStatus"></p>
-    <button onclick="closeTrackModal()" style="margin-top:16px; padding:8px 16px; border-radius:40px; border:none; background:#e67e22; color:white;">Close</button>
+    <button class="modal-close" onclick="closeOrderDetailsModal()">&times;</button>
+    <div id="orderDetailsContent"></div>
   </div>
 </div>
 
@@ -164,12 +174,12 @@
   localStorage.setItem('userId', userId);
   let isCheckingOut = false;
 
-  // Helper: validate name (letters, spaces, hyphens, apostrophes – no numbers)
+  // Helper: validate name
   function isValidName(name) {
     return /^[A-Za-z\s\-']+$/.test(name) && name.trim().length > 0;
   }
 
-  // Helper: validate Ghana phone number (exactly 10 digits, starts with 0, all numbers)
+  // Helper: validate Ghana phone number
   function isValidPhone(phone) {
     return /^0\d{9}$/.test(phone);
   }
@@ -288,7 +298,6 @@
     saveCart();
   };
 
-  // ✅ Updated placeOrder with validation prompts
   async function placeOrder(customerName, customerPhone, address) {
     if (isCheckingOut) return;
     isCheckingOut = true;
@@ -308,6 +317,7 @@
         saveCart();
         closeCart();
         showToast(`✅ Order #${data.orderId} placed!`);
+        // Show alert with details
         alert(`✅ Order #${data.orderId}\nTotal: GHS ${data.total}\nSend payment to: ${data.momoNumber}\nAfter payment, type /paid ${data.orderId} YOUR_REFERENCE in Telegram.\nRider contact: ${data.riderContact}`);
         await loadOrderHistory();
       } else {
@@ -323,6 +333,7 @@
     }
   }
 
+  // Order history with View Details button
   async function loadOrderHistory() {
     try {
       const res = await fetch(`${API_BASE}/api/orders/${userId}`);
@@ -334,12 +345,21 @@
           <div><strong>#${order.id}</strong> - ${order.status} - GHS ${order.total}</div>
           <div style="font-size:0.7rem;">${new Date(order.createdAt).toLocaleString()}</div>
           ${order.riderName ? `<div style="font-size:0.8rem; color:#e67e22;">🚴 Rider: ${escapeHtml(order.riderName)} (${order.riderPhone || 'No phone'})</div>` : ''}
-          <div>
-            <button class="btn-reorder" data-order='${JSON.stringify(order)}'>Reorder</button>
+          <div class="order-buttons">
+            <button class="btn-view-details" data-order='${JSON.stringify(order)}'>📋 View Details</button>
+            <button class="btn-reorder" data-order='${JSON.stringify(order)}'>🔄 Reorder</button>
             ${order.riderName ? `<button class="btn-track" data-order='${JSON.stringify(order)}'>📍 Track Rider</button>` : ''}
           </div>
         </div>
       `).join('');
+      // Attach event listeners
+      document.querySelectorAll('.btn-view-details').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const order = JSON.parse(btn.dataset.order);
+          showOrderDetails(order);
+        });
+      });
       document.querySelectorAll('.btn-reorder').forEach(btn => {
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -356,6 +376,37 @@
       });
     } catch(err) { console.error(err); }
   }
+
+  // Show detailed order information in a modal
+  function showOrderDetails(order) {
+    const itemsHtml = order.items.map(item => {
+      const addonsText = item.addons?.length ? ` (${item.addons.map(a => a.name).join(', ')})` : '';
+      return `<li><strong>${escapeHtml(item.name)}${addonsText}</strong> x${item.qty} = GHS ${item.totalPrice * item.qty}</li>`;
+    }).join('');
+    const detailsHtml = `
+      <h3>Order #${order.id}</h3>
+      <p><strong>Status:</strong> ${order.status.replace(/_/g, ' ')}</p>
+      <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
+      <p><strong>Customer:</strong> ${escapeHtml(order.customerName)}</p>
+      <p><strong>Phone:</strong> ${escapeHtml(order.customerPhone)}</p>
+      <p><strong>Delivery Address:</strong> ${escapeHtml(order.address)}</p>
+      <p><strong>Payment Reference:</strong> ${order.paymentReference || 'Not yet'}</p>
+      <p><strong>Subtotal:</strong> GHS ${order.subtotal}</p>
+      <p><strong>Delivery Fee:</strong> GHS ${order.deliveryFee}</p>
+      <p><strong>Total:</strong> GHS ${order.total}</p>
+      <hr>
+      <p><strong>Items:</strong></p>
+      <ul class="items-list">${itemsHtml}</ul>
+      ${order.riderName ? `<hr><p><strong>Rider:</strong> ${escapeHtml(order.riderName)}</p><p><strong>Rider Phone:</strong> ${order.riderPhone || 'Not provided'}</p>` : '<p><em>Rider not assigned yet</em></p>'}
+      <p><strong>Payment Instructions:</strong> Send payment to ${API_BASE.includes('quickbite') ? 'https://quickbite-joi1.onrender.com' : 'MOMO_NUMBER'} (check your order alert).</p>
+    `;
+    document.getElementById('orderDetailsContent').innerHTML = detailsHtml;
+    document.getElementById('orderDetailsModal').classList.add('active');
+  }
+
+  window.closeOrderDetailsModal = () => {
+    document.getElementById('orderDetailsModal').classList.remove('active');
+  };
 
   function reorder(order) {
     const newCart = order.items.map(item => ({
@@ -379,37 +430,29 @@
     return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m] || m));
   }
 
-  // Cart drawer controls
   const overlay = document.getElementById('cartOverlay');
   function openCart() { overlay.classList.add('open'); renderCartDrawer(); }
   function closeCart() { overlay.classList.remove('open'); }
   document.getElementById('cartIcon').addEventListener('click', openCart);
   document.getElementById('closeCartBtn').addEventListener('click', closeCart);
   document.getElementById('clearCartDrawerBtn').addEventListener('click', () => { cart = []; saveCart(); renderCartDrawer(); showToast('Cart cleared'); });
-  
-  // Updated checkout button with validation
+
   document.getElementById('checkoutDrawerBtn').addEventListener('click', async () => {
     if (!cart.length) return alert('Cart empty');
-    
-    // Get and validate name
     let name = '';
     while (true) {
       name = prompt('Enter your full name (letters only):');
-      if (name === null) return; // user cancelled
+      if (name === null) return;
       if (isValidName(name)) break;
       alert('❌ Invalid name. Use only letters, spaces, hyphens, or apostrophes. No numbers.');
     }
-    
-    // Get and validate phone (10 digits, starts with 0)
     let phone = '';
     while (true) {
       phone = prompt('Enter your phone number (10 digits, e.g., 024XXXXXXX):');
       if (phone === null) return;
       if (isValidPhone(phone)) break;
-      alert('❌ Invalid phone number. Must be exactly 10 digits starting with 0 (e.g., 0241234567).');
+      alert('❌ Invalid phone number. Must be exactly 10 digits starting with 0.');
     }
-    
-    // Get address (non-empty)
     let address = '';
     while (true) {
       address = prompt('Enter delivery address (street, city, landmark):');
@@ -417,11 +460,27 @@
       if (address.trim().length > 0) break;
       alert('❌ Address cannot be empty.');
     }
-    
     await placeOrder(name, phone, address);
   });
-  
+
   overlay.addEventListener('click', (e) => { if (e.target === overlay) closeCart(); });
+
+  // Track modal element (for rider tracking, reused from previous)
+  const trackModalHtml = `
+    <div id="trackModal" class="modal">
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeTrackModal()">&times;</button>
+        <h3>🚴 Rider Status</h3>
+        <p id="trackRiderName"></p>
+        <p id="trackRiderPhone"></p>
+        <p id="trackOrderStatus"></p>
+      </div>
+    </div>
+  `;
+  // Append track modal if not already present
+  if (!document.getElementById('trackModal')) {
+    document.body.insertAdjacentHTML('beforeend', trackModalHtml);
+  }
 
   loadMenu();
   updateCartUI();
