@@ -212,28 +212,28 @@
     <div class="sidebar-logo"><div class="logo-text">🍔 <span>QuickBite</span></div><div class="logo-sub">Admin Portal</div></div>
     <div class="nav-section">
       <div class="nav-label">Main</div>
-      <div class="nav-item" onclick="showPage('dashboard')"><i class="fa fa-chart-line"></i> Dashboard</div>
-      <div class="nav-item" onclick="showPage('orders')"><i class="fa fa-receipt"></i> All Orders</div>
+      <div class="nav-item" onclick="window.showPage('dashboard')"><i class="fa fa-chart-line"></i> Dashboard</div>
+      <div class="nav-item" onclick="window.showPage('orders')"><i class="fa fa-receipt"></i> All Orders</div>
     </div>
     <div class="nav-section" id="navPaymentsSection" style="display:none;">
       <div class="nav-label">Payments</div>
-      <div class="nav-item" onclick="showPage('payments')"><i class="fa fa-credit-card"></i> Pending Payments</div>
+      <div class="nav-item" onclick="window.showPage('payments')"><i class="fa fa-credit-card"></i> Pending Payments</div>
     </div>
     <div class="nav-section" id="navOrderFlowSection" style="display:none;">
       <div class="nav-label">Order Processing</div>
-      <div class="nav-item" onclick="showPage('orderFlow')"><i class="fa fa-cogs"></i> Order Flow</div>
+      <div class="nav-item" onclick="window.showPage('orderFlow')"><i class="fa fa-cogs"></i> Order Flow</div>
     </div>
     <div class="nav-section" id="navRidersSection" style="display:none;">
       <div class="nav-label">Riders</div>
-      <div class="nav-item" onclick="showPage('riders')"><i class="fa fa-motorcycle"></i> Manage Riders</div>
+      <div class="nav-item" onclick="window.showPage('riders')"><i class="fa fa-motorcycle"></i> Manage Riders</div>
     </div>
     <div class="nav-section" id="navMenuSection" style="display:none;">
       <div class="nav-label">Menu</div>
-      <div class="nav-item" onclick="showPage('menu')"><i class="fa fa-utensils"></i> Menu Items</div>
+      <div class="nav-item" onclick="window.showPage('menu')"><i class="fa fa-utensils"></i> Menu Items</div>
     </div>
     <div class="nav-section" id="navAdminsSection" style="display:none;">
       <div class="nav-label">System</div>
-      <div class="nav-item" onclick="showPage('admins')"><i class="fa fa-users"></i> Admins</div>
+      <div class="nav-item" onclick="window.showPage('admins')"><i class="fa fa-users"></i> Admins</div>
     </div>
     <div class="sidebar-footer"><span id="userRoleSpan"></span></div>
   </div>
@@ -241,16 +241,16 @@
   <div class="main">
     <div class="topbar">
       <h2 id="pageTitle">Dashboard</h2>
-      <button class="logout-btn" onclick="logout()"><i class="fa fa-sign-out-alt"></i> Logout</button>
+      <button class="logout-btn" onclick="window.logout()"><i class="fa fa-sign-out-alt"></i> Logout</button>
     </div>
 
     <div id="page-dashboard" class="page">
       <div class="stats-grid" id="statsGrid"></div>
-      <div class="table-wrap"><h3 style="margin-bottom:16px;">Recent Orders</h3></table><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="dashboardOrdersBody"></tbody></table></div>
+      <div class="table-wrap"><h3 style="margin-bottom:16px;">Recent Orders</h3><table><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="dashboardOrdersBody"></tbody></table></div>
     </div>
 
     <div id="page-orders" class="page" style="display:none;">
-      <div class="table-wrap"></table><thead><tr><th>#</th><th>Customer</th><th>Address</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div>
+      <div class="table-wrap"><table><thead><tr><th>#</th><th>Customer</th><th>Address</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div>
     </div>
 
     <div id="page-payments" class="page" style="display:none;">
@@ -258,16 +258,16 @@
     </div>
 
     <div id="page-orderFlow" class="page" style="display:none;">
-      <div class="table-wrap"><table><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="orderFlowBody"></tbody></table></div>
+      <div class="table-wrap"></td><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="orderFlowBody"></tbody></table></div>
     </div>
 
     <div id="page-riders" class="page" style="display:none;">
-      <button onclick="addRider()" style="margin-bottom:16px;"><i class="fa fa-plus"></i> Add Rider</button>
+      <button onclick="window.addRider()" style="margin-bottom:16px;"><i class="fa fa-plus"></i> Add Rider</button>
       <div class="table-wrap"><table><thead><tr><th>Telegram ID</th><th>Name</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ridersBody"></tbody></table></div>
     </div>
 
     <div id="page-menu" class="page" style="display:none;">
-      <button onclick="openAddMenuItem()" style="margin-bottom:16px;"><i class="fa fa-plus"></i> Add Menu Item</button>
+      <button onclick="window.openAddMenuItem()" style="margin-bottom:16px;"><i class="fa fa-plus"></i> Add Menu Item</button>
       <div class="cards-grid" id="menuGrid"></div>
     </div>
 
@@ -285,6 +285,7 @@
 
   function showToast(msg, type='success') {
     const toast = document.getElementById('toast');
+    if (!toast) return;
     toast.textContent = msg;
     toast.style.background = type === 'success' ? '#27ae60' : '#e74c3c';
     toast.classList.add('show');
@@ -299,7 +300,7 @@
     };
     const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
     if (res.status === 401) {
-      logout();
+      window.logout();
       Swal.fire('Session expired', 'Please login again.', 'error');
       throw new Error('Unauthorized');
     }
@@ -323,61 +324,77 @@
     } catch(err) { document.getElementById('loginError').innerText = 'Network error'; }
   }
 
-  // Make login globally accessible
   window.login = login;
-
-  function logout() {
+  window.logout = function() {
     localStorage.removeItem('adminToken'); localStorage.removeItem('adminRole');
     adminToken = null; currentRole = null;
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('dashboard').style.display = 'none';
-  }
+  };
 
   function setupNav() {
-    document.getElementById('navPaymentsSection').style.display = (currentRole === 'payment' || currentRole === 'super') ? 'block' : 'none';
-    document.getElementById('navOrderFlowSection').style.display = (currentRole === 'order' || currentRole === 'super') ? 'block' : 'none';
-    document.getElementById('navRidersSection').style.display = (currentRole === 'rider' || currentRole === 'super') ? 'block' : 'none';
-    document.getElementById('navMenuSection').style.display = (currentRole === 'super') ? 'block' : 'none';
-    document.getElementById('navAdminsSection').style.display = (currentRole === 'super') ? 'block' : 'none';
+    const payments = document.getElementById('navPaymentsSection');
+    const orderFlow = document.getElementById('navOrderFlowSection');
+    const riders = document.getElementById('navRidersSection');
+    const menu = document.getElementById('navMenuSection');
+    const admins = document.getElementById('navAdminsSection');
+    if (payments) payments.style.display = (currentRole === 'payment' || currentRole === 'super') ? 'block' : 'none';
+    if (orderFlow) orderFlow.style.display = (currentRole === 'order' || currentRole === 'super') ? 'block' : 'none';
+    if (riders) riders.style.display = (currentRole === 'rider' || currentRole === 'super') ? 'block' : 'none';
+    if (menu) menu.style.display = (currentRole === 'super') ? 'block' : 'none';
+    if (admins) admins.style.display = (currentRole === 'super') ? 'block' : 'none';
   }
 
-  function showPage(page) {
-    document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-    document.getElementById(`page-${page}`).style.display = 'block';
+  window.showPage = function(page) {
+    const pages = ['dashboard', 'orders', 'payments', 'orderFlow', 'riders', 'menu', 'admins'];
+    pages.forEach(p => {
+      const el = document.getElementById(`page-${p}`);
+      if (el) el.style.display = 'none';
+    });
+    const activePage = document.getElementById(`page-${page}`);
+    if (activePage) activePage.style.display = 'block';
     currentPage = page;
-    document.getElementById('pageTitle').innerText = page.charAt(0).toUpperCase() + page.slice(1);
+    const titleEl = document.getElementById('pageTitle');
+    if (titleEl) titleEl.innerText = page.charAt(0).toUpperCase() + page.slice(1);
     if (page === 'dashboard') loadDashboard();
     else if (page === 'orders') loadAllOrders();
     else if (page === 'payments') loadPayments();
     else if (page === 'orderFlow') loadOrderFlow();
     else if (page === 'riders') loadRiders();
     else if (page === 'menu') loadMenu();
-  }
-
-  // Attach functions to window for onclick
-  window.showPage = showPage;
-  window.logout = logout;
-  window.viewOrderDetails = async (orderId) => {
-    const { orders } = await fetchAPI('/api/orders');
-    const order = orders.find(o => o.id === orderId);
-    if (!order) return;
-    const itemsHtml = order.items.map(i => `${i.name} x${i.qty} = GHS ${i.totalPrice * i.qty}`).join('\n');
-    Swal.fire({
-      title: `Order #${order.id}`,
-      html: `<strong>Customer:</strong> ${order.customerName}<br><strong>Phone:</strong> ${order.customerPhone}<br><strong>Address:</strong> ${order.address}<br><strong>Total:</strong> GHS ${order.total}<br><strong>Status:</strong> ${order.status}<br><strong>Items:</strong><br>${itemsHtml}<br>${order.riderName ? `<strong>Rider:</strong> ${order.riderName} (${order.riderPhone})` : ''}`,
-      showCancelButton: true,
-      confirmButtonText: 'Copy Details',
-      cancelButtonText: 'Close'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const copyText = `Order #${order.id}\nCustomer: ${order.customerName}\nPhone: ${order.customerPhone}\nAddress: ${order.address}\nTotal: GHS ${order.total}\nItems:\n${itemsHtml}`;
-        navigator.clipboard.writeText(copyText);
-        showToast('Order details copied to clipboard');
-      }
-    });
   };
+
+  window.viewOrderDetails = async (orderId) => {
+    try {
+      const { orders } = await fetchAPI('/api/orders');
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return;
+      const itemsHtml = order.items.map(i => `${i.name} x${i.qty} = GHS ${i.totalPrice * i.qty}`).join('\n');
+      Swal.fire({
+        title: `Order #${order.id}`,
+        html: `<strong>Customer:</strong> ${order.customerName}<br><strong>Phone:</strong> ${order.customerPhone}<br><strong>Address:</strong> ${order.address}<br><strong>Total:</strong> GHS ${order.total}<br><strong>Status:</strong> ${order.status}<br><strong>Items:</strong><br>${itemsHtml}<br>${order.riderName ? `<strong>Rider:</strong> ${order.riderName} (${order.riderPhone})` : ''}`,
+        showCancelButton: true,
+        confirmButtonText: 'Copy Details',
+        cancelButtonText: 'Close'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const copyText = `Order #${order.id}\nCustomer: ${order.customerName}\nPhone: ${order.customerPhone}\nAddress: ${order.address}\nTotal: GHS ${order.total}\nItems:\n${itemsHtml}`;
+          navigator.clipboard.writeText(copyText);
+          showToast('Order details copied to clipboard');
+        }
+      });
+    } catch(e) { showToast('Error fetching order details', 'error'); }
+  };
+
   window.confirmPayment = async (orderId) => { await updateOrderStatus(orderId, 'confirmed'); loadPayments(); loadDashboard(); };
-  window.updateOrderStatus = async (orderId, newStatus) => { await fetchAPI(`/api/orders/${orderId}/status`, { method: 'PATCH', body: JSON.stringify({ status: newStatus }) }); showToast(`Order #${orderId} updated to ${newStatus}`); if (currentPage === 'orderFlow') loadOrderFlow(); if (currentPage === 'payments') loadPayments(); loadDashboard(); };
+  window.updateOrderStatus = async (orderId, newStatus) => { 
+    await fetchAPI(`/api/orders/${orderId}/status`, { method: 'PATCH', body: JSON.stringify({ status: newStatus }) });
+    showToast(`Order #${orderId} updated to ${newStatus}`, 'success');
+    if (currentPage === 'orderFlow') loadOrderFlow();
+    if (currentPage === 'payments') loadPayments();
+    loadDashboard();
+  };
+
   window.markAssignedManually = async (orderId) => {
     const { value: formValues } = await Swal.fire({
       title: `Assign Rider for Order #${orderId}`,
@@ -392,10 +409,11 @@
     });
     if (formValues) {
       await fetchAPI(`/api/orders/${orderId}/status`, { method: 'PATCH', body: JSON.stringify({ status: 'assigned_to_rider', riderName: formValues.name, riderPhone: formValues.phone }) });
-      showToast(`Order #${orderId} assigned to ${formValues.name} (WhatsApp: ${formValues.phone})`);
+      showToast(`Order #${orderId} assigned to ${formValues.name} (WhatsApp: ${formValues.phone})`, 'success');
       loadOrderFlow(); loadDashboard();
     }
   };
+
   window.addRider = async () => {
     const { value: formValues } = await Swal.fire({
       title: 'Add Rider',
@@ -404,18 +422,31 @@
     });
     if (formValues && formValues.id && formValues.name) {
       await fetchAPI('/api/riders', { method: 'POST', body: JSON.stringify({ telegramId: parseInt(formValues.id), name: formValues.name, phone: formValues.phone || '' }) });
-      showToast('Rider added'); loadRiders();
+      showToast('Rider added', 'success');
+      loadRiders();
     }
   };
-  window.toggleRider = async (id, current) => { await fetchAPI(`/api/riders/${id}/availability`, { method: 'PATCH', body: JSON.stringify({ isAvailable: current === 'true' ? 'false' : 'true' }) }); loadRiders(); };
-  window.deleteRider = async (id) => { if ((await Swal.fire({ title: 'Confirm', text: 'Delete this rider?', icon: 'warning', showCancelButton: true })).isConfirmed) { await fetchAPI(`/api/riders/${id}`, { method: 'DELETE' }); loadRiders(); } };
+
+  window.toggleRider = async (id, current) => { 
+    await fetchAPI(`/api/riders/${id}/availability`, { method: 'PATCH', body: JSON.stringify({ isAvailable: current === 'true' ? 'false' : 'true' }) });
+    loadRiders();
+  };
+  window.deleteRider = async (id) => { 
+    if ((await Swal.fire({ title: 'Confirm', text: 'Delete this rider?', icon: 'warning', showCancelButton: true })).isConfirmed) { 
+      await fetchAPI(`/api/riders/${id}`, { method: 'DELETE' }); 
+      loadRiders(); 
+    } 
+  };
   window.openAddMenuItem = async () => {
     const { value: formValues } = await Swal.fire({
       title: 'Add Menu Item',
       html: `<input id="itemName" class="swal2-input" placeholder="Name"><input id="itemPrice" class="swal2-input" placeholder="Price (GHS)" type="number" step="0.01"><input id="itemCategory" class="swal2-input" placeholder="Category">`,
       preConfirm: () => ({ name: document.getElementById('itemName').value, price: parseFloat(document.getElementById('itemPrice').value), category: document.getElementById('itemCategory').value })
     });
-    if (formValues && formValues.name && formValues.price) { await fetchAPI('/api/menu', { method: 'POST', body: JSON.stringify(formValues) }); loadMenu(); }
+    if (formValues && formValues.name && formValues.price) { 
+      await fetchAPI('/api/menu', { method: 'POST', body: JSON.stringify(formValues) }); 
+      loadMenu(); 
+    }
   };
   window.editMenuItem = async (id, oldName, oldPrice, oldCategory) => {
     const { value: formValues } = await Swal.fire({
@@ -423,43 +454,76 @@
       html: `<input id="itemName" class="swal2-input" value="${oldName}"><input id="itemPrice" class="swal2-input" value="${oldPrice}" type="number" step="0.01"><input id="itemCategory" class="swal2-input" value="${oldCategory}">`,
       preConfirm: () => ({ name: document.getElementById('itemName').value, basePrice: parseFloat(document.getElementById('itemPrice').value), category: document.getElementById('itemCategory').value })
     });
-    if (formValues) { await fetchAPI(`/api/menu/${id}`, { method: 'PATCH', body: JSON.stringify(formValues) }); loadMenu(); }
+    if (formValues) { 
+      await fetchAPI(`/api/menu/${id}`, { method: 'PATCH', body: JSON.stringify(formValues) }); 
+      loadMenu(); 
+    }
   };
-  window.deleteMenuItem = async (id) => { if ((await Swal.fire({ title: 'Confirm', text: 'Delete this item?', icon: 'warning', showCancelButton: true })).isConfirmed) { await fetchAPI(`/api/menu/${id}`, { method: 'DELETE' }); loadMenu(); } };
+  window.deleteMenuItem = async (id) => { 
+    if ((await Swal.fire({ title: 'Confirm', text: 'Delete this item?', icon: 'warning', showCancelButton: true })).isConfirmed) { 
+      await fetchAPI(`/api/menu/${id}`, { method: 'DELETE' }); 
+      loadMenu(); 
+    } 
+  };
 
   async function loadDashboard() {
-    const stats = await fetchAPI('/api/orders/stats/summary');
-    document.getElementById('statsGrid').innerHTML = `<div class="stat-card"><h3>Today's Orders</h3><div class="value">${stats.today.count}</div><div>GHS ${stats.today.total}</div></div><div class="stat-card"><h3>This Week</h3><div class="value">${stats.week.count}</div><div>GHS ${stats.week.total}</div></div><div class="stat-card"><h3>This Month</h3><div class="value">${stats.month.count}</div><div>GHS ${stats.month.total}</div></div><div class="stat-card"><h3>All Time Revenue</h3><div class="value">GHS ${stats.all.total}</div></div>`;
-    const { orders } = await fetchAPI('/api/orders');
-    const recent = orders.slice(0, 10);
-    document.getElementById('dashboardOrdersBody').innerHTML = recent.map(o => `<tr><td>#${o.id}</td><td>${escapeHtml(o.customerName)}</td><td>GHS ${o.total}</td><td><span class="badge ${o.status}">${o.status}</span></td><td><button onclick="viewOrderDetails(${o.id})">View</button></td></tr>`).join('');
+    const statsGrid = document.getElementById('statsGrid');
+    const dashboardBody = document.getElementById('dashboardOrdersBody');
+    if (!statsGrid || !dashboardBody) return;
+    try {
+      const stats = await fetchAPI('/api/orders/stats/summary');
+      statsGrid.innerHTML = `<div class="stat-card"><h3>Today's Orders</h3><div class="value">${stats.today.count}</div><div>GHS ${stats.today.total}</div></div><div class="stat-card"><h3>This Week</h3><div class="value">${stats.week.count}</div><div>GHS ${stats.week.total}</div></div><div class="stat-card"><h3>This Month</h3><div class="value">${stats.month.count}</div><div>GHS ${stats.month.total}</div></div><div class="stat-card"><h3>All Time Revenue</h3><div class="value">GHS ${stats.all.total}</div></div>`;
+      const { orders } = await fetchAPI('/api/orders');
+      const recent = orders.slice(0, 10);
+      dashboardBody.innerHTML = recent.map(o => `<tr><td>#${o.id}</td><td>${escapeHtml(o.customerName)}</td><td>GHS ${o.total}</td><td><span class="badge ${o.status}">${o.status}</span></td><td><button onclick="window.viewOrderDetails(${o.id})">View</button></td></tr>`).join('');
+    } catch(e) { showToast('Failed to load dashboard', 'error'); }
   }
 
   async function loadAllOrders() {
-    const { orders } = await fetchAPI('/api/orders');
-    document.getElementById('allOrdersBody').innerHTML = orders.map(o => `<tr><td>#${o.id}</td><td>${escapeHtml(o.customerName)}</td><td>${escapeHtml(o.address.substring(0,40))}</td><td>GHS ${o.total}</td><td><span class="badge ${o.status}">${o.status}</span></td><td><button onclick="viewOrderDetails(${o.id})">View</button></td>`).join('');
+    const allOrdersBody = document.getElementById('allOrdersBody');
+    if (!allOrdersBody) return;
+    try {
+      const { orders } = await fetchAPI('/api/orders');
+      allOrdersBody.innerHTML = orders.map(o => `<tr><td>#${o.id}</td><td>${escapeHtml(o.customerName)}</td><td>${escapeHtml(o.address.substring(0,40))}</td><td>GHS ${o.total}</td><td><span class="badge ${o.status}">${o.status}</span></td><td><button onclick="window.viewOrderDetails(${o.id})">View</button></td></tr>`).join('');
+    } catch(e) { showToast('Failed to load orders', 'error'); }
   }
 
   async function loadPayments() {
-    const { orders } = await fetchAPI('/api/orders');
-    const pending = orders.filter(o => o.status === 'pending_payment' || o.status === 'paid');
-    document.getElementById('paymentsBody').innerHTML = pending.map(o => `<tr><td>#${o.id}</td><td>${escapeHtml(o.customerName)}</td><td>GHS ${o.total}</td><td>${o.paymentReference || '—'}</td><td><span class="badge ${o.status}">${o.status}</span></td><td>${o.status === 'paid' ? `<button onclick="confirmPayment(${o.id})">Confirm</button>` : 'Awaiting ref'}<tr>`).join('');
+    const paymentsBody = document.getElementById('paymentsBody');
+    if (!paymentsBody) return;
+    try {
+      const { orders } = await fetchAPI('/api/orders');
+      const pending = orders.filter(o => o.status === 'pending_payment' || o.status === 'paid');
+      paymentsBody.innerHTML = pending.map(o => `<tr><td>#${o.id}</td><td>${escapeHtml(o.customerName)}</td><td>GHS ${o.total}</td><td>${o.paymentReference || '—'}</td><td><span class="badge ${o.status}">${o.status}</span></td><td>${o.status === 'paid' ? `<button onclick="window.confirmPayment(${o.id})">Confirm</button>` : 'Awaiting ref'}</td></tr>`).join('');
+    } catch(e) { showToast('Failed to load payments', 'error'); }
   }
 
   async function loadOrderFlow() {
-    const { orders } = await fetchAPI('/api/orders');
-    const active = orders.filter(o => ['paid', 'confirmed', 'processing', 'completed'].includes(o.status));
-    document.getElementById('orderFlowBody').innerHTML = active.map(o => `<tr><td>#${o.id}</td><td>${escapeHtml(o.customerName)}</td><td>GHS ${o.total}</td><td><span class="badge ${o.status}">${o.status}</span></td><td>${o.status === 'paid' ? `<button onclick="updateOrderStatus(${o.id}, 'confirmed')">Confirm</button>` : ''}${o.status === 'confirmed' ? `<button onclick="updateOrderStatus(${o.id}, 'processing')">Process</button>` : ''}${o.status === 'processing' ? `<button onclick="updateOrderStatus(${o.id}, 'completed')">Ready</button>` : ''}${o.status === 'completed' ? `<button onclick="markAssignedManually(${o.id})">Assign Rider</button>` : ''}</td></tr>`).join('');
+    const orderFlowBody = document.getElementById('orderFlowBody');
+    if (!orderFlowBody) return;
+    try {
+      const { orders } = await fetchAPI('/api/orders');
+      const active = orders.filter(o => ['paid', 'confirmed', 'processing', 'completed'].includes(o.status));
+      orderFlowBody.innerHTML = active.map(o => `<tr><td>#${o.id}</td><td>${escapeHtml(o.customerName)}</td><td>GHS ${o.total}</td><td><span class="badge ${o.status}">${o.status}</span></td><td>${o.status === 'paid' ? `<button onclick="window.updateOrderStatus(${o.id}, 'confirmed')">Confirm</button>` : ''}${o.status === 'confirmed' ? `<button onclick="window.updateOrderStatus(${o.id}, 'processing')">Process</button>` : ''}${o.status === 'processing' ? `<button onclick="window.updateOrderStatus(${o.id}, 'completed')">Ready</button>` : ''}${o.status === 'completed' ? `<button onclick="window.markAssignedManually(${o.id})">Assign Rider</button>` : ''}</td></tr>`).join('');
+    } catch(e) { showToast('Failed to load order flow', 'error'); }
   }
 
   async function loadRiders() {
-    const { riders } = await fetchAPI('/api/riders');
-    document.getElementById('ridersBody').innerHTML = riders.map(r => `<tr><td>${r.telegramId}</td><td>${escapeHtml(r.name)}</td><td>${r.phone || '—'}</td><td>${r.isAvailable === 'true' ? 'Available' : 'Busy'}</td><td><button onclick="toggleRider(${r.telegramId}, '${r.isAvailable}')">Toggle</button> <button class="danger" onclick="deleteRider(${r.telegramId})">Delete</button></td></tr>`).join('');
+    const ridersBody = document.getElementById('ridersBody');
+    if (!ridersBody) return;
+    try {
+      const { riders } = await fetchAPI('/api/riders');
+      ridersBody.innerHTML = riders.map(r => `<tr><td>${r.telegramId}</td><td>${escapeHtml(r.name)}</td><td>${r.phone || '—'}</td><td>${r.isAvailable === 'true' ? 'Available' : 'Busy'}</td><td><button onclick="window.toggleRider(${r.telegramId}, '${r.isAvailable}')">Toggle</button> <button class="danger" onclick="window.deleteRider(${r.telegramId})">Delete</button></td></tr>`).join('');
+    } catch(e) { showToast('Failed to load riders', 'error'); }
   }
 
   async function loadMenu() {
-    const { items } = await fetchAPI('/api/menu/all');
-    document.getElementById('menuGrid').innerHTML = items.map(item => `<div class="menu-card"><div style="font-size:32px;">${item.emoji || '🍽️'}</div><strong>${escapeHtml(item.name)}</strong><br>GHS ${item.basePrice}<br><small>${item.category}</small><br><button onclick="editMenuItem(${item.id}, '${escapeHtml(item.name)}', ${item.basePrice}, '${item.category}')">Edit</button> <button class="danger" onclick="deleteMenuItem(${item.id})">Delete</button></div>`).join('');
+    const menuGrid = document.getElementById('menuGrid');
+    if (!menuGrid) return;
+    try {
+      const { items } = await fetchAPI('/api/menu/all');
+      menuGrid.innerHTML = items.map(item => `<div class="menu-card"><div style="font-size:32px;">${item.emoji || '🍽️'}</div><strong>${escapeHtml(item.name)}</strong><br>GHS ${item.basePrice}<br><small>${item.category}</small><br><button onclick="window.editMenuItem(${item.id}, '${escapeHtml(item.name)}', ${item.basePrice}, '${item.category}')">Edit</button> <button class="danger" onclick="window.deleteMenuItem(${item.id})">Delete</button></div>`).join('');
+    } catch(e) { showToast('Failed to load menu', 'error'); }
   }
 
   function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m] || m)); }
@@ -468,15 +532,19 @@
     const savedToken = localStorage.getItem('adminToken'), savedRole = localStorage.getItem('adminRole');
     if (savedToken && savedRole) {
       adminToken = savedToken; currentRole = savedRole;
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('dashboard').style.display = 'block';
-      document.getElementById('userRoleSpan').innerHTML = `Role: ${currentRole.toUpperCase()}`;
+      const loginScreen = document.getElementById('loginScreen');
+      const dashboard = document.getElementById('dashboard');
+      if (loginScreen) loginScreen.style.display = 'none';
+      if (dashboard) dashboard.style.display = 'block';
+      const roleSpan = document.getElementById('userRoleSpan');
+      if (roleSpan) roleSpan.innerHTML = `Role: ${currentRole.toUpperCase()}`;
       setupNav(); showPage('dashboard');
     } else {
-      document.getElementById('loginScreen').style.display = 'flex';
-      document.getElementById('dashboard').style.display = 'none';
+      const loginScreen = document.getElementById('loginScreen');
+      const dashboard = document.getElementById('dashboard');
+      if (loginScreen) loginScreen.style.display = 'flex';
+      if (dashboard) dashboard.style.display = 'none';
     }
-    // Attach login button event listener after DOM loads
     const loginBtn = document.getElementById('loginButton');
     if (loginBtn) loginBtn.onclick = login;
   };
