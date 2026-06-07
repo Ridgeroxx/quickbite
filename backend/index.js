@@ -2,6 +2,7 @@
 import TelegramBot from 'node-telegram-bot-api';
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -17,6 +18,8 @@ const DELIVERY_FEE = parseFloat(process.env.DELIVERY_FEE) || 5.0;
 const SERVICE_FEE = parseFloat(process.env.SERVICE_FEE) || 0;
 const CURRENCY = process.env.CURRENCY || 'GHS';
 const RIDER_CONTACT = process.env.RIDER_CONTACT || '+233 20 000 0000';
+const ADMIN_SECRET = process.env.ADMIN_SECRET;
+if (!ADMIN_SECRET) console.warn('⚠️ ADMIN_SECRET not set. Admin login will fail.');
 
 if (!BOT_TOKEN) throw new Error('BOT_TOKEN missing');
 
@@ -41,6 +44,24 @@ function hasRole(userId, requiredRole) {
   if (requiredRole === 'order') return role === 'order';
   if (requiredRole === 'rider') return role === 'rider';
   return false;
+}
+
+// ---------- Admin Token Store ----------
+const validTokens = new Map();
+
+function generateToken(userId, role) {
+  const token = crypto.randomBytes(32).toString('hex');
+  validTokens.set(token, { userId, role, expires: Date.now() + 8 * 3600000 });
+  return token;
+}
+
+function verifyToken(token) {
+  const data = validTokens.get(token);
+  if (!data || data.expires < Date.now()) {
+    if (data) validTokens.delete(token);
+    return null;
+  }
+  return data;
 }
 
 // ---------- Advanced Menu ----------
@@ -79,10 +100,10 @@ function saveRiders() { fs.writeFileSync(RIDERS_FILE, JSON.stringify(riders, nul
 const app = express();
 app.use(express.json());
 
-// CORS – allow all origins (or restrict to your GitHub Pages domain)
+// CORS – allow all origins (you can restrict later)
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, x-admin-token');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
   if (req.method === 'OPTIONS') return res.sendStatus(200);
   next();
@@ -96,7 +117,29 @@ app.use((req, res, next) => {
   next();
 });
 
-// ---------- API Routes ----------
+// ---------- Admin Authentication ----------
+app.post('/admin/login', (req, res) => {
+  const { telegramId } = req.body;
+  if (!telegramId) return res.status(400).json({ error: 'Telegram ID required' });
+  const userId = parseInt(telegramId);
+  const role = adminRoles[userId];
+  if (!role) {
+    return res.status(403).json({ error: 'You are not authorized as admin.' });
+  }
+  const token = generateToken(userId, role);
+  res.json({ token, role, userName: `Admin (${userId})` });
+});
+
+function adminAuth(req, res, next) {
+  const token = req.headers['x-admin-token'];
+  if (!token) return res.status(401).json({ error: 'Missing token' });
+  const session = verifyToken(token);
+  if (!session) return res.status(401).json({ error: 'Invalid or expired token' });
+  req.admin = session;
+  next();
+}
+
+// ---------- Public API Routes ----------
 app.get('/api/menu', (req, res) => { res.json(menu); });
 
 app.post('/api/orders', async (req, res) => {
@@ -146,7 +189,6 @@ app.post('/api/orders', async (req, res) => {
   }
 });
 
-// New endpoint: submit payment reference (replaces /paid command for web app)
 app.post('/api/orders/:orderId/payment-reference', (req, res) => {
   try {
     const orderId = parseInt(req.params.orderId);
@@ -184,8 +226,9 @@ app.get('/api/orders/:userId', (req, res) => {
   res.json(userOrders);
 });
 
-app.get('/api/orders', (req, res) => { res.json({ orders }); });
-app.get('/api/orders/stats/summary', (req, res) => {
+// ---------- Admin API Routes (protected) ----------
+app.get('/api/orders', adminAuth, (req, res) => { res.json({ orders }); });
+app.get('/api/orders/stats/summary', adminAuth, (req, res) => {
   const today = new Date().toISOString().slice(0, 10);
   const weekAgo = new Date(Date.now() - 7 * 24 * 3600000).toISOString();
   const monthAgo = new Date(Date.now() - 30 * 24 * 3600000).toISOString();
@@ -201,7 +244,7 @@ app.get('/api/orders/stats/summary', (req, res) => {
   res.json(stats);
 });
 
-app.patch('/api/orders/:id/status', (req, res) => {
+app.patch('/api/orders/:id/status', adminAuth, (req, res) => {
   const id = parseInt(req.params.id);
   const order = orders.find(o => o.id === id);
   if (!order) return res.status(404).json({ error: 'Order not found' });
@@ -217,16 +260,12 @@ app.patch('/api/orders/:id/status', (req, res) => {
   }
   saveOrders();
   const bot = getBotInstance();
-  
-  // No customer notifications – only admin notifications (already handled in callback)
-  // We keep admin notifications in the callback handlers, not here.
-  
+  // (no customer notifications)
   res.json({ success: true });
 });
 
-// Menu management endpoints (same as before)
-app.get('/api/menu/all', (req, res) => { res.json({ items: menu }); });
-app.post('/api/menu', (req, res) => {
+app.get('/api/menu/all', adminAuth, (req, res) => { res.json({ items: menu }); });
+app.post('/api/menu', adminAuth, (req, res) => {
   const { name, price, category } = req.body;
   if (!name || !price) return res.status(400).json({ error: 'Missing fields' });
   const newId = Math.max(...menu.map(i => i.id), 0) + 1;
@@ -235,7 +274,7 @@ app.post('/api/menu', (req, res) => {
   saveMenu();
   res.json({ success: true });
 });
-app.patch('/api/menu/:id', (req, res) => {
+app.patch('/api/menu/:id', adminAuth, (req, res) => {
   const id = parseInt(req.params.id);
   const idx = menu.findIndex(i => i.id === id);
   if (idx === -1) return res.status(404).json({ error: 'Not found' });
@@ -243,15 +282,15 @@ app.patch('/api/menu/:id', (req, res) => {
   saveMenu();
   res.json({ success: true });
 });
-app.delete('/api/menu/:id', (req, res) => {
+app.delete('/api/menu/:id', adminAuth, (req, res) => {
   const id = parseInt(req.params.id);
   menu = menu.filter(i => i.id !== id);
   saveMenu();
   res.json({ success: true });
 });
 
-app.get('/api/riders', (req, res) => { res.json({ riders }); });
-app.post('/api/riders', (req, res) => {
+app.get('/api/riders', adminAuth, (req, res) => { res.json({ riders }); });
+app.post('/api/riders', adminAuth, (req, res) => {
   const { telegramId, name, phone } = req.body;
   if (!telegramId || !name) return res.status(400).json({ error: 'Missing fields' });
   if (riders.find(r => r.telegramId == telegramId)) return res.status(400).json({ error: 'Rider already exists' });
@@ -259,7 +298,7 @@ app.post('/api/riders', (req, res) => {
   saveRiders();
   res.json({ success: true });
 });
-app.patch('/api/riders/:id/availability', (req, res) => {
+app.patch('/api/riders/:id/availability', adminAuth, (req, res) => {
   const id = parseInt(req.params.id);
   const rider = riders.find(r => r.telegramId === id);
   if (!rider) return res.status(404).json({ error: 'Not found' });
@@ -267,7 +306,7 @@ app.patch('/api/riders/:id/availability', (req, res) => {
   saveRiders();
   res.json({ success: true });
 });
-app.delete('/api/riders/:id', (req, res) => {
+app.delete('/api/riders/:id', adminAuth, (req, res) => {
   const id = parseInt(req.params.id);
   riders = riders.filter(r => r.telegramId !== id);
   saveRiders();
@@ -291,19 +330,17 @@ function getBotInstance() {
 }
 
 function setupBotHandlers(bot) {
-  // Only welcome message to customers (no order updates)
   bot.onText(/\/start/, (msg) => {
     bot.sendMessage(msg.chat.id, `🇬🇭 Welcome to QuickBite!\nOrder authentic Ghanaian dishes from our web app:\nhttps://ridgeroxx.github.io/quickbite/\n\nAdmins: Use the admin panel for order management.`, { parse_mode: 'Markdown' });
   });
 
-  // Optional: /order command to open web app
   bot.onText(/\/order/, (msg) => {
     bot.sendMessage(msg.chat.id, '🍔 Click below to order:', {
       reply_markup: { inline_keyboard: [[{ text: '🛒 Open QuickBite', web_app: { url: 'https://ridgeroxx.github.io/quickbite/' } }]] }
     });
   });
 
-  // Admin commands (unchanged)
+  // Admin commands (unchanged, but they rely on hasRole)
   bot.onText(/\/admin_orders/, (msg) => {
     if (!hasRole(msg.from.id, null)) return;
     if (orders.length === 0) return bot.sendMessage(msg.chat.id, "No orders.");
@@ -377,9 +414,6 @@ function setupBotHandlers(bot) {
     });
   });
 
-  // REMOVED /paid command for customers – now handled via web app API endpoint
-
-  // Callback queries for admin actions (confirm, assign, deliver) – unchanged
   bot.on('callback_query', async (cq) => {
     const chatId = cq.message.chat.id;
     const data = cq.data;
@@ -390,7 +424,6 @@ function setupBotHandlers(bot) {
       if (order && order.status === 'paid') {
         order.status = 'confirmed';
         saveOrders();
-        // No customer notification – only admin
         bot.sendMessage(chatId, `✅ Order #${orderId} confirmed.`);
         for (const [adminId, role] of Object.entries(adminRoles)) {
           if (role === 'order' || role === 'super') bot.sendMessage(parseInt(adminId), `🔄 Order #${orderId} is now confirmed.`);
@@ -402,13 +435,12 @@ function setupBotHandlers(bot) {
       const orderId = parseInt(parts[1]), riderId = parseInt(parts[2]);
       const order = orders.find(o => o.id === orderId);
       const rider = riders.find(r => r.telegramId === riderId);
-      if (order && rider && (order.status === 'completed' || order.status === 'ready')) {
+      if (order && rider && order.status === 'completed') {
         order.status = 'assigned_to_rider';
         order.riderId = riderId;
         order.riderName = rider.name;
         order.riderPhone = rider.phone || 'No phone';
         saveOrders();
-        // No customer notification – customer sees in web app
         bot.sendMessage(riderId, `📦 *New delivery* Order #${orderId}\nCustomer: ${order.customerName}\nPhone: ${order.customerPhone}\nAddress: ${order.address}\nItems: ${order.items.map(i => i.name).join(', ')}\nTotal: ${CURRENCY}${order.total}`, {
           parse_mode: 'Markdown',
           reply_markup: { inline_keyboard: [[{ text: '✅ Mark Delivered', callback_data: `deliver_${orderId}` }]] }
@@ -421,13 +453,11 @@ function setupBotHandlers(bot) {
       if (order && order.status === 'assigned_to_rider') {
         order.status = 'delivered';
         saveOrders();
-        // No customer notification
         bot.sendMessage(chatId, `Order #${orderId} delivered.`);
       }
     }
   });
 
-  // Order manager commands (process, ready) – unchanged but no customer notifications
   bot.onText(/\/process (\d+)/, (msg, match) => {
     if (!hasRole(msg.from.id, 'order')) return;
     const orderId = parseInt(match[1]);
