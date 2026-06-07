@@ -248,9 +248,11 @@ app.patch('/api/orders/:id/status', adminAuth, (req, res) => {
   const id = parseInt(req.params.id);
   const order = orders.find(o => o.id === id);
   if (!order) return res.status(404).json({ error: 'Order not found' });
-  const { status, riderTelegramId } = req.body;
+  const { status, riderTelegramId, riderName, riderPhone } = req.body;
+  
   if (status) order.status = status;
-  // If riderTelegramId is provided, store it; otherwise, we can still mark as assigned
+  
+  // If riderTelegramId provided, look up from riders list
   if (riderTelegramId) {
     const rider = riders.find(r => r.telegramId == riderTelegramId);
     if (rider) {
@@ -258,14 +260,17 @@ app.patch('/api/orders/:id/status', adminAuth, (req, res) => {
       order.riderName = rider.name;
       order.riderPhone = rider.phone || 'No phone';
     }
-  } else if (status === 'assigned_to_rider') {
-    // Mark as assigned without a specific rider ID – for manual WhatsApp assignment
-    order.riderName = 'Manual Assignment (WhatsApp)';
-    order.riderPhone = 'Send via WhatsApp';
+  } 
+  // If manual assignment with name and phone provided
+  else if (riderName && riderPhone) {
+    order.riderName = riderName;
+    order.riderPhone = riderPhone;
+    order.riderId = null;
   }
+  // If status is assigned_to_rider but no rider info, don't overwrite existing
+  // (preserve previously set rider info)
+  
   saveOrders();
-  const bot = getBotInstance();
-  // (no customer notifications)
   res.json({ success: true });
 });
 
