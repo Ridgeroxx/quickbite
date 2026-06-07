@@ -8,57 +8,93 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: #f4f6fb;
+      display: flex;
       min-height: 100vh;
     }
-    /* Login container */
-    .login-container {
-      max-width: 400px;
-      margin: 100px auto;
-      background: white;
-      border-radius: 28px;
-      padding: 32px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-    .login-container h2 { margin-bottom: 24px; color: #e67e22; }
-    .login-container input {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid #ddd;
-      border-radius: 40px;
-      margin-bottom: 16px;
-      font-size: 16px;
-    }
-    .login-container button {
-      background: #e67e22;
+    /* Sidebar */
+    .sidebar {
+      width: 260px;
+      background: #1a1a2e;
       color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 40px;
-      width: 100%;
-      font-weight: bold;
-      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 100;
+      transition: transform 0.3s;
     }
-    .error { color: #e74c3c; margin-top: 12px; }
-    /* Main dashboard (hidden initially) */
-    .dashboard {
-      display: none;
-      max-width: 1400px;
-      margin: 0 auto;
+    .sidebar-logo {
+      padding: 28px 24px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .sidebar-logo .logo-text { font-size: 22px; font-weight: 800; }
+    .sidebar-logo .logo-text span { color: #ff6b35; }
+    .nav-section { padding: 16px 0; }
+    .nav-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.35);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 0 24px 8px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 24px;
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+    }
+    .nav-item:hover { background: #16213e; color: white; }
+    .nav-item.active {
+      background: rgba(255,107,53,0.15);
+      color: #ff6b35;
+      border-left-color: #ff6b35;
+    }
+    .nav-item i { width: 20px; text-align: center; }
+    .nav-badge {
+      margin-left: auto;
+      background: #ff6b35;
+      color: white;
+      border-radius: 50px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 20px 24px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+    }
+    /* Main content */
+    .main {
+      margin-left: 260px;
+      flex: 1;
       padding: 20px;
     }
-    .header {
+    /* Top bar */
+    .topbar {
+      background: white;
+      border-radius: 24px;
+      padding: 16px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 24px;
-      background: white;
-      padding: 16px 24px;
-      border-radius: 24px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
+    .topbar h2 { font-size: 18px; }
     .logout-btn {
       background: #e74c3c;
       color: white;
@@ -67,7 +103,7 @@
       border-radius: 30px;
       cursor: pointer;
     }
-    /* Stats grid */
+    /* Stats */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -82,24 +118,6 @@
     }
     .stat-card h3 { font-size: 14px; color: #666; margin-bottom: 8px; }
     .stat-card .value { font-size: 28px; font-weight: bold; color: #e67e22; }
-    /* Tabs */
-    .tabs {
-      display: flex;
-      gap: 8px;
-      background: white;
-      padding: 8px;
-      border-radius: 60px;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-    }
-    .tab {
-      padding: 10px 20px;
-      border-radius: 40px;
-      cursor: pointer;
-      background: #f0f0f0;
-      transition: 0.2s;
-    }
-    .tab.active { background: #e67e22; color: white; }
     /* Tables */
     .table-wrap {
       background: white;
@@ -109,7 +127,7 @@
     }
     table { width: 100%; border-collapse: collapse; }
     th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
-    th { background: #fafafa; }
+    th { background: #fafafa; font-weight: 600; }
     .badge {
       display: inline-block;
       padding: 4px 12px;
@@ -132,8 +150,10 @@
       border-radius: 20px;
       cursor: pointer;
       font-size: 12px;
+      margin: 2px;
     }
     button.danger { background: #e74c3c; }
+    button.success { background: #27ae60; }
     button.secondary { background: #6c757d; }
     .cards-grid {
       display: grid;
@@ -147,45 +167,147 @@
       text-align: center;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #27ae60;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 40px;
+      z-index: 1100;
+      opacity: 0;
+      transition: opacity 0.2s;
+      font-size: 13px;
+    }
+    .toast.show { opacity: 1; }
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+    }
   </style>
 </head>
 <body>
-
-<!-- Login Screen -->
-<div id="loginScreen" class="login-container">
-  <h2>🔐 Admin Login</h2>
-  <input type="number" id="telegramId" placeholder="Enter your Telegram ID" />
-  <button onclick="login()">Login</button>
-  <div id="loginError" class="error"></div>
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo"><div class="logo-text">🍔 <span>QuickBite</span></div><div class="logo-sub">Admin Portal</div></div>
+  <div class="nav-section">
+    <div class="nav-label">Main</div>
+    <div class="nav-item" onclick="showPage('dashboard')"><i class="fa fa-chart-line"></i> Dashboard</div>
+    <div class="nav-item" onclick="showPage('orders')"><i class="fa fa-receipt"></i> All Orders</div>
+  </div>
+  <div class="nav-section" id="navPaymentsSection" style="display:none;">
+    <div class="nav-label">Payments</div>
+    <div class="nav-item" onclick="showPage('payments')"><i class="fa fa-credit-card"></i> Pending Payments</div>
+  </div>
+  <div class="nav-section" id="navOrderFlowSection" style="display:none;">
+    <div class="nav-label">Order Processing</div>
+    <div class="nav-item" onclick="showPage('orderFlow')"><i class="fa fa-cogs"></i> Order Flow</div>
+  </div>
+  <div class="nav-section" id="navRidersSection" style="display:none;">
+    <div class="nav-label">Riders</div>
+    <div class="nav-item" onclick="showPage('riders')"><i class="fa fa-motorcycle"></i> Manage Riders</div>
+  </div>
+  <div class="nav-section" id="navMenuSection" style="display:none;">
+    <div class="nav-label">Menu</div>
+    <div class="nav-item" onclick="showPage('menu')"><i class="fa fa-utensils"></i> Menu Items</div>
+  </div>
+  <div class="nav-section" id="navAdminsSection" style="display:none;">
+    <div class="nav-label">System</div>
+    <div class="nav-item" onclick="showPage('admins')"><i class="fa fa-users"></i> Admins</div>
+  </div>
+  <div class="sidebar-footer">
+    <span id="userRoleSpan"></span>
+  </div>
 </div>
 
-<!-- Main Dashboard -->
-<div id="dashboard" class="dashboard">
-  <div class="header">
-    <h2>🍔 QuickBite Admin</h2>
-    <div>
-      <span id="userRoleBadge" style="margin-right: 16px;"></span>
-      <button class="logout-btn" onclick="logout()">Logout</button>
+<div class="main">
+  <div class="topbar">
+    <h2 id="pageTitle">Dashboard</h2>
+    <button class="logout-btn" onclick="logout()"><i class="fa fa-sign-out-alt"></i> Logout</button>
+  </div>
+
+  <div id="page-dashboard" class="page">
+    <div class="stats-grid" id="statsGrid"></div>
+    <div class="table-wrap">
+      <h3 style="margin-bottom: 16px;">Recent Orders</h3>
+      <table><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="dashboardOrdersBody"></tbody></table>
     </div>
   </div>
 
-  <div class="stats-grid" id="statsGrid"></div>
+  <div id="page-orders" class="page" style="display:none;">
+    <div class="table-wrap">
+      <table><thead><tr><th>#</th><th>Customer</th><th>Address</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="allOrdersBody"></tbody></table>
+    </div>
+  </div>
 
-  <div class="tabs" id="tabsContainer"></div>
+  <div id="page-payments" class="page" style="display:none;">
+    <div class="table-wrap">
+      <table><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Reference</th><th>Status</th><th>Action</th></tr></thead><tbody id="paymentsBody"></tbody></table>
+    </div>
+  </div>
 
-  <div id="tabContent"></div>
+  <div id="page-orderFlow" class="page" style="display:none;">
+    <div class="table-wrap">
+      <table><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="orderFlowBody"></tbody></table>
+    </div>
+  </div>
+
+  <div id="page-riders" class="page" style="display:none;">
+    <button onclick="addRider()" style="margin-bottom: 16px;"><i class="fa fa-plus"></i> Add Rider</button>
+    <div class="table-wrap">
+      <table><thead><tr><th>Telegram ID</th><th>Name</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ridersBody"></tbody></table>
+    </div>
+  </div>
+
+  <div id="page-menu" class="page" style="display:none;">
+    <button onclick="openAddMenuItem()" style="margin-bottom: 16px;"><i class="fa fa-plus"></i> Add Menu Item</button>
+    <div class="cards-grid" id="menuGrid"></div>
+  </div>
+
+  <div id="page-admins" class="page" style="display:none;">
+    <div class="table-wrap"><p>Use Telegram command <code>/set_role &lt;id&gt; &lt;role&gt;</code> to manage admins.</p></div>
+  </div>
 </div>
 
+<div id="toast" class="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
   const API_BASE = 'https://quickbite-joi1.onrender.com';
   let adminToken = null;
   let currentRole = null;
-  let currentTab = 'orders';
 
+  // Helper: toast
+  function showToast(msg, type = 'success') {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.style.background = type === 'success' ? '#27ae60' : '#e74c3c';
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  // Helper: API calls with token
+  async function fetchAPI(endpoint, options = {}) {
+    const headers = {
+      'Content-Type': 'application/json',
+      'x-admin-token': adminToken,
+      ...options.headers
+    };
+    const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+    if (res.status === 401) {
+      logout();
+      Swal.fire('Session expired', 'Please login again.', 'error');
+      throw new Error('Unauthorized');
+    }
+    return res.json();
+  }
+
+  // Login
   async function login() {
-    const telegramId = document.getElementById('telegramId').value.trim();
+    const telegramId = document.getElementById('telegramId')?.value.trim();
     if (!telegramId) {
-      document.getElementById('loginError').innerText = 'Please enter your Telegram ID';
+      Swal.fire('Error', 'Please enter your Telegram ID', 'error');
       return;
     }
     try {
@@ -202,13 +324,14 @@
         localStorage.setItem('adminRole', currentRole);
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('dashboard').style.display = 'block';
-        document.getElementById('userRoleBadge').innerHTML = `👤 Role: ${currentRole.toUpperCase()}`;
-        loadDashboard();
+        document.getElementById('userRoleSpan').innerHTML = `Role: ${currentRole.toUpperCase()}`;
+        setupNav();
+        showPage('dashboard');
       } else {
-        document.getElementById('loginError').innerText = data.error || 'Login failed';
+        Swal.fire('Access Denied', data.error || 'Invalid credentials', 'error');
       }
     } catch (err) {
-      document.getElementById('loginError').innerText = 'Network error';
+      Swal.fire('Network Error', 'Could not connect to server', 'error');
     }
   }
 
@@ -217,205 +340,152 @@
     localStorage.removeItem('adminRole');
     adminToken = null;
     currentRole = null;
-    document.getElementById('loginScreen').style.display = 'block';
-    document.getElementById('dashboard').style.display = 'none';
+    location.reload();
   }
 
-  async function fetchAPI(endpoint, options = {}) {
-    const headers = {
-      'Content-Type': 'application/json',
-      'x-admin-token': adminToken,
-      ...options.headers
-    };
-    const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
-    if (res.status === 401) {
-      logout();
-      alert('Session expired. Please login again.');
-      throw new Error('Unauthorized');
-    }
-    return res.json();
+  function setupNav() {
+    document.getElementById('navPaymentsSection').style.display = (currentRole === 'payment' || currentRole === 'super') ? 'block' : 'none';
+    document.getElementById('navOrderFlowSection').style.display = (currentRole === 'order' || currentRole === 'super') ? 'block' : 'none';
+    document.getElementById('navRidersSection').style.display = (currentRole === 'rider' || currentRole === 'super') ? 'block' : 'none';
+    document.getElementById('navMenuSection').style.display = (currentRole === 'super') ? 'block' : 'none';
+    document.getElementById('navAdminsSection').style.display = (currentRole === 'super') ? 'block' : 'none';
+  }
+
+  let currentPage = 'dashboard';
+  function showPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+    document.getElementById(`page-${page}`).style.display = 'block';
+    currentPage = page;
+    document.getElementById('pageTitle').innerText = page.charAt(0).toUpperCase() + page.slice(1);
+    if (page === 'dashboard') loadDashboard();
+    else if (page === 'orders') loadAllOrders();
+    else if (page === 'payments') loadPayments();
+    else if (page === 'orderFlow') loadOrderFlow();
+    else if (page === 'riders') loadRiders();
+    else if (page === 'menu') loadMenu();
+    else if (page === 'admins') loadAdmins();
   }
 
   async function loadDashboard() {
-    await loadStats();
-    renderTabs();
-    await loadTab(currentTab);
-  }
-
-  async function loadStats() {
     const stats = await fetchAPI('/api/orders/stats/summary');
-    const statsGrid = document.getElementById('statsGrid');
-    statsGrid.innerHTML = `
+    document.getElementById('statsGrid').innerHTML = `
       <div class="stat-card"><h3>Today's Orders</h3><div class="value">${stats.today.count}</div><div>GHS ${stats.today.total}</div></div>
       <div class="stat-card"><h3>This Week</h3><div class="value">${stats.week.count}</div><div>GHS ${stats.week.total}</div></div>
       <div class="stat-card"><h3>This Month</h3><div class="value">${stats.month.count}</div><div>GHS ${stats.month.total}</div></div>
       <div class="stat-card"><h3>All Time Revenue</h3><div class="value">GHS ${stats.all.total}</div></div>
     `;
-  }
-
-  function renderTabs() {
-    const tabsContainer = document.getElementById('tabsContainer');
-    let tabs = [];
-    // All roles can view orders (read-only)
-    tabs.push({ id: 'orders', label: '📋 Orders' });
-    if (currentRole === 'payment' || currentRole === 'super') {
-      tabs.push({ id: 'payments', label: '💰 Payments' });
-    }
-    if (currentRole === 'order' || currentRole === 'super') {
-      tabs.push({ id: 'orderFlow', label: '⚙️ Order Flow' });
-    }
-    if (currentRole === 'rider' || currentRole === 'super') {
-      tabs.push({ id: 'riders', label: '🛵 Riders' });
-    }
-    if (currentRole === 'super') {
-      tabs.push({ id: 'menu', label: '🍽️ Menu' });
-      tabs.push({ id: 'admins', label: '👥 Admins' });
-    }
-    tabsContainer.innerHTML = tabs.map(tab => `
-      <div class="tab ${currentTab === tab.id ? 'active' : ''}" onclick="switchTab('${tab.id}')">${tab.label}</div>
+    const { orders } = await fetchAPI('/api/orders');
+    const recent = orders.slice(0, 10);
+    document.getElementById('dashboardOrdersBody').innerHTML = recent.map(o => `
+      <tr>
+        <td>#${o.id}</td><td>${escapeHtml(o.customerName)}</td><td>GHS ${o.total}</td>
+        <td><span class="badge ${o.status}">${o.status}</span></td>
+        <td><button onclick="viewOrderDetails(${o.id})">View</button></td>
+      </tr>
     `).join('');
   }
 
-  window.switchTab = (tabId) => {
-    currentTab = tabId;
-    renderTabs();
-    loadTab(tabId);
-  };
-
-  async function loadTab(tabId) {
-    const contentDiv = document.getElementById('tabContent');
-    if (tabId === 'orders') {
-      const { orders } = await fetchAPI('/api/orders');
-      contentDiv.innerHTML = `
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>#</th><th>Customer</th><th>Address</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="ordersTableBody"></tbody>
-          </table>
-        </div>
-      `;
-      const tbody = document.getElementById('ordersTableBody');
-      tbody.innerHTML = orders.map(o => `
-        <tr>
-          <td>${o.id}</td>
-          <td>${escapeHtml(o.customerName)} (${o.customerPhone})</td>
-          <td>${escapeHtml(o.address.substring(0, 40))}</td>
-          <td>GHS ${o.total}</td>
-          <td><span class="badge ${o.status}">${o.status.replace(/_/g, ' ')}</span></td>
-          <td><button onclick="viewOrder(${o.id})">View</button></td>
-        </tr>
-      `).join('');
-    } else if (tabId === 'payments') {
-      const { orders } = await fetchAPI('/api/orders');
-      const pending = orders.filter(o => o.status === 'pending_payment' || o.status === 'paid');
-      contentDiv.innerHTML = `
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Reference</th><th>Status</th><th>Action</th></tr></thead>
-            <tbody id="paymentsTableBody"></tbody>
-          </table>
-        </div>
-      `;
-      const tbody = document.getElementById('paymentsTableBody');
-      tbody.innerHTML = pending.map(o => `
-        <tr>
-          <td>${o.id}</td>
-          <td>${escapeHtml(o.customerName)}</td>
-          <td>GHS ${o.total}</td>
-          <td>${o.paymentReference || '—'}</td>
-          <td><span class="badge ${o.status}">${o.status}</span></td>
-          <td>${o.status === 'paid' ? `<button onclick="confirmPayment(${o.id})">Confirm</button>` : 'Awaiting ref'}</td>
-        </tr>
-      `).join('');
-    } else if (tabId === 'orderFlow') {
-      const { orders } = await fetchAPI('/api/orders');
-      const readyOrders = orders.filter(o => ['paid', 'confirmed', 'processing', 'completed'].includes(o.status));
-      contentDiv.innerHTML = `
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="flowTableBody"></tbody>
-          </table>
-        </div>
-      `;
-      const tbody = document.getElementById('flowTableBody');
-      tbody.innerHTML = readyOrders.map(o => `
-        <tr>
-          <td>${o.id}</td>
-          <td>${escapeHtml(o.customerName)}</td>
-          <td>GHS ${o.total}</td>
-          <td><span class="badge ${o.status}">${o.status}</span></td>
-          <td>
-            ${o.status === 'paid' ? `<button onclick="updateOrderStatus(${o.id}, 'confirmed')">Confirm Order</button>` : ''}
-            ${o.status === 'confirmed' ? `<button onclick="updateOrderStatus(${o.id}, 'processing')">Start Processing</button>` : ''}
-            ${o.status === 'processing' ? `<button onclick="updateOrderStatus(${o.id}, 'completed')">Mark Ready</button>` : ''}
-            ${o.status === 'completed' ? `<button onclick="openAssignRider(${o.id})">Assign Rider</button>` : ''}
-          </td>
-        </tr>
-      `).join('');
-    } else if (tabId === 'riders') {
-      const { riders } = await fetchAPI('/api/riders');
-      contentDiv.innerHTML = `
-        <div style="margin-bottom: 16px;"><button onclick="addRider()">➕ Add Rider</button></div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Telegram ID</th><th>Name</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="ridersTableBody"></tbody>
-          </table>
-        </div>
-      `;
-      const tbody = document.getElementById('ridersTableBody');
-      tbody.innerHTML = riders.map(r => `
-        <tr>
-          <td>${r.telegramId}</td>
-          <td>${escapeHtml(r.name)}</td>
-          <td>${r.phone || '—'}</td>
-          <td>${r.isAvailable === 'true' ? '✅ Available' : '❌ Busy'}</td>
-          <td>
-            <button onclick="toggleRider(${r.telegramId}, '${r.isAvailable}')">Toggle</button>
-            <button class="danger" onclick="deleteRider(${r.telegramId})">Delete</button>
-          </td>
-        </tr>
-      `).join('');
-    } else if (tabId === 'menu') {
-      const { items } = await fetchAPI('/api/menu/all');
-      contentDiv.innerHTML = `
-        <div style="margin-bottom: 16px;"><button onclick="openAddMenuItem()">➕ Add Menu Item</button></div>
-        <div class="cards-grid" id="menuGrid"></div>
-      `;
-      const grid = document.getElementById('menuGrid');
-      grid.innerHTML = items.map(item => `
-        <div class="menu-card">
-          <div style="font-size: 32px;">${item.emoji || '🍽️'}</div>
-          <div><strong>${escapeHtml(item.name)}</strong></div>
-          <div>GHS ${item.basePrice}</div>
-          <div>${item.category}</div>
-          <div style="margin-top: 8px;">
-            <button onclick="editMenuItem(${item.id}, '${escapeHtml(item.name)}', ${item.basePrice}, '${item.category}')">Edit</button>
-            <button class="danger" onclick="deleteMenuItem(${item.id})">Delete</button>
-          </div>
-        </div>
-      `).join('');
-    } else if (tabId === 'admins') {
-      contentDiv.innerHTML = `<div>Admin role management coming soon. Use Telegram commands /set_role for now.</div>`;
-    }
+  async function loadAllOrders() {
+    const { orders } = await fetchAPI('/api/orders');
+    document.getElementById('allOrdersBody').innerHTML = orders.map(o => `
+      <tr>
+        <td>#${o.id}</td><td>${escapeHtml(o.customerName)}</td><td>${escapeHtml(o.address.substring(0, 40))}</td>
+        <td>GHS ${o.total}</td><td><span class="badge ${o.status}">${o.status}</span></td>
+        <td><button onclick="viewOrderDetails(${o.id})">View</button></td>
+      </tr>
+    `).join('');
   }
 
-  // Helper functions
-  window.viewOrder = async (id) => {
+  async function loadPayments() {
     const { orders } = await fetchAPI('/api/orders');
-    const order = orders.find(o => o.id === id);
+    const pending = orders.filter(o => o.status === 'pending_payment' || o.status === 'paid');
+    document.getElementById('paymentsBody').innerHTML = pending.map(o => `
+      <tr>
+        <td>#${o.id}</td><td>${escapeHtml(o.customerName)}</td><td>GHS ${o.total}</td>
+        <td>${o.paymentReference || '—'}</td><td><span class="badge ${o.status}">${o.status}</span></td>
+        <td>${o.status === 'paid' ? `<button onclick="confirmPayment(${o.id})">Confirm</button>` : 'Awaiting ref'}</td>
+      </tr>
+    `).join('');
+  }
+
+  async function loadOrderFlow() {
+    const { orders } = await fetchAPI('/api/orders');
+    const active = orders.filter(o => ['paid', 'confirmed', 'processing', 'completed'].includes(o.status));
+    document.getElementById('orderFlowBody').innerHTML = active.map(o => `
+      <tr>
+        <td>#${o.id}</td><td>${escapeHtml(o.customerName)}</td><td>GHS ${o.total}</td>
+        <td><span class="badge ${o.status}">${o.status}</span></td>
+        <td>
+          ${o.status === 'paid' ? `<button onclick="updateOrderStatus(${o.id}, 'confirmed')">Confirm</button>` : ''}
+          ${o.status === 'confirmed' ? `<button onclick="updateOrderStatus(${o.id}, 'processing')">Process</button>` : ''}
+          ${o.status === 'processing' ? `<button onclick="updateOrderStatus(${o.id}, 'completed')">Ready</button>` : ''}
+          ${o.status === 'completed' ? `<button onclick="markAssignedManually(${o.id})">Mark Assigned</button>` : ''}
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  async function loadRiders() {
+    const { riders } = await fetchAPI('/api/riders');
+    document.getElementById('ridersBody').innerHTML = riders.map(r => `
+      <tr>
+        <td>${r.telegramId}</td><td>${escapeHtml(r.name)}</td><td>${r.phone || '—'}</td>
+        <td>${r.isAvailable === 'true' ? 'Available' : 'Busy'}</td>
+        <td><button onclick="toggleRider(${r.telegramId}, '${r.isAvailable}')">Toggle</button>
+        <button class="danger" onclick="deleteRider(${r.telegramId})">Delete</button></td>
+      </tr>
+    `).join('');
+  }
+
+  async function loadMenu() {
+    const { items } = await fetchAPI('/api/menu/all');
+    document.getElementById('menuGrid').innerHTML = items.map(item => `
+      <div class="menu-card">
+        <div style="font-size:32px;">${item.emoji || '🍽️'}</div>
+        <strong>${escapeHtml(item.name)}</strong><br>
+        GHS ${item.basePrice}<br>
+        <small>${item.category}</small><br>
+        <button onclick="editMenuItem(${item.id}, '${escapeHtml(item.name)}', ${item.basePrice}, '${item.category}')">Edit</button>
+        <button class="danger" onclick="deleteMenuItem(${item.id})">Delete</button>
+      </div>
+    `).join('');
+  }
+
+  function loadAdmins() { /* placeholder */ }
+
+  // ---- Actions ----
+  window.viewOrderDetails = async (orderId) => {
+    const { orders } = await fetchAPI('/api/orders');
+    const order = orders.find(o => o.id === orderId);
     if (!order) return;
-    alert(`Order #${order.id}\nCustomer: ${order.customerName}\nPhone: ${order.customerPhone}\nAddress: ${order.address}\nItems: ${order.items.map(i => `${i.name} x${i.qty}`).join(', ')}\nTotal: GHS ${order.total}\nStatus: ${order.status}`);
+    const itemsHtml = order.items.map(i => `${i.name} x${i.qty} = GHS ${i.totalPrice * i.qty}`).join('\n');
+    Swal.fire({
+      title: `Order #${order.id}`,
+      html: `
+        <strong>Customer:</strong> ${order.customerName}<br>
+        <strong>Phone:</strong> ${order.customerPhone}<br>
+        <strong>Address:</strong> ${order.address}<br>
+        <strong>Total:</strong> GHS ${order.total}<br>
+        <strong>Status:</strong> ${order.status}<br>
+        <strong>Items:</strong><br>${itemsHtml}<br>
+        ${order.riderName ? `<strong>Rider:</strong> ${order.riderName} (${order.riderPhone})` : ''}
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Copy Details',
+      cancelButtonText: 'Close'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const copyText = `Order #${order.id}\nCustomer: ${order.customerName}\nPhone: ${order.customerPhone}\nAddress: ${order.address}\nTotal: GHS ${order.total}\nItems:\n${itemsHtml}`;
+        navigator.clipboard.writeText(copyText);
+        showToast('Order details copied to clipboard');
+      }
+    });
   };
 
   window.confirmPayment = async (orderId) => {
-    await fetchAPI(`/api/orders/${orderId}/status`, {
-      method: 'PATCH',
-      body: JSON.stringify({ status: 'confirmed' })
-    });
-    loadTab('payments');
-    loadStats();
+    await updateOrderStatus(orderId, 'confirmed');
+    loadPayments();
+    loadDashboard();
   };
 
   window.updateOrderStatus = async (orderId, newStatus) => {
@@ -423,83 +493,113 @@
       method: 'PATCH',
       body: JSON.stringify({ status: newStatus })
     });
-    loadTab('orderFlow');
-    loadStats();
+    showToast(`Order #${orderId} updated to ${newStatus}`);
+    if (currentPage === 'orderFlow') loadOrderFlow();
+    if (currentPage === 'payments') loadPayments();
+    loadDashboard();
   };
 
-  window.openAssignRider = async (orderId) => {
-    const { riders } = await fetchAPI('/api/riders');
-    const available = riders.filter(r => r.isAvailable === 'true');
-    if (available.length === 0) {
-      alert('No available riders');
-      return;
-    }
-    const riderId = prompt(`Available riders:\n${available.map(r => `${r.telegramId} - ${r.name}`).join('\n')}\n\nEnter rider Telegram ID:`);
-    if (riderId) {
-      await fetchAPI(`/api/orders/${orderId}/status`, {
-        method: 'PATCH',
-        body: JSON.stringify({ status: 'assigned_to_rider', riderTelegramId: parseInt(riderId) })
-      });
-      loadTab('orderFlow');
-    }
+  window.markAssignedManually = async (orderId) => {
+    await fetchAPI(`/api/orders/${orderId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: 'assigned_to_rider' })
+    });
+    showToast(`Order #${orderId} marked as assigned (WhatsApp manual)`);
+    loadOrderFlow();
+    loadDashboard();
   };
 
   window.addRider = async () => {
-    const id = prompt('Telegram ID:');
-    if (!id) return;
-    const name = prompt('Name:');
-    const phone = prompt('Phone (optional):');
-    await fetchAPI('/api/riders', {
-      method: 'POST',
-      body: JSON.stringify({ telegramId: parseInt(id), name, phone: phone || '' })
+    const { value: formValues } = await Swal.fire({
+      title: 'Add Rider',
+      html: `
+        <input id="riderId" class="swal2-input" placeholder="Telegram ID (numeric)" type="number">
+        <input id="riderName" class="swal2-input" placeholder="Rider Name">
+        <input id="riderPhone" class="swal2-input" placeholder="Phone Number (optional)">
+      `,
+      focusConfirm: false,
+      preConfirm: () => {
+        return {
+          id: document.getElementById('riderId').value,
+          name: document.getElementById('riderName').value,
+          phone: document.getElementById('riderPhone').value
+        };
+      }
     });
-    loadTab('riders');
+    if (formValues && formValues.id && formValues.name) {
+      await fetchAPI('/api/riders', {
+        method: 'POST',
+        body: JSON.stringify({
+          telegramId: parseInt(formValues.id),
+          name: formValues.name,
+          phone: formValues.phone || ''
+        })
+      });
+      showToast('Rider added');
+      loadRiders();
+    }
   };
 
   window.toggleRider = async (id, current) => {
-    const newAvailable = current === 'true' ? 'false' : 'true';
+    const newVal = current === 'true' ? 'false' : 'true';
     await fetchAPI(`/api/riders/${id}/availability`, {
       method: 'PATCH',
-      body: JSON.stringify({ isAvailable: newAvailable })
+      body: JSON.stringify({ isAvailable: newVal })
     });
-    loadTab('riders');
+    loadRiders();
   };
 
   window.deleteRider = async (id) => {
-    if (confirm('Delete rider?')) {
+    if (await Swal.fire({ title: 'Confirm', text: 'Delete this rider?', icon: 'warning', showCancelButton: true })) {
       await fetchAPI(`/api/riders/${id}`, { method: 'DELETE' });
-      loadTab('riders');
+      loadRiders();
     }
   };
 
-  window.openAddMenuItem = () => {
-    const name = prompt('Item name:');
-    const price = prompt('Price (GHS):');
-    const category = prompt('Category:');
-    if (name && price) {
-      fetchAPI('/api/menu', {
-        method: 'POST',
-        body: JSON.stringify({ name, price: parseFloat(price), category })
-      }).then(() => loadTab('menu'));
+  window.openAddMenuItem = async () => {
+    const { value: formValues } = await Swal.fire({
+      title: 'Add Menu Item',
+      html: `
+        <input id="itemName" class="swal2-input" placeholder="Name">
+        <input id="itemPrice" class="swal2-input" placeholder="Price (GHS)" type="number" step="0.01">
+        <input id="itemCategory" class="swal2-input" placeholder="Category">
+      `,
+      preConfirm: () => ({
+        name: document.getElementById('itemName').value,
+        price: parseFloat(document.getElementById('itemPrice').value),
+        category: document.getElementById('itemCategory').value
+      })
+    });
+    if (formValues && formValues.name && formValues.price) {
+      await fetchAPI('/api/menu', { method: 'POST', body: JSON.stringify(formValues) });
+      loadMenu();
     }
   };
 
-  window.editMenuItem = (id, oldName, oldPrice, oldCategory) => {
-    const name = prompt('New name:', oldName);
-    const price = prompt('New price:', oldPrice);
-    const category = prompt('New category:', oldCategory);
-    if (name && price) {
-      fetchAPI(`/api/menu/${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ name, basePrice: parseFloat(price), category })
-      }).then(() => loadTab('menu'));
+  window.editMenuItem = async (id, oldName, oldPrice, oldCategory) => {
+    const { value: formValues } = await Swal.fire({
+      title: 'Edit Menu Item',
+      html: `
+        <input id="itemName" class="swal2-input" value="${oldName}">
+        <input id="itemPrice" class="swal2-input" value="${oldPrice}" type="number" step="0.01">
+        <input id="itemCategory" class="swal2-input" value="${oldCategory}">
+      `,
+      preConfirm: () => ({
+        name: document.getElementById('itemName').value,
+        basePrice: parseFloat(document.getElementById('itemPrice').value),
+        category: document.getElementById('itemCategory').value
+      })
+    });
+    if (formValues) {
+      await fetchAPI(`/api/menu/${id}`, { method: 'PATCH', body: JSON.stringify(formValues) });
+      loadMenu();
     }
   };
 
   window.deleteMenuItem = async (id) => {
-    if (confirm('Delete this item?')) {
+    if (await Swal.fire({ title: 'Confirm', text: 'Delete this item?', icon: 'warning', showCancelButton: true })) {
       await fetchAPI(`/api/menu/${id}`, { method: 'DELETE' });
-      loadTab('menu');
+      loadMenu();
     }
   };
 
@@ -516,8 +616,20 @@
       currentRole = savedRole;
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('dashboard').style.display = 'block';
-      document.getElementById('userRoleBadge').innerHTML = `👤 Role: ${currentRole.toUpperCase()}`;
-      loadDashboard();
+      document.getElementById('userRoleSpan').innerHTML = `Role: ${currentRole.toUpperCase()}`;
+      setupNav();
+      showPage('dashboard');
+    } else {
+      // Show login screen
+      document.body.innerHTML = `
+        <div id="loginScreen" class="login-container" style="max-width:400px;margin:100px auto;background:white;border-radius:28px;padding:32px;text-align:center;">
+          <h2>🔐 Admin Login</h2>
+          <input type="number" id="telegramId" placeholder="Enter your Telegram ID" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:40px;margin-bottom:16px;" />
+          <button onclick="login()" style="background:#e67e22;color:white;border:none;padding:12px;border-radius:40px;width:100%;cursor:pointer;">Login</button>
+          <div id="loginError" style="color:red;margin-top:12px;"></div>
+        </div>
+      `;
+      window.login = login;
     }
   };
 </script>

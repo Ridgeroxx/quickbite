@@ -250,6 +250,7 @@ app.patch('/api/orders/:id/status', adminAuth, (req, res) => {
   if (!order) return res.status(404).json({ error: 'Order not found' });
   const { status, riderTelegramId } = req.body;
   if (status) order.status = status;
+  // If riderTelegramId is provided, store it; otherwise, we can still mark as assigned
   if (riderTelegramId) {
     const rider = riders.find(r => r.telegramId == riderTelegramId);
     if (rider) {
@@ -257,6 +258,10 @@ app.patch('/api/orders/:id/status', adminAuth, (req, res) => {
       order.riderName = rider.name;
       order.riderPhone = rider.phone || 'No phone';
     }
+  } else if (status === 'assigned_to_rider') {
+    // Mark as assigned without a specific rider ID – for manual WhatsApp assignment
+    order.riderName = 'Manual Assignment (WhatsApp)';
+    order.riderPhone = 'Send via WhatsApp';
   }
   saveOrders();
   const bot = getBotInstance();
