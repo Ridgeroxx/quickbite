@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>QuickBite | Ghanaian Eatery</title>
   <style>
+    /* ... (same as before, no changes needed) ... */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -126,6 +127,28 @@
     .modal-close {
       float: right; background: none; border: none; font-size: 24px; cursor: pointer;
     }
+    .payment-field {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #eee;
+    }
+    .payment-field input {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e67e22;
+      border-radius: 40px;
+      margin: 8px 0;
+    }
+    .payment-field button {
+      background: #e67e22;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 40px;
+      width: 100%;
+      font-weight: bold;
+      cursor: pointer;
+    }
     .loading { text-align: center; padding: 40px; color: #e67e22; }
   </style>
 </head>
@@ -165,6 +188,17 @@
   </div>
 </div>
 
+<!-- Track Rider Modal (optional) -->
+<div id="trackModal" class="modal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeTrackModal()">&times;</button>
+    <h3>🚴 Rider Status</h3>
+    <p id="trackRiderName"></p>
+    <p id="trackRiderPhone"></p>
+    <p id="trackOrderStatus"></p>
+  </div>
+</div>
+
 <script>
   const API_BASE = 'https://quickbite-joi1.onrender.com';
   let menu = [];
@@ -174,15 +208,8 @@
   localStorage.setItem('userId', userId);
   let isCheckingOut = false;
 
-  // Helper: validate name
-  function isValidName(name) {
-    return /^[A-Za-z\s\-']+$/.test(name) && name.trim().length > 0;
-  }
-
-  // Helper: validate Ghana phone number
-  function isValidPhone(phone) {
-    return /^0\d{9}$/.test(phone);
-  }
+  function isValidName(name) { return /^[A-Za-z\s\-']+$/.test(name) && name.trim().length > 0; }
+  function isValidPhone(phone) { return /^0\d{9}$/.test(phone); }
 
   function showToast(msg) {
     let toast = document.querySelector('.toast');
@@ -317,8 +344,7 @@
         saveCart();
         closeCart();
         showToast(`✅ Order #${data.orderId} placed!`);
-        // Show alert with details
-        alert(`✅ Order #${data.orderId}\nTotal: GHS ${data.total}\nSend payment to: ${data.momoNumber}\nAfter payment, type /paid ${data.orderId} YOUR_REFERENCE in Telegram.\nRider contact: ${data.riderContact}`);
+        alert(`✅ Order #${data.orderId}\nTotal: GHS ${data.total}\nSend payment to: ${data.momoNumber}\nAfter payment, enter the reference in the order details.\nRider contact: ${data.riderContact}`);
         await loadOrderHistory();
       } else {
         alert('Order failed: ' + (data.error || 'Unknown error'));
@@ -333,7 +359,26 @@
     }
   }
 
-  // Order history with View Details button
+  async function submitPaymentReference(orderId, reference) {
+    try {
+      const res = await fetch(`${API_BASE}/api/orders/${orderId}/payment-reference`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reference })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast('Payment reference submitted! Awaiting admin confirmation.');
+        loadOrderHistory(); // refresh orders to update status
+        closeOrderDetailsModal();
+      } else {
+        alert('Error: ' + data.error);
+      }
+    } catch (err) {
+      alert('Network error. Please try again.');
+    }
+  }
+
   async function loadOrderHistory() {
     try {
       const res = await fetch(`${API_BASE}/api/orders/${userId}`);
@@ -352,7 +397,6 @@
           </div>
         </div>
       `).join('');
-      // Attach event listeners
       document.querySelectorAll('.btn-view-details').forEach(btn => {
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -377,12 +421,24 @@
     } catch(err) { console.error(err); }
   }
 
-  // Show detailed order information in a modal
   function showOrderDetails(order) {
     const itemsHtml = order.items.map(item => {
       const addonsText = item.addons?.length ? ` (${item.addons.map(a => a.name).join(', ')})` : '';
       return `<li><strong>${escapeHtml(item.name)}${addonsText}</strong> x${item.qty} = GHS ${item.totalPrice * item.qty}</li>`;
     }).join('');
+    let paymentSection = '';
+    if (order.status === 'pending_payment') {
+      // Show payment instructions and reference input
+      const momoNumber = order.momoNumber || (API_BASE === 'https://quickbite-joi1.onrender.com' ? '+233206802552' : 'Not set');
+      paymentSection = `
+        <div class="payment-field">
+          <p><strong>💰 Payment Instructions:</strong> Send total amount to mobile money number: <strong>${momoNumber}</strong></p>
+          <p>After payment, enter your reference (transaction ID) below:</p>
+          <input type="text" id="paymentRef" placeholder="e.g., MOMO123456" />
+          <button onclick="submitPaymentReference(${order.id}, document.getElementById('paymentRef').value)">Submit Reference</button>
+        </div>
+      `;
+    }
     const detailsHtml = `
       <h3>Order #${order.id}</h3>
       <p><strong>Status:</strong> ${order.status.replace(/_/g, ' ')}</p>
@@ -398,7 +454,7 @@
       <p><strong>Items:</strong></p>
       <ul class="items-list">${itemsHtml}</ul>
       ${order.riderName ? `<hr><p><strong>Rider:</strong> ${escapeHtml(order.riderName)}</p><p><strong>Rider Phone:</strong> ${order.riderPhone || 'Not provided'}</p>` : '<p><em>Rider not assigned yet</em></p>'}
-      <p><strong>Payment Instructions:</strong> Send payment to ${API_BASE.includes('quickbite') ? 'https://quickbite-joi1.onrender.com' : 'MOMO_NUMBER'} (check your order alert).</p>
+      ${paymentSection}
     `;
     document.getElementById('orderDetailsContent').innerHTML = detailsHtml;
     document.getElementById('orderDetailsModal').classList.add('active');
@@ -464,23 +520,6 @@
   });
 
   overlay.addEventListener('click', (e) => { if (e.target === overlay) closeCart(); });
-
-  // Track modal element (for rider tracking, reused from previous)
-  const trackModalHtml = `
-    <div id="trackModal" class="modal">
-      <div class="modal-content">
-        <button class="modal-close" onclick="closeTrackModal()">&times;</button>
-        <h3>🚴 Rider Status</h3>
-        <p id="trackRiderName"></p>
-        <p id="trackRiderPhone"></p>
-        <p id="trackOrderStatus"></p>
-      </div>
-    </div>
-  `;
-  // Append track modal if not already present
-  if (!document.getElementById('trackModal')) {
-    document.body.insertAdjacentHTML('beforeend', trackModalHtml);
-  }
 
   loadMenu();
   updateCartUI();
