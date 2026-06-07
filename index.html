@@ -92,8 +92,6 @@
       border-radius: 30px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
-    /* rest of your existing CSS (categories, menu-grid, cart drawer, modal, etc.) - keep the same */
-    /* ... (I'll keep it minimal, but you should copy your full styles from before) ... */
     .categories { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 20px; padding-bottom: 4px; scrollbar-width: thin; }
     .cat-btn { background: white; padding: 8px 18px; border-radius: 40px; font-weight: 600; white-space: nowrap; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s; }
     .cat-btn.active { background: #e67e22; color: white; box-shadow: 0 4px 12px #e67e22; }
@@ -316,7 +314,6 @@
           <div style="font-size: 10px; color: #888;">${n.timestamp}</div>
         </div>
       `).join('');
-      // Mark as read when panel opens is handled separately
     }
   }
 
@@ -509,8 +506,7 @@
       const data = await res.json();
       if (res.ok) {
         showToast('✅ Payment reference submitted! Awaiting admin confirmation.');
-        await loadOrderHistory(); // refresh orders
-        // Optionally close modal after short delay
+        await loadOrderHistory();
         setTimeout(() => closeOrderDetailsModal(), 1500);
       } else {
         alert('Error: ' + data.error);
@@ -532,7 +528,6 @@
       const container = document.getElementById('orderHistoryList');
       if (!orders.length) { container.innerHTML = '<div>No orders yet.</div>'; return; }
       
-      // Check for status changes and add notifications
       if (lastOrdersState.length > 0) {
         orders.forEach(newOrder => {
           const oldOrder = lastOrdersState.find(o => o.id === newOrder.id);
@@ -628,7 +623,6 @@
     `;
     document.getElementById('orderDetailsContent').innerHTML = detailsHtml;
     document.getElementById('orderDetailsModal').classList.add('active');
-    // Attach payment button event after modal loads
     const payBtn = document.getElementById('submitPaymentBtn');
     if (payBtn) {
       payBtn.onclick = () => {
@@ -700,7 +694,6 @@
 
   overlay.addEventListener('click', (e) => { if (e.target === overlay) closeCart(); });
 
-  // Start polling
   function startPolling() {
     if (pollInterval) clearInterval(pollInterval);
     pollInterval = setInterval(async () => {
