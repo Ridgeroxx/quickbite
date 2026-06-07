@@ -248,11 +248,12 @@ app.patch('/api/orders/:id/status', adminAuth, (req, res) => {
   const id = parseInt(req.params.id);
   const order = orders.find(o => o.id === id);
   if (!order) return res.status(404).json({ error: 'Order not found' });
+  
   const { status, riderTelegramId, riderName, riderPhone } = req.body;
   
   if (status) order.status = status;
   
-  // If riderTelegramId provided, look up from riders list
+  // If riderTelegramId is provided, look up from riders list
   if (riderTelegramId) {
     const rider = riders.find(r => r.telegramId == riderTelegramId);
     if (rider) {
@@ -261,14 +262,14 @@ app.patch('/api/orders/:id/status', adminAuth, (req, res) => {
       order.riderPhone = rider.phone || 'No phone';
     }
   } 
-  // If manual assignment with name and phone provided
+  // If manual assignment with name and phone
   else if (riderName && riderPhone) {
     order.riderName = riderName;
     order.riderPhone = riderPhone;
     order.riderId = null;
   }
-  // If status is assigned_to_rider but no rider info, don't overwrite existing
-  // (preserve previously set rider info)
+  // If status is assigned_to_rider but no rider info, do nothing
+  // (preserve existing rider info)
   
   saveOrders();
   res.json({ success: true });

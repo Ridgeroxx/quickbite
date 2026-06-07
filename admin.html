@@ -13,7 +13,6 @@
       display: flex;
       min-height: 100vh;
     }
-    /* Login screen */
     .login-container {
       max-width: 400px;
       margin: 100px auto;
@@ -43,9 +42,7 @@
       cursor: pointer;
     }
     .error { color: #e74c3c; margin-top: 12px; }
-    /* Dashboard (initially hidden) */
     #dashboard { display: none; width: 100%; }
-    /* Sidebar */
     .sidebar {
       width: 260px;
       background: #1a1a2e;
@@ -59,10 +56,7 @@
       z-index: 100;
       transition: transform 0.3s;
     }
-    .sidebar-logo {
-      padding: 28px 24px 20px;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
-    }
+    .sidebar-logo { padding: 28px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.07); }
     .sidebar-logo .logo-text { font-size: 22px; font-weight: 800; }
     .sidebar-logo .logo-text span { color: #ff6b35; }
     .nav-section { padding: 16px 0; }
@@ -93,15 +87,6 @@
       border-left-color: #ff6b35;
     }
     .nav-item i { width: 20px; text-align: center; }
-    .nav-badge {
-      margin-left: auto;
-      background: #ff6b35;
-      color: white;
-      border-radius: 50px;
-      padding: 2px 8px;
-      font-size: 11px;
-      font-weight: 700;
-    }
     .sidebar-footer {
       margin-top: auto;
       padding: 20px 24px;
@@ -109,7 +94,6 @@
       font-size: 12px;
       color: rgba(255,255,255,0.4);
     }
-    /* Main content */
     .main {
       margin-left: 260px;
       flex: 1;
@@ -170,7 +154,6 @@
     .badge.processing { background: #fff3cd; color: #856404; }
     .badge.completed { background: #d4edda; color: #155724; }
     .badge.assigned_to_rider { background: #cce5ff; color: #004085; }
-    .badge.delivered { background: #d4edda; color: #155724; }
     button {
       background: #e67e22;
       border: none;
@@ -182,7 +165,6 @@
       margin: 2px;
     }
     button.danger { background: #e74c3c; }
-    button.success { background: #27ae60; }
     .cards-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -216,8 +198,6 @@
   </style>
 </head>
 <body>
-
-<!-- LOGIN SCREEN -->
 <div id="loginScreen" class="login-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; width: 100%;">
   <div style="background: white; border-radius: 28px; padding: 32px; width: 90%; max-width: 400px;">
     <h2>🔐 Admin Login</h2>
@@ -227,7 +207,6 @@
   </div>
 </div>
 
-<!-- DASHBOARD (initially hidden) -->
 <div id="dashboard">
   <div class="sidebar" id="sidebar">
     <div class="sidebar-logo"><div class="logo-text">🍔 <span>QuickBite</span></div><div class="logo-sub">Admin Portal</div></div>
@@ -267,35 +246,24 @@
 
     <div id="page-dashboard" class="page">
       <div class="stats-grid" id="statsGrid"></div>
-      <div class="table-wrap">
-        <h3 style="margin-bottom:16px;">Recent Orders</h3>
-        <table><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="dashboardOrdersBody"></tbody></table>
-      </div>
+      <div class="table-wrap"><h3 style="margin-bottom:16px;">Recent Orders</h3><table><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="dashboardOrdersBody"></tbody></table></div>
     </div>
 
     <div id="page-orders" class="page" style="display:none;">
-      <div class="table-wrap">
-        <table><thead><tr><th>#</th><th>Customer</th><th>Address</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="allOrdersBody"></tbody></table>
-      </div>
+      <div class="table-wrap"></table><thead><tr><th>#</th><th>Customer</th><th>Address</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div>
     </div>
 
     <div id="page-payments" class="page" style="display:none;">
-      <div class="table-wrap">
-        <table><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Reference</th><th>Status</th><th>Action</th></tr></thead><tbody id="paymentsBody"></tbody></table>
-      </div>
+      <div class="table-wrap"><table><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Reference</th><th>Status</th><th>Action</th></tr></thead><tbody id="paymentsBody"></tbody></table></div>
     </div>
 
     <div id="page-orderFlow" class="page" style="display:none;">
-      <div class="table-wrap">
-        <table><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="orderFlowBody"></tbody></table>
-      </div>
+      <div class="table-wrap"><tr><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="orderFlowBody"></tbody></table></div>
     </div>
 
     <div id="page-riders" class="page" style="display:none;">
       <button onclick="addRider()" style="margin-bottom:16px;"><i class="fa fa-plus"></i> Add Rider</button>
-      <div class="table-wrap">
-        <table><thead><tr><th>Telegram ID</th><th>Name</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ridersBody"></tbody></table>
-      </div>
+      <div class="table-wrap"></table><thead><tr><th>Telegram ID</th><th>Name</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ridersBody"></tbody></table></div>
     </div>
 
     <div id="page-menu" class="page" style="display:none;">
@@ -310,15 +278,12 @@
 </div>
 
 <div id="toast" class="toast"></div>
-
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
   const API_BASE = 'https://quickbite-joi1.onrender.com';
-  let adminToken = null;
-  let currentRole = null;
-  let currentPage = 'dashboard';
+  let adminToken = null, currentRole = null, currentPage = 'dashboard';
 
-  function showToast(msg, type = 'success') {
+  function showToast(msg, type='success') {
     const toast = document.getElementById('toast');
     toast.textContent = msg;
     toast.style.background = type === 'success' ? '#27ae60' : '#e74c3c';
@@ -326,57 +291,33 @@
     setTimeout(() => toast.classList.remove('show'), 3000);
   }
 
-  async function fetchAPI(endpoint, options = {}) {
-    const headers = {
-      'Content-Type': 'application/json',
-      'x-admin-token': adminToken,
-      ...options.headers
-    };
+  async function fetchAPI(endpoint, options={}) {
+    const headers = { 'Content-Type': 'application/json', 'x-admin-token': adminToken, ...options.headers };
     const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
-    if (res.status === 401) {
-      logout();
-      Swal.fire('Session expired', 'Please login again.', 'error');
-      throw new Error('Unauthorized');
-    }
+    if (res.status === 401) { logout(); Swal.fire('Session expired', 'Please login again.', 'error'); throw new Error('Unauthorized'); }
     return res.json();
   }
 
   async function login() {
     const telegramId = document.getElementById('telegramId').value.trim();
-    if (!telegramId) {
-      document.getElementById('loginError').innerText = 'Please enter your Telegram ID';
-      return;
-    }
+    if (!telegramId) { document.getElementById('loginError').innerText = 'Please enter your Telegram ID'; return; }
     try {
-      const res = await fetch(`${API_BASE}/admin/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ telegramId })
-      });
+      const res = await fetch(`${API_BASE}/admin/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ telegramId }) });
       const data = await res.json();
       if (res.ok) {
-        adminToken = data.token;
-        currentRole = data.role;
-        localStorage.setItem('adminToken', adminToken);
-        localStorage.setItem('adminRole', currentRole);
+        adminToken = data.token; currentRole = data.role;
+        localStorage.setItem('adminToken', adminToken); localStorage.setItem('adminRole', currentRole);
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('dashboard').style.display = 'block';
         document.getElementById('userRoleSpan').innerHTML = `Role: ${currentRole.toUpperCase()}`;
-        setupNav();
-        showPage('dashboard');
-      } else {
-        document.getElementById('loginError').innerText = data.error || 'Login failed';
-      }
-    } catch (err) {
-      document.getElementById('loginError').innerText = 'Network error';
-    }
+        setupNav(); showPage('dashboard');
+      } else document.getElementById('loginError').innerText = data.error || 'Login failed';
+    } catch(err) { document.getElementById('loginError').innerText = 'Network error'; }
   }
 
   function logout() {
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminRole');
-    adminToken = null;
-    currentRole = null;
+    localStorage.removeItem('adminToken'); localStorage.removeItem('adminRole');
+    adminToken = null; currentRole = null;
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('dashboard').style.display = 'none';
   }
@@ -400,87 +341,43 @@
     else if (page === 'orderFlow') loadOrderFlow();
     else if (page === 'riders') loadRiders();
     else if (page === 'menu') loadMenu();
-    else if (page === 'admins') loadAdmins();
   }
 
   async function loadDashboard() {
     const stats = await fetchAPI('/api/orders/stats/summary');
-    document.getElementById('statsGrid').innerHTML = `
-      <div class="stat-card"><h3>Today's Orders</h3><div class="value">${stats.today.count}</div><div>GHS ${stats.today.total}</div></div>
-      <div class="stat-card"><h3>This Week</h3><div class="value">${stats.week.count}</div><div>GHS ${stats.week.total}</div></div>
-      <div class="stat-card"><h3>This Month</h3><div class="value">${stats.month.count}</div><div>GHS ${stats.month.total}</div></div>
-      <div class="stat-card"><h3>All Time Revenue</h3><div class="value">GHS ${stats.all.total}</div></div>
-    `;
+    document.getElementById('statsGrid').innerHTML = `<div class="stat-card"><h3>Today's Orders</h3><div class="value">${stats.today.count}</div><div>GHS ${stats.today.total}</div></div><div class="stat-card"><h3>This Week</h3><div class="value">${stats.week.count}</div><div>GHS ${stats.week.total}</div></div><div class="stat-card"><h3>This Month</h3><div class="value">${stats.month.count}</div><div>GHS ${stats.month.total}</div></div><div class="stat-card"><h3>All Time Revenue</h3><div class="value">GHS ${stats.all.total}</div></div>`;
     const { orders } = await fetchAPI('/api/orders');
     const recent = orders.slice(0, 10);
-    document.getElementById('dashboardOrdersBody').innerHTML = recent.map(o => `
-      <tr><td>#${o.id}</td><td>${escapeHtml(o.customerName)}</td><td>GHS ${o.total}</td>
-      <td><span class="badge ${o.status}">${o.status}</span></td>
-      <td><button onclick="viewOrderDetails(${o.id})">View</button></td></tr>
-    `).join('');
+    document.getElementById('dashboardOrdersBody').innerHTML = recent.map(o => `<tr><td>#${o.id}</td><td>${escapeHtml(o.customerName)}</td><td>GHS ${o.total}</td><td><span class="badge ${o.status}">${o.status}</span></td><td><button onclick="viewOrderDetails(${o.id})">View</button></td></tr>`).join('');
   }
 
   async function loadAllOrders() {
     const { orders } = await fetchAPI('/api/orders');
-    document.getElementById('allOrdersBody').innerHTML = orders.map(o => `
-      <tr><td>#${o.id}</td><td>${escapeHtml(o.customerName)}</td><td>${escapeHtml(o.address.substring(0, 40))}</td>
-      <td>GHS ${o.total}</td><td><span class="badge ${o.status}">${o.status}</span></td>
-      <td><button onclick="viewOrderDetails(${o.id})">View</button></td></tr>
-    `).join('');
+    document.getElementById('allOrdersBody').innerHTML = orders.map(o => `<tr><td>#${o.id}</td><td>${escapeHtml(o.customerName)}</td><td>${escapeHtml(o.address.substring(0,40))}</td><td>GHS ${o.total}</td><td><span class="badge ${o.status}">${o.status}</span></td><td><button onclick="viewOrderDetails(${o.id})">View</button></td></tr>`).join('');
   }
 
   async function loadPayments() {
     const { orders } = await fetchAPI('/api/orders');
     const pending = orders.filter(o => o.status === 'pending_payment' || o.status === 'paid');
-    document.getElementById('paymentsBody').innerHTML = pending.map(o => `
-      <tr><td>#${o.id}</td><td>${escapeHtml(o.customerName)}</td><td>GHS ${o.total}</td>
-      <td>${o.paymentReference || '—'}</td><td><span class="badge ${o.status}">${o.status}</span></td>
-      <td>${o.status === 'paid' ? `<button onclick="confirmPayment(${o.id})">Confirm</button>` : 'Awaiting ref'}</td></tr>
-    `).join('');
+    document.getElementById('paymentsBody').innerHTML = pending.map(o => `<tr><td>#${o.id}</td><td>${escapeHtml(o.customerName)}</td><td>GHS ${o.total}</td><td>${o.paymentReference || '—'}</td><td><span class="badge ${o.status}">${o.status}</span></td><td>${o.status === 'paid' ? `<button onclick="confirmPayment(${o.id})">Confirm</button>` : 'Awaiting ref'}</td></tr>`).join('');
   }
 
   async function loadOrderFlow() {
     const { orders } = await fetchAPI('/api/orders');
     const active = orders.filter(o => ['paid', 'confirmed', 'processing', 'completed'].includes(o.status));
-    document.getElementById('orderFlowBody').innerHTML = active.map(o => `
-      <tr><td>#${o.id}</td><td>${escapeHtml(o.customerName)}</td><td>GHS ${o.total}</td>
-      <td><span class="badge ${o.status}">${o.status}</span></td>
-      <td>
-        ${o.status === 'paid' ? `<button onclick="updateOrderStatus(${o.id}, 'confirmed')">Confirm</button>` : ''}
-        ${o.status === 'confirmed' ? `<button onclick="updateOrderStatus(${o.id}, 'processing')">Process</button>` : ''}
-        ${o.status === 'processing' ? `<button onclick="updateOrderStatus(${o.id}, 'completed')">Ready</button>` : ''}
-        ${o.status === 'completed' ? `<button onclick="markAssignedManually(${o.id})">Mark Assigned</button>` : ''}
-      </td></tr>
-    `).join('');
+    document.getElementById('orderFlowBody').innerHTML = active.map(o => `<tr><td>#${o.id}</td><td>${escapeHtml(o.customerName)}</td><td>GHS ${o.total}</td><td><span class="badge ${o.status}">${o.status}</span></td><td>${o.status === 'paid' ? `<button onclick="updateOrderStatus(${o.id}, 'confirmed')">Confirm</button>` : ''}${o.status === 'confirmed' ? `<button onclick="updateOrderStatus(${o.id}, 'processing')">Process</button>` : ''}${o.status === 'processing' ? `<button onclick="updateOrderStatus(${o.id}, 'completed')">Ready</button>` : ''}${o.status === 'completed' ? `<button onclick="markAssignedManually(${o.id})">Mark Assigned</button>` : ''}</td></tr>`).join('');
   }
 
   async function loadRiders() {
     const { riders } = await fetchAPI('/api/riders');
-    document.getElementById('ridersBody').innerHTML = riders.map(r => `
-      <tr><td>${r.telegramId}</td><td>${escapeHtml(r.name)}</td><td>${r.phone || '—'}</td>
-      <td>${r.isAvailable === 'true' ? 'Available' : 'Busy'}</td>
-      <td><button onclick="toggleRider(${r.telegramId}, '${r.isAvailable}')">Toggle</button>
-      <button class="danger" onclick="deleteRider(${r.telegramId})">Delete</button></td></tr>
-    `).join('');
+    document.getElementById('ridersBody').innerHTML = riders.map(r => `<tr><td>${r.telegramId}</td><td>${escapeHtml(r.name)}</td><td>${r.phone || '—'}</td><td>${r.isAvailable === 'true' ? 'Available' : 'Busy'}</td><td><button onclick="toggleRider(${r.telegramId}, '${r.isAvailable}')">Toggle</button> <button class="danger" onclick="deleteRider(${r.telegramId})">Delete</button></td></tr>`).join('');
   }
 
   async function loadMenu() {
     const { items } = await fetchAPI('/api/menu/all');
-    document.getElementById('menuGrid').innerHTML = items.map(item => `
-      <div class="menu-card">
-        <div style="font-size:32px;">${item.emoji || '🍽️'}</div>
-        <strong>${escapeHtml(item.name)}</strong><br>
-        GHS ${item.basePrice}<br>
-        <small>${item.category}</small><br>
-        <button onclick="editMenuItem(${item.id}, '${escapeHtml(item.name)}', ${item.basePrice}, '${item.category}')">Edit</button>
-        <button class="danger" onclick="deleteMenuItem(${item.id})">Delete</button>
-      </div>
-    `).join('');
+    document.getElementById('menuGrid').innerHTML = items.map(item => `<div class="menu-card"><div style="font-size:32px;">${item.emoji || '🍽️'}</div><strong>${escapeHtml(item.name)}</strong><br>GHS ${item.basePrice}<br><small>${item.category}</small><br><button onclick="editMenuItem(${item.id}, '${escapeHtml(item.name)}', ${item.basePrice}, '${item.category}')">Edit</button> <button class="danger" onclick="deleteMenuItem(${item.id})">Delete</button></div>`).join('');
   }
 
-  function loadAdmins() { /* placeholder */ }
-
-  // ---- Actions ----
   window.viewOrderDetails = async (orderId) => {
     const { orders } = await fetchAPI('/api/orders');
     const order = orders.find(o => o.id === orderId);
@@ -488,15 +385,7 @@
     const itemsHtml = order.items.map(i => `${i.name} x${i.qty} = GHS ${i.totalPrice * i.qty}`).join('\n');
     Swal.fire({
       title: `Order #${order.id}`,
-      html: `
-        <strong>Customer:</strong> ${order.customerName}<br>
-        <strong>Phone:</strong> ${order.customerPhone}<br>
-        <strong>Address:</strong> ${order.address}<br>
-        <strong>Total:</strong> GHS ${order.total}<br>
-        <strong>Status:</strong> ${order.status}<br>
-        <strong>Items:</strong><br>${itemsHtml}<br>
-        ${order.riderName ? `<strong>Rider:</strong> ${order.riderName} (${order.riderPhone})` : ''}
-      `,
+      html: `<strong>Customer:</strong> ${order.customerName}<br><strong>Phone:</strong> ${order.customerPhone}<br><strong>Address:</strong> ${order.address}<br><strong>Total:</strong> GHS ${order.total}<br><strong>Status:</strong> ${order.status}<br><strong>Items:</strong><br>${itemsHtml}<br>${order.riderName ? `<strong>Rider:</strong> ${order.riderName} (${order.riderPhone})` : ''}`,
       showCancelButton: true,
       confirmButtonText: 'Copy Details',
       cancelButtonText: 'Close'
@@ -509,149 +398,69 @@
     });
   };
 
-  window.confirmPayment = async (orderId) => {
-    await updateOrderStatus(orderId, 'confirmed');
-    loadPayments();
-    loadDashboard();
-  };
-
-  window.updateOrderStatus = async (orderId, newStatus) => {
-    await fetchAPI(`/api/orders/${orderId}/status`, {
-      method: 'PATCH',
-      body: JSON.stringify({ status: newStatus })
-    });
-    showToast(`Order #${orderId} updated to ${newStatus}`);
-    if (currentPage === 'orderFlow') loadOrderFlow();
-    if (currentPage === 'payments') loadPayments();
-    loadDashboard();
-  };
+  window.confirmPayment = async (orderId) => { await updateOrderStatus(orderId, 'confirmed'); loadPayments(); loadDashboard(); };
+  window.updateOrderStatus = async (orderId, newStatus) => { await fetchAPI(`/api/orders/${orderId}/status`, { method: 'PATCH', body: JSON.stringify({ status: newStatus }) }); showToast(`Order #${orderId} updated to ${newStatus}`); if (currentPage === 'orderFlow') loadOrderFlow(); if (currentPage === 'payments') loadPayments(); loadDashboard(); };
 
   window.markAssignedManually = async (orderId) => {
-    await fetchAPI(`/api/orders/${orderId}/status`, {
-      method: 'PATCH',
-      body: JSON.stringify({ status: 'assigned_to_rider' })
+    const { value: formValues } = await Swal.fire({
+      title: `Assign Rider for Order #${orderId}`,
+      html: `<input id="riderName" class="swal2-input" placeholder="Rider Name (e.g., Kwame)"><input id="riderPhone" class="swal2-input" placeholder="WhatsApp Number (e.g., 024XXXXXXX)">`,
+      focusConfirm: false,
+      preConfirm: () => {
+        const name = document.getElementById('riderName').value;
+        const phone = document.getElementById('riderPhone').value;
+        if (!name || !phone) { Swal.showValidationMessage('Both name and phone are required'); return false; }
+        return { name, phone };
+      }
     });
-    showToast(`Order #${orderId} marked as assigned (WhatsApp manual)`);
-    loadOrderFlow();
-    loadDashboard();
+    if (formValues) {
+      await fetchAPI(`/api/orders/${orderId}/status`, { method: 'PATCH', body: JSON.stringify({ status: 'assigned_to_rider', riderName: formValues.name, riderPhone: formValues.phone }) });
+      showToast(`Order #${orderId} assigned to ${formValues.name} (WhatsApp: ${formValues.phone})`);
+      loadOrderFlow(); loadDashboard();
+    }
   };
 
   window.addRider = async () => {
     const { value: formValues } = await Swal.fire({
       title: 'Add Rider',
-      html: `
-        <input id="riderId" class="swal2-input" placeholder="Telegram ID (numeric)" type="number">
-        <input id="riderName" class="swal2-input" placeholder="Rider Name">
-        <input id="riderPhone" class="swal2-input" placeholder="Phone Number (optional)">
-      `,
-      focusConfirm: false,
-      preConfirm: () => {
-        return {
-          id: document.getElementById('riderId').value,
-          name: document.getElementById('riderName').value,
-          phone: document.getElementById('riderPhone').value
-        };
-      }
+      html: `<input id="riderId" class="swal2-input" placeholder="Telegram ID (numeric)" type="number"><input id="riderName" class="swal2-input" placeholder="Rider Name"><input id="riderPhone" class="swal2-input" placeholder="Phone Number (optional)">`,
+      preConfirm: () => ({ id: document.getElementById('riderId').value, name: document.getElementById('riderName').value, phone: document.getElementById('riderPhone').value })
     });
     if (formValues && formValues.id && formValues.name) {
-      await fetchAPI('/api/riders', {
-        method: 'POST',
-        body: JSON.stringify({
-          telegramId: parseInt(formValues.id),
-          name: formValues.name,
-          phone: formValues.phone || ''
-        })
-      });
-      showToast('Rider added');
-      loadRiders();
+      await fetchAPI('/api/riders', { method: 'POST', body: JSON.stringify({ telegramId: parseInt(formValues.id), name: formValues.name, phone: formValues.phone || '' }) });
+      showToast('Rider added'); loadRiders();
     }
   };
 
-  window.toggleRider = async (id, current) => {
-    const newVal = current === 'true' ? 'false' : 'true';
-    await fetchAPI(`/api/riders/${id}/availability`, {
-      method: 'PATCH',
-      body: JSON.stringify({ isAvailable: newVal })
-    });
-    loadRiders();
-  };
-
-  window.deleteRider = async (id) => {
-    const result = await Swal.fire({ title: 'Confirm', text: 'Delete this rider?', icon: 'warning', showCancelButton: true });
-    if (result.isConfirmed) {
-      await fetchAPI(`/api/riders/${id}`, { method: 'DELETE' });
-      loadRiders();
-    }
-  };
-
+  window.toggleRider = async (id, current) => { await fetchAPI(`/api/riders/${id}/availability`, { method: 'PATCH', body: JSON.stringify({ isAvailable: current === 'true' ? 'false' : 'true' }) }); loadRiders(); };
+  window.deleteRider = async (id) => { if ((await Swal.fire({ title: 'Confirm', text: 'Delete this rider?', icon: 'warning', showCancelButton: true })).isConfirmed) { await fetchAPI(`/api/riders/${id}`, { method: 'DELETE' }); loadRiders(); } };
   window.openAddMenuItem = async () => {
     const { value: formValues } = await Swal.fire({
       title: 'Add Menu Item',
-      html: `
-        <input id="itemName" class="swal2-input" placeholder="Name">
-        <input id="itemPrice" class="swal2-input" placeholder="Price (GHS)" type="number" step="0.01">
-        <input id="itemCategory" class="swal2-input" placeholder="Category">
-      `,
-      preConfirm: () => ({
-        name: document.getElementById('itemName').value,
-        price: parseFloat(document.getElementById('itemPrice').value),
-        category: document.getElementById('itemCategory').value
-      })
+      html: `<input id="itemName" class="swal2-input" placeholder="Name"><input id="itemPrice" class="swal2-input" placeholder="Price (GHS)" type="number" step="0.01"><input id="itemCategory" class="swal2-input" placeholder="Category">`,
+      preConfirm: () => ({ name: document.getElementById('itemName').value, price: parseFloat(document.getElementById('itemPrice').value), category: document.getElementById('itemCategory').value })
     });
-    if (formValues && formValues.name && formValues.price) {
-      await fetchAPI('/api/menu', { method: 'POST', body: JSON.stringify(formValues) });
-      loadMenu();
-    }
+    if (formValues && formValues.name && formValues.price) { await fetchAPI('/api/menu', { method: 'POST', body: JSON.stringify(formValues) }); loadMenu(); }
   };
-
   window.editMenuItem = async (id, oldName, oldPrice, oldCategory) => {
     const { value: formValues } = await Swal.fire({
       title: 'Edit Menu Item',
-      html: `
-        <input id="itemName" class="swal2-input" value="${oldName}">
-        <input id="itemPrice" class="swal2-input" value="${oldPrice}" type="number" step="0.01">
-        <input id="itemCategory" class="swal2-input" value="${oldCategory}">
-      `,
-      preConfirm: () => ({
-        name: document.getElementById('itemName').value,
-        basePrice: parseFloat(document.getElementById('itemPrice').value),
-        category: document.getElementById('itemCategory').value
-      })
+      html: `<input id="itemName" class="swal2-input" value="${oldName}"><input id="itemPrice" class="swal2-input" value="${oldPrice}" type="number" step="0.01"><input id="itemCategory" class="swal2-input" value="${oldCategory}">`,
+      preConfirm: () => ({ name: document.getElementById('itemName').value, basePrice: parseFloat(document.getElementById('itemPrice').value), category: document.getElementById('itemCategory').value })
     });
-    if (formValues) {
-      await fetchAPI(`/api/menu/${id}`, { method: 'PATCH', body: JSON.stringify(formValues) });
-      loadMenu();
-    }
+    if (formValues) { await fetchAPI(`/api/menu/${id}`, { method: 'PATCH', body: JSON.stringify(formValues) }); loadMenu(); }
   };
-
-  window.deleteMenuItem = async (id) => {
-    const result = await Swal.fire({ title: 'Confirm', text: 'Delete this item?', icon: 'warning', showCancelButton: true });
-    if (result.isConfirmed) {
-      await fetchAPI(`/api/menu/${id}`, { method: 'DELETE' });
-      loadMenu();
-    }
-  };
-
-  function escapeHtml(str) {
-    return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m] || m));
-  }
-
-  // Auto-login if token exists
+  window.deleteMenuItem = async (id) => { if ((await Swal.fire({ title: 'Confirm', text: 'Delete this item?', icon: 'warning', showCancelButton: true })).isConfirmed) { await fetchAPI(`/api/menu/${id}`, { method: 'DELETE' }); loadMenu(); } };
+  function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m] || m)); }
   window.onload = () => {
-    const savedToken = localStorage.getItem('adminToken');
-    const savedRole = localStorage.getItem('adminRole');
+    const savedToken = localStorage.getItem('adminToken'), savedRole = localStorage.getItem('adminRole');
     if (savedToken && savedRole) {
-      adminToken = savedToken;
-      currentRole = savedRole;
+      adminToken = savedToken; currentRole = savedRole;
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('dashboard').style.display = 'block';
       document.getElementById('userRoleSpan').innerHTML = `Role: ${currentRole.toUpperCase()}`;
-      setupNav();
-      showPage('dashboard');
-    } else {
-      document.getElementById('loginScreen').style.display = 'flex';
-      document.getElementById('dashboard').style.display = 'none';
-    }
+      setupNav(); showPage('dashboard');
+    } else { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('dashboard').style.display = 'none'; }
   };
 </script>
 </body>
