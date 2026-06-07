@@ -6,6 +6,7 @@
   <title>QuickBite Admin Portal</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    /* (styles unchanged – keep as before) */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -244,9 +245,9 @@
     </div>
 
     <div id="page-dashboard" class="page"><div class="stats-grid" id="statsGrid"></div><div class="table-wrap"><h3 style="margin-bottom:16px;">Recent Orders</h3><table><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="dashboardOrdersBody"></tbody></table></div></div>
-    <div id="page-orders" class="page" style="display:none;"><div class="table-wrap"></tr><thead><tr><th>#</th><th>Customer</th><th>Address</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div></div>
-    <div id="page-payments" class="page" style="display:none;"><div class="table-wrap"></table><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Reference</th><th>Status</th><th>Action</th></tr></thead><tbody id="paymentsBody"></tbody></table></div></div>
-    <div id="page-orderFlow" class="page" style="display:none;"><div class="table-wrap"><table><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="orderFlowBody"></tbody></td></div></div>
+    <div id="page-orders" class="page" style="display:none;"><div class="table-wrap"><table><thead><tr><th>#</th><th>Customer</th><th>Address</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div></div>
+    <div id="page-payments" class="page" style="display:none;"><div class="table-wrap"><table><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Reference</th><th>Status</th><th>Action</th></tr></thead><tbody id="paymentsBody"></tbody></table></div></div>
+    <div id="page-orderFlow" class="page" style="display:none;"><div class="table-wrap"><table><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="orderFlowBody"></tbody></table></div></div>
     <div id="page-riders" class="page" style="display:none;"><button onclick="window.addRider()" style="margin-bottom:16px;"><i class="fa fa-plus"></i> Add Rider</button><div class="table-wrap"><table><thead><tr><th>Telegram ID</th><th>Name</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ridersBody"></tbody></table></div></div>
     <div id="page-menu" class="page" style="display:none;"><button onclick="window.openAddMenuItem()" style="margin-bottom:16px;"><i class="fa fa-plus"></i> Add Menu Item</button><div class="cards-grid" id="menuGrid"></div></div>
     <div id="page-admins" class="page" style="display:none;"><div class="table-wrap"><p>Use Telegram command <code>/set_role &lt;id&gt; &lt;role&gt;</code> to manage admins.</p></div></div>
@@ -427,13 +428,29 @@
     } catch(e) { showToast('Failed to load dashboard', 'error'); }
   }
 
+  // FIXED: All Orders - improved error handling and empty state
   async function loadAllOrders() {
     const allOrdersBody = document.getElementById('allOrdersBody');
     if (!allOrdersBody) return;
     try {
       const { orders } = await fetchAPI('/api/orders');
-      allOrdersBody.innerHTML = orders.map(o => `<tr><td><strong>#${o.id}</strong></td><td>${escapeHtml(o.customerName)}</td><td>${escapeHtml(o.address.substring(0,40))}</td><td>GHS ${o.total}</td><td><span class="badge ${o.status}">${o.status}</span></td><td><button onclick="window.viewOrderDetails(${o.id})">View</button></td></tr>`).join('');
-    } catch(e) { showToast('Failed to load orders', 'error'); }
+      if (!orders || orders.length === 0) {
+        allOrdersBody.innerHTML = '<tr><td colspan="6">No orders found. Try creating a test order.</td></tr>';
+        return;
+      }
+      allOrdersBody.innerHTML = orders.map(o => `<tr>
+        <td><strong>#${o.id}</strong></td>
+        <td>${escapeHtml(o.customerName)} (${escapeHtml(o.customerPhone)})</td>
+        <td>${escapeHtml(o.address.substring(0, 60))}${o.address.length > 60 ? '…' : ''}</td>
+        <td>GHS ${o.total}</td>
+        <td><span class="badge ${o.status}">${o.status.replace(/_/g, ' ')}</span></td>
+        <td><button onclick="window.viewOrderDetails(${o.id})">View</button></td>
+      </tr>`).join('');
+    } catch(e) {
+      console.error(e);
+      allOrdersBody.innerHTML = '<tr><td colspan="6">Error loading orders. Please refresh or contact support.</td></tr>';
+      showToast('Failed to load orders', 'error');
+    }
   }
 
   async function loadPayments() {
@@ -442,7 +459,18 @@
     try {
       const { orders } = await fetchAPI('/api/orders');
       const pending = orders.filter(o => o.status === 'pending_payment' || o.status === 'paid');
-      paymentsBody.innerHTML = pending.map(o => `<td><td><strong>#${o.id}</strong></td><td>${escapeHtml(o.customerName)}</td><td>GHS ${o.total}</td><td>${o.paymentReference || '—'}</td><td><span class="badge ${o.status}">${o.status}</span></td><td>${o.status === 'paid' ? `<button onclick="window.confirmPayment(${o.id})">Confirm</button>` : 'Awaiting ref'}</td></tr>`).join('');
+      if (pending.length === 0) {
+        paymentsBody.innerHTML = '<tr><td colspan="6">No pending payments.</td></tr>';
+        return;
+      }
+      paymentsBody.innerHTML = pending.map(o => `<tr>
+        <td><strong>#${o.id}</strong></td>
+        <td>${escapeHtml(o.customerName)}</td>
+        <td>GHS ${o.total}</td>
+        <td>${o.paymentReference || '—'}</td>
+        <td><span class="badge ${o.status}">${o.status}</span></td>
+        <td>${o.status === 'paid' ? `<button onclick="window.confirmPayment(${o.id})">Confirm</button>` : 'Awaiting ref'}</td>
+      </tr>`).join('');
     } catch(e) { showToast('Failed to load payments', 'error'); }
   }
 
@@ -463,7 +491,13 @@
         else if (o.status === 'processing') buttons = `<button onclick="window.updateOrderStatus(${o.id}, 'completed')">Ready</button>`;
         else if (o.status === 'completed') buttons = `<button onclick="window.markAssignedManually(${o.id})">Assign Rider</button>`;
         else if (o.status === 'assigned_to_rider') buttons = `<button onclick="window.markOrderDelivered(${o.id})">Mark Delivered</button>`;
-        return `<tr><td><strong>#${o.id}</strong></td><td>${escapeHtml(o.customerName)}</td><td>GHS ${o.total}</td><td><span class="badge ${o.status}">${o.status.replace(/_/g, ' ')}</span></td><td>${buttons}</td></tr>`;
+        return `<tr>
+          <td><strong>#${o.id}</strong></td>
+          <td>${escapeHtml(o.customerName)}</td>
+          <td>GHS ${o.total}</td>
+          <td><span class="badge ${o.status}">${o.status.replace(/_/g, ' ')}</span></td>
+          <td>${buttons}</td>
+        </tr>`;
       }).join('');
     } catch(e) {
       console.error(e);
@@ -477,7 +511,17 @@
     if (!ridersBody) return;
     try {
       const { riders } = await fetchAPI('/api/riders');
-      ridersBody.innerHTML = riders.map(r => `<tr><td>${r.telegramId}</td><td>${escapeHtml(r.name)}</td><td>${r.phone || '—'}</td><td>${r.isAvailable === 'true' ? 'Available' : 'Busy'}</td><td><button onclick="window.toggleRider(${r.telegramId}, '${r.isAvailable}')">Toggle</button> <button class="danger" onclick="window.deleteRider(${r.telegramId})">Delete</button></td></tr>`).join('');
+      if (!riders || riders.length === 0) {
+        ridersBody.innerHTML = '<tr><td colspan="4">No riders added yet. Use "Add Rider" button.</td></tr>';
+        return;
+      }
+      ridersBody.innerHTML = riders.map(r => `<tr>
+        <td>${r.telegramId}</td>
+        <td>${escapeHtml(r.name)}</td>
+        <td>${r.phone || '—'}</td>
+        <td>${r.isAvailable === 'true' ? 'Available' : 'Busy'}</td>
+        <td><button onclick="window.toggleRider(${r.telegramId}, '${r.isAvailable}')">Toggle</button> <button class="danger" onclick="window.deleteRider(${r.telegramId})">Delete</button></td>
+      </tr>`).join('');
     } catch(e) { showToast('Failed to load riders', 'error'); }
   }
 
@@ -486,6 +530,10 @@
     if (!menuGrid) return;
     try {
       const { items } = await fetchAPI('/api/menu/all');
+      if (!items || items.length === 0) {
+        menuGrid.innerHTML = '<div style="text-align:center; padding:20px;">No menu items yet. Add one using the button above.</div>';
+        return;
+      }
       menuGrid.innerHTML = items.map(item => `<div class="menu-card"><div style="font-size:32px;">${item.emoji || '🍽️'}</div><strong>${escapeHtml(item.name)}</strong><br>GHS ${item.basePrice}<br><small>${item.category}</small><br><button onclick="window.editMenuItem(${item.id}, '${escapeHtml(item.name)}', ${item.basePrice}, '${item.category}')">Edit</button> <button class="danger" onclick="window.deleteMenuItem(${item.id})">Delete</button></div>`).join('');
     } catch(e) { showToast('Failed to load menu', 'error'); }
   }
