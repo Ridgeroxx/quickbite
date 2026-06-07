@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>QuickBite | Ghanaian Eatery</title>
   <style>
-    /* ... (same as before, no changes needed) ... */
+    /* Same styles as before – keep your existing CSS */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -150,13 +150,28 @@
       cursor: pointer;
     }
     .loading { text-align: center; padding: 40px; color: #e67e22; }
+    .notification-badge {
+      position: relative;
+      cursor: pointer;
+    }
+    .greeting {
+      font-size: 0.9rem;
+      font-weight: 500;
+      background: white;
+      padding: 6px 14px;
+      border-radius: 30px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
   </style>
 </head>
 <body>
 <div class="container">
   <div class="header" id="pageHeader">
     <div class="logo"><h1>🍛 QuickBite <span style="font-size:0.7rem;">🇬🇭</span></h1></div>
-    <div class="cart-icon" id="cartIcon">🛒<span class="cart-count" id="cartCount">0</span></div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div class="greeting" id="greeting">Loading...</div>
+      <div class="cart-icon" id="cartIcon">🛒<span class="cart-count" id="cartCount">0</span></div>
+    </div>
   </div>
   <div id="categories" class="categories"></div>
   <div id="menuGrid" class="menu-grid"><div class="loading">Loading menu...</div></div>
@@ -199,15 +214,32 @@
   </div>
 </div>
 
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
+  // ---------- Telegram WebApp Integration ----------
+  let tg = window.Telegram.WebApp;
+  tg.expand(); // expand to full height
+  let user = tg.initDataUnsafe?.user;
+  let userId = user?.id ? String(user.id) : localStorage.getItem('userId');
+  let userName = user?.first_name ? user.first_name : (localStorage.getItem('userName') || 'Customer');
+  if (!userId) {
+    userId = 'user_' + Math.random().toString(36).substr(2, 10);
+    localStorage.setItem('userId', userId);
+  }
+  if (!localStorage.getItem('userName') && user?.first_name) {
+    localStorage.setItem('userName', user.first_name);
+  }
+  document.getElementById('greeting').innerText = `👋 Hello, ${userName}`;
+  
   const API_BASE = 'https://quickbite-joi1.onrender.com';
   let menu = [];
   let cart = JSON.parse(localStorage.getItem('cart') || '[]');
   let activeCategory = 'all';
-  let userId = localStorage.getItem('userId') || ('user_' + Math.random().toString(36).substr(2, 10));
-  localStorage.setItem('userId', userId);
   let isCheckingOut = false;
+  let lastOrdersState = []; // for polling comparison
+  let pollInterval = null;
 
+  // Helper: validation
   function isValidName(name) { return /^[A-Za-z\s\-']+$/.test(name) && name.trim().length > 0; }
   function isValidPhone(phone) { return /^0\d{9}$/.test(phone); }
 
@@ -216,7 +248,7 @@
     if (!toast) { toast = document.createElement('div'); toast.className = 'toast'; document.body.appendChild(toast); }
     toast.innerText = msg;
     toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2000);
+    setTimeout(() => toast.classList.remove('show'), 3000);
   }
 
   const header = document.getElementById('pageHeader');
@@ -225,6 +257,7 @@
   function saveCart() { localStorage.setItem('cart', JSON.stringify(cart)); updateCartUI(); renderCartDrawer(); }
   function updateCartUI() { document.getElementById('cartCount').innerText = cart.reduce((s,i) => s + i.qty, 0); }
 
+  // Menu loading functions (same as before)
   async function loadMenu() {
     try {
       const res = await fetch(`${API_BASE}/api/menu`);
@@ -369,7 +402,7 @@
       const data = await res.json();
       if (res.ok) {
         showToast('Payment reference submitted! Awaiting admin confirmation.');
-        loadOrderHistory(); // refresh orders to update status
+        await loadOrderHistory();
         closeOrderDetailsModal();
       } else {
         alert('Error: ' + data.error);
@@ -379,12 +412,35 @@
     }
   }
 
+  // Order history with polling for updates
   async function loadOrderHistory() {
     try {
       const res = await fetch(`${API_BASE}/api/orders/${userId}`);
       const orders = await res.json();
       const container = document.getElementById('orderHistoryList');
       if (!orders.length) { container.innerHTML = '<div>No orders yet.</div>'; return; }
+      
+      // Check for status changes to show in-app notifications
+      if (lastOrdersState.length > 0) {
+        orders.forEach(newOrder => {
+          const oldOrder = lastOrdersState.find(o => o.id === newOrder.id);
+          if (oldOrder && oldOrder.status !== newOrder.status) {
+            // Status changed -> show notification
+            let statusMsg = '';
+            switch (newOrder.status) {
+              case 'confirmed': statusMsg = `Order #${newOrder.id} payment confirmed! We are preparing your meal.`; break;
+              case 'processing': statusMsg = `Order #${newOrder.id} is now being prepared.`; break;
+              case 'completed': statusMsg = `Order #${newOrder.id} is ready for delivery.`; break;
+              case 'assigned_to_rider': statusMsg = `Order #${newOrder.id} has been assigned to a rider.`; break;
+              case 'delivered': statusMsg = `🎉 Order #${newOrder.id} delivered! Enjoy your meal.`; break;
+              default: statusMsg = `Order #${newOrder.id} status updated to ${newOrder.status}.`;
+            }
+            showToast(statusMsg);
+          }
+        });
+      }
+      lastOrdersState = JSON.parse(JSON.stringify(orders)); // deep copy
+      
       container.innerHTML = orders.map(order => `
         <div class="order-history-item">
           <div><strong>#${order.id}</strong> - ${order.status} - GHS ${order.total}</div>
@@ -397,28 +453,32 @@
           </div>
         </div>
       `).join('');
-      document.querySelectorAll('.btn-view-details').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const order = JSON.parse(btn.dataset.order);
-          showOrderDetails(order);
-        });
-      });
-      document.querySelectorAll('.btn-reorder').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const order = JSON.parse(btn.dataset.order);
-          reorder(order);
-        });
-      });
-      document.querySelectorAll('.btn-track').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const order = JSON.parse(btn.dataset.order);
-          showTrackModal(order);
-        });
-      });
+      attachOrderButtons();
     } catch(err) { console.error(err); }
+  }
+  
+  function attachOrderButtons() {
+    document.querySelectorAll('.btn-view-details').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const order = JSON.parse(btn.dataset.order);
+        showOrderDetails(order);
+      });
+    });
+    document.querySelectorAll('.btn-reorder').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const order = JSON.parse(btn.dataset.order);
+        reorder(order);
+      });
+    });
+    document.querySelectorAll('.btn-track').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const order = JSON.parse(btn.dataset.order);
+        showTrackModal(order);
+      });
+    });
   }
 
   function showOrderDetails(order) {
@@ -428,7 +488,6 @@
     }).join('');
     let paymentSection = '';
     if (order.status === 'pending_payment') {
-      // Show payment instructions and reference input
       const momoNumber = order.momoNumber || (API_BASE === 'https://quickbite-joi1.onrender.com' ? '+233206802552' : 'Not set');
       paymentSection = `
         <div class="payment-field">
@@ -521,9 +580,17 @@
 
   overlay.addEventListener('click', (e) => { if (e.target === overlay) closeCart(); });
 
+  // Start periodic polling for order updates (every 15 seconds)
+  function startPolling() {
+    if (pollInterval) clearInterval(pollInterval);
+    pollInterval = setInterval(async () => {
+      if (userId) await loadOrderHistory();
+    }, 15000);
+  }
+  
   loadMenu();
   updateCartUI();
-  loadOrderHistory();
+  loadOrderHistory().then(() => startPolling());
 </script>
 </body>
 </html>
