@@ -1,668 +1,1875 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>QuickBite Admin Portal</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #f4f6fb;
-      min-height: 100vh;
-    }
-    .login-container {
-      max-width: 400px;
-      margin: 100px auto;
-      background: white;
-      border-radius: 28px;
-      padding: 32px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-    .login-container h2 { margin-bottom: 24px; color: #e67e22; }
-    .login-container input {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid #ddd;
-      border-radius: 40px;
-      margin-bottom: 16px;
-      font-size: 16px;
-    }
-    .login-container button {
-      background: #e67e22;
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 40px;
-      width: 100%;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .error { color: #e74c3c; margin-top: 12px; }
-    #dashboard { display: none; width: 100%; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuickBite Admin</title>
+<!-- Font Awesome 6 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* ========================================
+   CSS VARIABLES & RESET
+   ======================================== */
+:root {
+  --primary: #E8600A;
+  --primary-light: #FF8534;
+  --primary-dark: #C04D00;
+  --primary-bg: #FFF5ED;
+  --bg: #F6F4F1;
+  --surface: #FFFFFF;
+  --surface-hover: #FAFAF9;
+  --text: #1A1A1A;
+  --text-secondary: #6B6B6B;
+  --text-muted: #9E9E9E;
+  --border: #E8E5E1;
+  --border-light: #F0EDEA;
+  --sidebar-bg: #1A1A1A;
+  --sidebar-text: #B8B8B8;
+  --sidebar-active: #FFFFFF;
+  --sidebar-hover: #2A2A2A;
+  --success: #2D8A4E;
+  --success-bg: #E8F5E9;
+  --warning: #E8A40A;
+  --warning-bg: #FFF8E1;
+  --danger: #D32F2F;
+  --danger-bg: #FFEBEE;
+  --info: #1565C0;
+  --info-bg: #E3F2FD;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+  --radius: 10px;
+  --radius-lg: 16px;
+  --sidebar-width: 260px;
+  --topbar-height: 64px;
+  --font-body: 'DM Sans', -apple-system, sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --transition: 0.2s ease;
+}
 
-    /* Sidebar */
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      width: 260px;
-      background: #1a1a2e;
-      z-index: 1000;
-      transform: translateX(-100%);
-      transition: transform 0.3s ease;
-      display: flex;
-      flex-direction: column;
-    }
-    .sidebar.open { transform: translateX(0); }
-    .sidebar-logo { padding: 28px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.07); }
-    .sidebar-logo .logo-text { font-size: 22px; font-weight: 800; color: white; }
-    .sidebar-logo .logo-text span { color: #ff6b35; }
-    .sidebar-logo .logo-sub { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; }
-    .nav-section { padding: 16px 0; }
-    .nav-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: rgba(255,255,255,0.35);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      padding: 0 24px 8px;
-    }
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 12px 24px;
-      color: rgba(255,255,255,0.7);
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      transition: all 0.2s;
-      border-left: 3px solid transparent;
-    }
-    .nav-item:hover { background: #16213e; color: white; }
-    .nav-item.active {
-      background: rgba(255,107,53,0.15);
-      color: #ff6b35;
-      border-left-color: #ff6b35;
-    }
-    .sidebar-footer {
-      margin-top: auto;
-      padding: 20px 24px;
-      border-top: 1px solid rgba(255,255,255,0.07);
-      font-size: 12px;
-      color: rgba(255,255,255,0.4);
-    }
-    .sidebar-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 999;
-      display: none;
-    }
-    .sidebar-overlay.active { display: block; }
-    .main {
-      margin-left: 0;
-      padding: 16px;
-      transition: margin-left 0.3s;
-    }
-    @media (min-width: 768px) {
-      .main { margin-left: 260px; }
-      .sidebar { transform: translateX(0); }
-      .hamburger, .sidebar-overlay { display: none; }
-    }
-    .topbar {
-      background: white;
-      border-radius: 24px;
-      padding: 10px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      gap: 12px;
-    }
-    .topbar-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .hamburger {
-      background: none;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-      padding: 8px;
-      width: 40px;
-      height: 40px;
-      border-radius: 20px;
-      background: #e67e22;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .topbar h2 { font-size: 18px; margin: 0; font-weight: 600; }
-    .welcome-message {
-      font-size: 13px;
-      color: #e67e22;
-      font-weight: 500;
-      background: #fff5f0;
-      padding: 4px 12px;
-      border-radius: 20px;
-      white-space: nowrap;
-    }
-    .topbar-actions {
-      display: flex;
-      gap: 8px;
-    }
-    .refresh-btn, .logout-btn {
-      background: #e67e22;
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 30px;
-      cursor: pointer;
-      font-size: 12px;
-    }
-    .logout-btn { background: #e74c3c; }
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-    .stat-card {
-      background: white;
-      border-radius: 16px;
-      padding: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-    .stat-card h3 { font-size: 12px; color: #666; margin-bottom: 4px; }
-    .stat-card .value { font-size: 22px; font-weight: bold; color: #e67e22; }
-    .table-wrap {
-      background: white;
-      border-radius: 20px;
-      overflow-x: auto;
-      margin-bottom: 16px;
-      padding: 0;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 550px;
-    }
-    th, td {
-      text-align: left;
-      padding: 10px 12px;
-      border-bottom: 1px solid #eee;
-      font-size: 13px;
-    }
-    th { background: #fafafa; font-weight: 600; font-size: 12px; }
-    .badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 50px;
-      font-size: 11px;
-      font-weight: 600;
-    }
-    .badge.pending_payment { background: #fff3cd; color: #856404; }
-    .badge.paid { background: #d4edda; color: #155724; }
-    .badge.confirmed { background: #d1ecf1; color: #0c5460; }
-    .badge.processing { background: #fff3cd; color: #856404; }
-    .badge.completed { background: #d4edda; color: #155724; }
-    .badge.assigned_to_rider { background: #cce5ff; color: #004085; }
-    .badge.delivered { background: #d4edda; color: #155724; }
-    button {
-      background: #e67e22;
-      border: none;
-      color: white;
-      padding: 5px 10px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 11px;
-      margin: 2px;
-    }
-    button.danger { background: #e74c3c; }
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 12px;
-    }
-    .menu-card {
-      background: white;
-      border-radius: 16px;
-      padding: 12px;
-      text-align: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-    .toast {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: #27ae60;
-      color: white;
-      padding: 10px 16px;
-      border-radius: 40px;
-      z-index: 1100;
-      opacity: 0;
-      transition: opacity 0.2s;
-      font-size: 13px;
-    }
-    .toast.show { opacity: 1; }
-  </style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+button { cursor: pointer; font-family: inherit; }
+input, select, textarea { font-family: inherit; }
+
+/* ========================================
+   LOGIN SCREEN
+   ======================================== */
+#login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #FFF5ED 0%, #F6F4F1 50%, #EDEDED 100%);
+  padding: 20px;
+}
+
+.login-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.login-logo {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.login-logo i { margin-right: 8px; }
+
+.login-subtitle {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 32px;
+}
+
+.login-card label {
+  display: block;
+  text-align: left;
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.login-card input[type="text"] {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 16px;
+  outline: none;
+  transition: border-color var(--transition);
+  background: var(--bg);
+}
+
+.login-card input[type="text"]:focus {
+  border-color: var(--primary);
+  background: var(--surface);
+}
+
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 20px;
+  transition: background var(--transition), transform 0.1s;
+}
+
+.login-btn:hover { background: var(--primary-dark); }
+.login-btn:active { transform: scale(0.98); }
+
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   DASHBOARD LAYOUT
+   ======================================== */
+#dashboard { display: none; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  background: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-brand {
+  padding: 24px 24px 20px;
+  border-bottom: 1px solid #333;
+}
+
+.sidebar-brand h1 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--primary-light);
+  font-weight: 700;
+}
+
+.sidebar-brand h1 i { margin-right: 8px; font-size: 20px; }
+
+.sidebar-brand small {
+  display: block;
+  color: var(--sidebar-text);
+  font-size: 11px;
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 24px;
+  color: var(--sidebar-text);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  border-left: 3px solid transparent;
+  gap: 12px;
+}
+
+.nav-item i {
+  width: 20px;
+  text-align: center;
+  font-size: 15px;
+}
+
+.nav-item:hover {
+  background: var(--sidebar-hover);
+  color: #ddd;
+}
+
+.nav-item.active {
+  background: rgba(232, 96, 10, 0.12);
+  color: var(--primary-light);
+  border-left-color: var(--primary-light);
+}
+
+.sidebar-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #333;
+  font-size: 12px;
+  color: var(--sidebar-text);
+}
+
+.sidebar-footer .role-badge {
+  display: inline-block;
+  background: var(--primary);
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+/* Main content */
+.main-content {
+  margin-left: var(--sidebar-width);
+  min-height: 100vh;
+}
+
+/* Top bar */
+.topbar {
+  position: sticky;
+  top: 0;
+  height: var(--topbar-height);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  z-index: 50;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: var(--text);
+  padding: 4px;
+}
+
+.topbar-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topbar-welcome {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-right: 8px;
+}
+
+.btn-icon {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 15px;
+  transition: all var(--transition);
+}
+
+.btn-icon:hover {
+  background: var(--bg);
+  color: var(--text);
+  border-color: #ccc;
+}
+
+.btn-logout {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.btn-logout:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* Page content area */
+.page-content {
+  padding: 28px;
+}
+
+.page { display: none; }
+.page.active { display: block; }
+
+/* ========================================
+   SIDEBAR OVERLAY (mobile)
+   ======================================== */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 99;
+}
+
+/* ========================================
+   STATS CARDS
+   ======================================== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  transition: box-shadow var(--transition);
+}
+
+.stat-card:hover { box-shadow: var(--shadow-md); }
+
+.stat-card .stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.stat-card .stat-value {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.stat-card .stat-sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.stat-card .stat-icon {
+  float: right;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.stat-icon.orange { background: var(--primary-bg); color: var(--primary); }
+.stat-icon.green { background: var(--success-bg); color: var(--success); }
+.stat-icon.blue { background: var(--info-bg); color: var(--info); }
+.stat-icon.yellow { background: var(--warning-bg); color: var(--warning); }
+
+/* ========================================
+   TABLES
+   ======================================== */
+.table-wrap {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.table-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+thead th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-light);
+  white-space: nowrap;
+}
+
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--surface-hover); }
+
+.table-empty {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.table-empty i {
+  display: block;
+  font-size: 36px;
+  margin-bottom: 12px;
+  opacity: 0.4;
+}
+
+/* ========================================
+   BADGES
+   ======================================== */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.badge-pending_payment { background: var(--warning-bg); color: #B8860B; }
+.badge-paid { background: #E8F5E9; color: #2E7D32; }
+.badge-confirmed { background: var(--info-bg); color: var(--info); }
+.badge-processing { background: #F3E5F5; color: #7B1FA2; }
+.badge-completed { background: #E0F2F1; color: #00695C; }
+.badge-assigned_to_rider { background: #FFF3E0; color: #E65100; }
+.badge-delivered { background: var(--success-bg); color: var(--success); }
+.badge-cancelled { background: var(--danger-bg); color: var(--danger); }
+
+/* ========================================
+   BUTTONS
+   ======================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.btn:active { transform: scale(0.97); }
+
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+
+.btn-success { background: var(--success); color: #fff; }
+.btn-success:hover { background: #236B3E; }
+
+.btn-info { background: var(--info); color: #fff; }
+.btn-info:hover { background: #0D47A1; }
+
+.btn-warning { background: var(--warning); color: #fff; }
+.btn-warning:hover { background: #C48B00; }
+
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: #B71C1C; }
+
+.btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.btn-outline:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+/* ========================================
+   MENU CARDS
+   ======================================== */
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.menu-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  padding: 24px;
+  transition: box-shadow var(--transition);
+  position: relative;
+}
+
+.menu-card:hover { box-shadow: var(--shadow-md); }
+
+.menu-card-emoji {
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+
+.menu-card-name {
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.menu-card-category {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.menu-card-price {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 16px;
+}
+
+.menu-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ========================================
+   LOADING SPINNER
+   ======================================== */
+.spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.page-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.page-loader .spinner {
+  width: 32px;
+  height: 32px;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .sidebar-overlay.visible {
+    display: block;
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .page-content {
+    padding: 16px;
+  }
+
+  .topbar {
+    padding: 0 16px;
+  }
+
+  .topbar-welcome {
+    display: none;
+  }
+
+  .stat-card .stat-value {
+    font-size: 22px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 16px;
+  }
+
+  .menu-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page.active {
+  animation: fadeIn 0.3s ease;
+}
+
+/* SweetAlert2 custom styling */
+.swal2-popup {
+  font-family: var(--font-body) !important;
+  border-radius: var(--radius-lg) !important;
+}
+
+.swal2-confirm {
+  background: var(--primary) !important;
+  border-radius: var(--radius) !important;
+  font-weight: 600 !important;
+}
+
+.swal2-cancel {
+  border-radius: var(--radius) !important;
+}
+</style>
 </head>
 <body>
-<div id="loginScreen" class="login-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; width: 100%;">
-  <div style="background: white; border-radius: 28px; padding: 32px; width: 90%; max-width: 400px;">
-    <h2>🔐 Admin Login</h2>
-    <input type="number" id="telegramId" placeholder="Enter your Telegram ID" />
-    <button id="loginButton">Login</button>
-    <div id="loginError" class="error"></div>
+
+<!-- ============================================
+     LOGIN SCREEN
+     ============================================ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo"><i class="fa-solid fa-bolt"></i>QuickBite</div>
+    <p class="login-subtitle">Admin Dashboard</p>
+    <label for="telegram-id">Telegram ID</label>
+    <input type="text" id="telegram-id" placeholder="Enter your Telegram ID" inputmode="numeric" autocomplete="off">
+    <button class="login-btn" id="login-btn" onclick="handleLogin()">
+      <i class="fa-solid fa-right-to-bracket"></i> Sign In
+    </button>
   </div>
 </div>
 
+<!-- ============================================
+     DASHBOARD
+     ============================================ -->
 <div id="dashboard">
-  <div class="sidebar-overlay" id="sidebarOverlay"></div>
-  <div class="sidebar" id="sidebar">
-    <div class="sidebar-logo"><div class="logo-text">🍔 <span>QuickBite</span></div><div class="logo-sub">Admin Portal</div></div>
-    <div class="nav-section">
-      <div class="nav-label">Main</div>
-      <div class="nav-item" data-page="dashboard"><i class="fa fa-chart-line"></i> Dashboard</div>
-      <div class="nav-item" data-page="orders"><i class="fa fa-receipt"></i> All Orders</div>
-    </div>
-    <div class="nav-section" id="navPaymentsSection" style="display:none;"><div class="nav-label">Payments</div><div class="nav-item" data-page="payments"><i class="fa fa-credit-card"></i> Pending Payments</div></div>
-    <div class="nav-section" id="navOrderFlowSection" style="display:none;"><div class="nav-label">Order Processing</div><div class="nav-item" data-page="orderFlow"><i class="fa fa-cogs"></i> Order Flow</div></div>
-    <div class="nav-section" id="navRidersSection" style="display:none;"><div class="nav-label">Riders</div><div class="nav-item" data-page="riders"><i class="fa fa-motorcycle"></i> Manage Riders</div></div>
-    <div class="nav-section" id="navMenuSection" style="display:none;"><div class="nav-label">Menu</div><div class="nav-item" data-page="menu"><i class="fa fa-utensils"></i> Menu Items</div></div>
-    <div class="nav-section" id="navAdminsSection" style="display:none;"><div class="nav-label">System</div><div class="nav-item" data-page="admins"><i class="fa fa-users"></i> Admins</div></div>
-    <div class="sidebar-footer"><span id="userRoleSpan"></span></div>
-  </div>
 
-  <div class="main">
-    <div class="topbar">
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <h1><i class="fa-solid fa-bolt"></i>QuickBite</h1>
+      <small>Admin Panel</small>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebar-nav">
+      <!-- Items injected by JS based on role -->
+    </nav>
+
+    <div class="sidebar-footer">
+      Logged in as<br>
+      <span class="role-badge" id="role-badge"></span>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content">
+
+    <!-- Top bar -->
+    <header class="topbar">
       <div class="topbar-left">
-        <button class="hamburger" id="hamburger"><i class="fa fa-bars"></i></button>
-        <h2 id="pageTitle">Dashboard</h2>
-        <span id="welcomeMessage" class="welcome-message"></span>
+        <button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <span class="topbar-title" id="topbar-title">Dashboard</span>
       </div>
-      <div class="topbar-actions">
-        <button class="refresh-btn" onclick="window.refreshCurrentPage()"><i class="fa fa-rotate-right"></i> Refresh</button>
-        <button class="logout-btn" onclick="window.logout()"><i class="fa fa-sign-out-alt"></i> Logout</button>
+      <div class="topbar-right">
+        <span class="topbar-welcome" id="topbar-welcome"></span>
+        <button class="btn-icon" onclick="refreshCurrentPage()" title="Refresh">
+          <i class="fa-solid fa-arrows-rotate"></i>
+        </button>
+        <button class="btn-icon btn-logout" onclick="handleLogout()" title="Logout">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
       </div>
-    </div>
+    </header>
 
-    <div id="page-dashboard" class="page"><div class="stats-grid" id="statsGrid"></div><div class="table-wrap"><h3 style="margin-bottom:16px;">Recent Orders</h3><tr><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="dashboardOrdersBody"></tbody></table></div></div>
-    <div id="page-orders" class="page" style="display:none;"><div class="table-wrap"><table><thead><tr><th>#</th><th>Customer</th><th>Address</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="allOrdersBody"></tbody></td></div></div>
-    <div id="page-payments" class="page" style="display:none;"><div class="table-wrap"></td><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Reference</th><th>Status</th><th>Action</th></tr></thead><tbody id="paymentsBody"></tbody></table></div></div>
-    <div id="page-orderFlow" class="page" style="display:none;"><div class="table-wrap"></td><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="orderFlowBody"></tbody></table></div></div>
-    <div id="page-riders" class="page" style="display:none;"><button onclick="window.addRider()" style="margin-bottom:16px;"><i class="fa fa-plus"></i> Add Rider</button><div class="table-wrap"><table><thead><tr><th>Telegram ID</th><th>Name</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ridersBody"></tbody></table></div></div>
-    <div id="page-menu" class="page" style="display:none;"><button onclick="window.openAddMenuItem()" style="margin-bottom:16px;"><i class="fa fa-plus"></i> Add Menu Item</button><div class="cards-grid" id="menuGrid"></div></div>
-    <div id="page-admins" class="page" style="display:none;"><div class="table-wrap"><p>Use Telegram command <code>/set_role &lt;id&gt; &lt;role&gt;</code> to manage admins.</p></div></div>
-  </div>
-</div>
-<div id="toast" class="toast"></div>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Pages container -->
+    <div class="page-content">
+
+      <!-- Dashboard Page -->
+      <div class="page" id="page-dashboard" data-title="Dashboard">
+        <div class="stats-grid" id="stats-grid"></div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Orders</h3>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Customer</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="recent-orders-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- All Orders Page -->
+      <div class="page" id="page-orders" data-title="All Orders">
+        <div class="table-wrap">
+          <div class="table-header">
+            <h3><i class="fa-solid fa-list-check"></i> All Orders</h3>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Customer</th>
+                  <th>Address</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="all-orders-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payments Page -->
+      <div class="page" id="page-payments" data-title="Payments">
+        <div class="table-wrap">
+          <div class="table-header">
+            <h3><i class="fa-solid fa-credit-card"></i> Payment Queue</h3>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Customer</th>
+                  <th>Total</th>
+                  <th>Payment Ref</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="payments-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Flow Page -->
+      <div class="page" id="page-orderflow" data-title="Order Flow">
+        <div class="table-wrap">
+          <div class="table-header">
+            <h3><i class="fa-solid fa-arrows-spin"></i> Order Pipeline</h3>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Customer</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="orderflow-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Riders Page -->
+      <div class="page" id="page-riders" data-title="Riders">
+        <div style="margin-bottom:16px">
+          <button class="btn btn-primary" onclick="showAddRiderModal()">
+            <i class="fa-solid fa-plus"></i> Add Rider
+          </button>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <h3><i class="fa-solid fa-motorcycle"></i> Rider List</h3>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Telegram ID</th>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="riders-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Menu Page -->
+      <div class="page" id="page-menu" data-title="Menu">
+        <div style="margin-bottom:16px">
+          <button class="btn btn-primary" onclick="showAddMenuModal()">
+            <i class="fa-solid fa-plus"></i> Add Menu Item
+          </button>
+        </div>
+        <div class="menu-grid" id="menu-grid"></div>
+      </div>
+
+      <!-- Admins Page -->
+      <div class="page" id="page-admins" data-title="Admins">
+        <div class="table-wrap">
+          <div class="table-header">
+            <h3><i class="fa-solid fa-user-shield"></i> Admin Roles</h3>
+          </div>
+          <div style="padding:48px 24px; text-align:center; color:var(--text-muted)">
+            <i class="fa-solid fa-terminal" style="font-size:36px; opacity:0.3; display:block; margin-bottom:12px"></i>
+            <p>Admin roles are managed via Telegram commands.</p>
+            <p style="font-size:13px; margin-top:4px">Use the bot to add, remove, or update admin roles.</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /.page-content -->
+  </div><!-- /.main-content -->
+</div><!-- /#dashboard -->
+
+
 <script>
-  const API_BASE = 'https://quickbite-joi1.onrender.com';
-  let adminToken = null, currentRole = null, currentPage = 'dashboard';
+/* =====================================================================
+   QuickBite Admin Dashboard — JavaScript
+   ===================================================================== */
 
-  function showToast(msg, type='success') {
-    const toast = document.getElementById('toast');
-    if (!toast) return;
-    toast.textContent = msg;
-    toast.style.background = type === 'success' ? '#27ae60' : '#e74c3c';
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3000);
+const API = 'https://quickbite-joi1.onrender.com';
+
+// ─── State ───────────────────────────────────────────────────────────
+let token = localStorage.getItem('qb_token') || '';
+let role  = localStorage.getItem('qb_role')  || '';
+let currentPage = 'dashboard';
+
+// ─── Navigation config per role ──────────────────────────────────────
+const NAV_ITEMS = [
+  { id: 'dashboard',  icon: 'fa-chart-pie',      label: 'Dashboard',   roles: ['super','payment','order','rider'] },
+  { id: 'orders',     icon: 'fa-list-check',     label: 'All Orders',  roles: ['super','payment','order','rider'] },
+  { id: 'payments',   icon: 'fa-credit-card',    label: 'Payments',    roles: ['super','payment'] },
+  { id: 'orderflow',  icon: 'fa-arrows-spin',    label: 'Order Flow',  roles: ['super','order'] },
+  { id: 'riders',     icon: 'fa-motorcycle',     label: 'Riders',      roles: ['super','rider'] },
+  { id: 'menu',       icon: 'fa-utensils',       label: 'Menu',        roles: ['super'] },
+  { id: 'admins',     icon: 'fa-user-shield',    label: 'Admins',      roles: ['super'] },
+];
+
+// ─── Friendly role labels ────────────────────────────────────────────
+const ROLE_LABELS = {
+  super: '🛡️ Super Admin',
+  payment: '💳 Payment Manager',
+  order: '📦 Order Manager',
+  rider: '🏍️ Rider Manager',
+};
+
+// ─── Status display labels ───────────────────────────────────────────
+const STATUS_LABELS = {
+  pending_payment: 'Pending Payment',
+  paid: 'Paid',
+  confirmed: 'Confirmed',
+  processing: 'Processing',
+  completed: 'Completed',
+  assigned_to_rider: 'Assigned to Rider',
+  delivered: 'Delivered',
+  cancelled: 'Cancelled',
+};
+
+
+/* =====================================================================
+   API HELPER
+   ===================================================================== */
+
+/**
+ * Fetch wrapper that injects the admin token and handles 401s.
+ */
+async function fetchAPI(endpoint, options = {}) {
+  const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+  if (token) headers['x-admin-token'] = token;
+
+  const res = await fetch(`${API}${endpoint}`, { ...options, headers });
+
+  // Auto-logout on 401
+  if (res.status === 401) {
+    handleLogout('Session expired. Please log in again.');
+    throw new Error('Unauthorized');
   }
 
-  async function fetchAPI(endpoint, options={}) {
-    const headers = { 'Content-Type': 'application/json', 'x-admin-token': adminToken, ...options.headers };
-    const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
-    if (res.status === 401) {
-      window.logout();
-      Swal.fire('Session expired', 'Please login again.', 'error');
-      throw new Error('Unauthorized');
-    }
-    return res.json();
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error || body.message || `Request failed (${res.status})`);
   }
 
-  async function login() {
-    const telegramId = document.getElementById('telegramId').value.trim();
-    if (!telegramId) { document.getElementById('loginError').innerText = 'Please enter your Telegram ID'; return; }
-    try {
-      const res = await fetch(`${API_BASE}/admin/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ telegramId }) });
-      const data = await res.json();
-      if (res.ok) {
-        adminToken = data.token; currentRole = data.role;
-        localStorage.setItem('adminToken', adminToken); localStorage.setItem('adminRole', currentRole);
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'block';
-        document.getElementById('userRoleSpan').innerHTML = `Role: ${currentRole.toUpperCase()}`;
-        updateWelcomeMessage();
-        setupNav(); showPage('dashboard');
-      } else document.getElementById('loginError').innerText = data.error || 'Login failed';
-    } catch(err) { document.getElementById('loginError').innerText = 'Network error'; }
+  return res.json();
+}
+
+
+/* =====================================================================
+   AUTH – LOGIN / LOGOUT
+   ===================================================================== */
+
+async function handleLogin() {
+  const input = document.getElementById('telegram-id');
+  const btn   = document.getElementById('login-btn');
+  const telegramId = Number(input.value.trim());
+
+  if (!telegramId || isNaN(telegramId)) {
+    return toast('Please enter a valid numeric Telegram ID', 'error');
   }
 
-  function updateWelcomeMessage() {
-    const welcomeSpan = document.getElementById('welcomeMessage');
-    if (!welcomeSpan) return;
-    let roleText = '';
-    switch (currentRole) {
-      case 'super': roleText = 'Super Admin'; break;
-      case 'payment': roleText = 'Payment Mgr'; break;
-      case 'order': roleText = 'Order Mgr'; break;
-      case 'rider': roleText = 'Rider Mgr'; break;
-      default: roleText = 'Admin';
-    }
-    welcomeSpan.innerText = `👋 ${roleText}`;
-  }
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Signing in…';
 
-  window.login = login;
-  window.logout = function() {
-    localStorage.removeItem('adminToken'); localStorage.removeItem('adminRole');
-    adminToken = null; currentRole = null;
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('dashboard').style.display = 'none';
-  };
-  window.refreshCurrentPage = function() { if (currentPage) showPage(currentPage); };
-
-  function setupNav() {
-    const payments = document.getElementById('navPaymentsSection');
-    const orderFlow = document.getElementById('navOrderFlowSection');
-    const riders = document.getElementById('navRidersSection');
-    const menu = document.getElementById('navMenuSection');
-    const admins = document.getElementById('navAdminsSection');
-    if (payments) payments.style.display = (currentRole === 'payment' || currentRole === 'super') ? 'block' : 'none';
-    if (orderFlow) orderFlow.style.display = (currentRole === 'order' || currentRole === 'super') ? 'block' : 'none';
-    if (riders) riders.style.display = (currentRole === 'rider' || currentRole === 'super') ? 'block' : 'none';
-    if (menu) menu.style.display = (currentRole === 'super') ? 'block' : 'none';
-    if (admins) admins.style.display = (currentRole === 'super') ? 'block' : 'none';
-  }
-
-  function closeSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    if (sidebar) sidebar.classList.remove('open');
-    if (overlay) overlay.classList.remove('active');
-  }
-
-  window.showPage = async function(page) {
-    const pages = ['dashboard', 'orders', 'payments', 'orderFlow', 'riders', 'menu', 'admins'];
-    pages.forEach(p => { const el = document.getElementById(`page-${p}`); if (el) el.style.display = 'none'; });
-    const activePage = document.getElementById(`page-${page}`);
-    if (activePage) activePage.style.display = 'block';
-    currentPage = page;
-    const titleEl = document.getElementById('pageTitle');
-    if (titleEl) titleEl.innerText = page.charAt(0).toUpperCase() + page.slice(1);
-    closeSidebar();
-    if (page === 'dashboard') loadDashboard();
-    else if (page === 'orders') loadAllOrders();
-    else if (page === 'payments') loadPayments();
-    else if (page === 'orderFlow') loadOrderFlow();
-    else if (page === 'riders') loadRiders();
-    else if (page === 'menu') loadMenu();
-  };
-
-  document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const page = item.dataset.page;
-      if (page) window.showPage(page);
+  try {
+    const data = await fetch(`${API}/admin/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ telegramId }),
+    }).then(r => {
+      if (!r.ok) throw new Error('Invalid Telegram ID');
+      return r.json();
     });
+
+    token = data.token;
+    role  = data.role;
+    localStorage.setItem('qb_token', token);
+    localStorage.setItem('qb_role', role);
+
+    showDashboard();
+    toast('Welcome back!', 'success');
+
+  } catch (err) {
+    toast(err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Sign In';
+  }
+}
+
+function handleLogout(message) {
+  token = '';
+  role  = '';
+  localStorage.removeItem('qb_token');
+  localStorage.removeItem('qb_role');
+
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('telegram-id').value = '';
+
+  if (message) toast(message, 'warning');
+}
+
+// Allow Enter key to submit login
+document.getElementById('telegram-id').addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleLogin();
+});
+
+
+/* =====================================================================
+   SHOW DASHBOARD — called after login or on page load with stored token
+   ===================================================================== */
+
+function showDashboard() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display   = 'block';
+
+  // Role badge
+  document.getElementById('role-badge').textContent = role.toUpperCase();
+
+  // Welcome message
+  document.getElementById('topbar-welcome').textContent = ROLE_LABELS[role] || role;
+
+  // Build nav
+  buildNav();
+
+  // Navigate to first allowed page
+  const firstAllowed = NAV_ITEMS.find(n => n.roles.includes(role));
+  navigate(firstAllowed ? firstAllowed.id : 'dashboard');
+}
+
+function buildNav() {
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+
+  NAV_ITEMS.forEach(item => {
+    if (!item.roles.includes(role)) return;
+
+    const el = document.createElement('div');
+    el.className = 'nav-item';
+    el.dataset.page = item.id;
+    el.innerHTML = `<i class="fa-solid ${item.icon}"></i><span>${item.label}</span>`;
+    el.onclick = () => {
+      navigate(item.id);
+      closeSidebar();
+    };
+    nav.appendChild(el);
+  });
+}
+
+
+/* =====================================================================
+   NAVIGATION
+   ===================================================================== */
+
+function navigate(pageId) {
+  currentPage = pageId;
+
+  // Update active nav item
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === pageId);
   });
 
-  window.viewOrderDetails = async (orderId) => {
-    try {
-      const { orders } = await fetchAPI('/api/orders');
-      const order = orders.find(o => o.id === orderId);
-      if (!order) return;
-      const itemsHtml = order.items.map(i => `${i.name} x${i.qty} = GHS ${i.totalPrice * i.qty}`).join('\n');
-      Swal.fire({
-        title: `Order #${order.id}`,
-        html: `<strong>Customer:</strong> ${order.customerName}<br><strong>Phone:</strong> ${order.customerPhone}<br><strong>Address:</strong> ${order.address}<br><strong>Total:</strong> GHS ${order.total}<br><strong>Status:</strong> ${order.status}<br><strong>Items:</strong><br>${itemsHtml}<br>${order.riderName ? `<strong>Rider:</strong> ${order.riderName} (${order.riderPhone})` : ''}`,
-        showCancelButton: true,
-        confirmButtonText: 'Copy Details',
-        cancelButtonText: 'Close'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          const copyText = `Order #${order.id}\nCustomer: ${order.customerName}\nPhone: ${order.customerPhone}\nAddress: ${order.address}\nTotal: GHS ${order.total}\nItems:\n${itemsHtml}`;
-          navigator.clipboard.writeText(copyText);
-          showToast('Order details copied to clipboard');
-        }
-      });
-    } catch(e) { showToast('Error fetching order details', 'error'); }
-  };
-
-  window.updateOrderStatus = async (orderId, newStatus) => {
-    await fetchAPI(`/api/orders/${orderId}/status`, { method: 'PATCH', body: JSON.stringify({ status: newStatus }) });
-    showToast(`Order #${orderId} updated to ${newStatus}`, 'success');
-    if (currentPage === 'orderFlow') loadOrderFlow();
-    if (currentPage === 'payments') loadPayments();
-    loadDashboard();
-  };
-
-  window.confirmPayment = async (orderId) => {
-    await updateOrderStatus(orderId, 'confirmed');
-    loadPayments();
-    loadDashboard();
-  };
-
-  window.markAssignedManually = async (orderId) => {
-    const { value: formValues } = await Swal.fire({
-      title: `Assign Rider for Order #${orderId}`,
-      html: `<input id="riderName" class="swal2-input" placeholder="Rider Name (e.g., Kwame)"><input id="riderPhone" class="swal2-input" placeholder="WhatsApp Number (e.g., 024XXXXXXX)">`,
-      focusConfirm: false,
-      preConfirm: () => {
-        const name = document.getElementById('riderName').value;
-        const phone = document.getElementById('riderPhone').value;
-        if (!name || !phone) { Swal.showValidationMessage('Both name and phone are required'); return false; }
-        return { name, phone };
-      }
-    });
-    if (formValues) {
-      await fetchAPI(`/api/orders/${orderId}/status`, { method: 'PATCH', body: JSON.stringify({ status: 'assigned_to_rider', riderName: formValues.name, riderPhone: formValues.phone }) });
-      showToast(`Order #${orderId} assigned to ${formValues.name} (WhatsApp: ${formValues.phone})`, 'success');
-      loadOrderFlow(); loadDashboard();
-    }
-  };
-
-  window.markOrderDelivered = async (orderId) => {
-    await fetchAPI(`/api/orders/${orderId}/status`, { method: 'PATCH', body: JSON.stringify({ status: 'delivered' }) });
-    showToast(`Order #${orderId} marked as delivered!`, 'success');
-    loadOrderFlow(); loadDashboard();
-  };
-
-  window.addRider = async () => {
-    const { value: formValues } = await Swal.fire({
-      title: 'Add Rider',
-      html: `<input id="riderId" class="swal2-input" placeholder="Telegram ID (numeric)" type="number"><input id="riderName" class="swal2-input" placeholder="Rider Name"><input id="riderPhone" class="swal2-input" placeholder="Phone Number (optional)">`,
-      preConfirm: () => ({ id: document.getElementById('riderId').value, name: document.getElementById('riderName').value, phone: document.getElementById('riderPhone').value })
-    });
-    if (formValues && formValues.id && formValues.name) {
-      await fetchAPI('/api/riders', { method: 'POST', body: JSON.stringify({ telegramId: parseInt(formValues.id), name: formValues.name, phone: formValues.phone || '' }) });
-      showToast('Rider added', 'success');
-      loadRiders();
-    }
-  };
-  window.toggleRider = async (id, current) => { await fetchAPI(`/api/riders/${id}/availability`, { method: 'PATCH', body: JSON.stringify({ isAvailable: current === 'true' ? 'false' : 'true' }) }); loadRiders(); };
-  window.deleteRider = async (id) => { if ((await Swal.fire({ title: 'Confirm', text: 'Delete this rider?', icon: 'warning', showCancelButton: true })).isConfirmed) { await fetchAPI(`/api/riders/${id}`, { method: 'DELETE' }); loadRiders(); } };
-  window.openAddMenuItem = async () => {
-    const { value: formValues } = await Swal.fire({
-      title: 'Add Menu Item',
-      html: `<input id="itemName" class="swal2-input" placeholder="Name"><input id="itemPrice" class="swal2-input" placeholder="Price (GHS)" type="number" step="0.01"><input id="itemCategory" class="swal2-input" placeholder="Category">`,
-      preConfirm: () => ({ name: document.getElementById('itemName').value, price: parseFloat(document.getElementById('itemPrice').value), category: document.getElementById('itemCategory').value })
-    });
-    if (formValues && formValues.name && formValues.price) { await fetchAPI('/api/menu', { method: 'POST', body: JSON.stringify(formValues) }); loadMenu(); }
-  };
-  window.editMenuItem = async (id, oldName, oldPrice, oldCategory) => {
-    const { value: formValues } = await Swal.fire({
-      title: 'Edit Menu Item',
-      html: `<input id="itemName" class="swal2-input" value="${oldName}"><input id="itemPrice" class="swal2-input" value="${oldPrice}" type="number" step="0.01"><input id="itemCategory" class="swal2-input" value="${oldCategory}">`,
-      preConfirm: () => ({ name: document.getElementById('itemName').value, basePrice: parseFloat(document.getElementById('itemPrice').value), category: document.getElementById('itemCategory').value })
-    });
-    if (formValues) { await fetchAPI(`/api/menu/${id}`, { method: 'PATCH', body: JSON.stringify(formValues) }); loadMenu(); }
-  };
-  window.deleteMenuItem = async (id) => { if ((await Swal.fire({ title: 'Confirm', text: 'Delete this item?', icon: 'warning', showCancelButton: true })).isConfirmed) { await fetchAPI(`/api/menu/${id}`, { method: 'DELETE' }); loadMenu(); } };
-
-  async function loadDashboard() {
-    const statsGrid = document.getElementById('statsGrid');
-    const dashboardBody = document.getElementById('dashboardOrdersBody');
-    if (!statsGrid || !dashboardBody) return;
-    try {
-      const stats = await fetchAPI('/api/orders/stats/summary');
-      statsGrid.innerHTML = `<div class="stat-card"><h3>Today's Orders</h3><div class="value">${stats.today.count}</div><div>GHS ${stats.today.total}</div></div><div class="stat-card"><h3>This Week</h3><div class="value">${stats.week.count}</div><div>GHS ${stats.week.total}</div></div><div class="stat-card"><h3>This Month</h3><div class="value">${stats.month.count}</div><div>GHS ${stats.month.total}</div></div><div class="stat-card"><h3>All Time Revenue</h3><div class="value">GHS ${stats.all.total}</div></div>`;
-      const { orders } = await fetchAPI('/api/orders');
-      const recent = orders.slice(0, 10);
-      dashboardBody.innerHTML = recent.map(o => `<tr>
-        <td><strong>#${o.id}</strong></td>
-        <td>${escapeHtml(o.customerName)}</div></td>
-        <td>GHS ${o.total}</td>
-        <td><span class="badge ${o.status}">${o.status}</span></td>
-        <td><button onclick="window.viewOrderDetails(${o.id})">View</button></div></td>
-      </tr>`).join('');
-    } catch(e) { showToast('Failed to load dashboard', 'error'); }
-  }
-
-  async function loadAllOrders() {
-    const allOrdersBody = document.getElementById('allOrdersBody');
-    if (!allOrdersBody) return;
-    try {
-      const { orders } = await fetchAPI('/api/orders');
-      if (!orders || orders.length === 0) {
-        allOrdersBody.innerHTML = '<tr><td colspan="6">No orders found.缓解</tr>';
-        return;
-      }
-      allOrdersBody.innerHTML = orders.map(o => `<tr>
-        <td><strong>#${o.id}</strong></td>
-        <td>${escapeHtml(o.customerName)} (${escapeHtml(o.customerPhone)})</div></td>
-        <td>${escapeHtml(o.address.substring(0, 50))}${o.address.length > 50 ? '…' : ''}</td>
-        <td>GHS ${o.total}</td>
-        <td><span class="badge ${o.status}">${o.status.replace(/_/g, ' ')}</span></td>
-        <td><button onclick="window.viewOrderDetails(${o.id})">View</button></td>
-      </tr>`).join('');
-    } catch(e) { showToast('Failed to load orders', 'error'); }
-  }
-
-  // PAYMENTS tab: only pending_payment and paid (waiting for admin confirmation)
-  async function loadPayments() {
-    const paymentsBody = document.getElementById('paymentsBody');
-    if (!paymentsBody) return;
-    try {
-      const { orders } = await fetchAPI('/api/orders');
-      const pending = orders.filter(o => o.status === 'pending_payment' || o.status === 'paid');
-      if (pending.length === 0) {
-        paymentsBody.innerHTML = '<tr><td colspan="6">No pending payments.缓解</tr>';
-        return;
-      }
-      paymentsBody.innerHTML = pending.map(o => `<tr>
-        <td><strong>#${o.id}</strong></td>
-        <td>${escapeHtml(o.customerName)}</div></td>
-        <td>GHS ${o.total}</td>
-        <td>${o.paymentReference || '—'}</td>
-        <td><span class="badge ${o.status}">${o.status}</span></td>
-        <td>${o.status === 'paid' ? `<button onclick="window.confirmPayment(${o.id})">Confirm</button>` : 'Awaiting ref'}</td>
-      </tr>`).join('');
-    } catch(e) { showToast('Failed to load payments', 'error'); }
-  }
-
-  // ORDER FLOW tab: only confirmed, processing, completed, assigned_to_rider
-  async function loadOrderFlow() {
-    const orderFlowBody = document.getElementById('orderFlowBody');
-    if (!orderFlowBody) return;
-    try {
-      const { orders } = await fetchAPI('/api/orders');
-      const flowOrders = orders.filter(o => ['confirmed', 'processing', 'completed', 'assigned_to_rider'].includes(o.status));
-      if (flowOrders.length === 0) {
-        orderFlowBody.innerHTML = '<tr><td colspan="5">No orders in the processing queue.缓解</tr>';
-        return;
-      }
-      orderFlowBody.innerHTML = flowOrders.map(o => {
-        let buttons = '';
-        if (o.status === 'confirmed') buttons = `<button onclick="window.updateOrderStatus(${o.id}, 'processing')">Start Processing</button>`;
-        else if (o.status === 'processing') buttons = `<button onclick="window.updateOrderStatus(${o.id}, 'completed')">Ready for Delivery</button>`;
-        else if (o.status === 'completed') buttons = `<button onclick="window.markAssignedManually(${o.id})">Assign Rider</button>`;
-        else if (o.status === 'assigned_to_rider') buttons = `<button onclick="window.markOrderDelivered(${o.id})">Mark Delivered</button>`;
-        return `<tr>
-          <td><strong>#${o.id}</strong></div></td>
-          <td>${escapeHtml(o.customerName)}</div></td>
-          <td>GHS ${o.total}</td>
-          <td><span class="badge ${o.status}">${o.status.replace(/_/g, ' ')}</span></td>
-          <td>${buttons}</div></td>
-        </tr>`;
-      }).join('');
-    } catch(e) { showToast('Failed to load order flow', 'error'); }
-  }
-
-  async function loadRiders() {
-    const ridersBody = document.getElementById('ridersBody');
-    if (!ridersBody) return;
-    try {
-      const { riders } = await fetchAPI('/api/riders');
-      if (!riders || riders.length === 0) {
-        ridersBody.innerHTML = '</tr><td colspan="4">No riders added yet.缓解</tr>';
-        return;
-      }
-      ridersBody.innerHTML = riders.map(r => `<tr>
-        <td>${r.telegramId}</td>
-        <td>${escapeHtml(r.name)}</div></td>
-        <td>${r.phone || '—'}</td>
-        <td>${r.isAvailable === 'true' ? 'Available' : 'Busy'}</td>
-        <td><button onclick="window.toggleRider(${r.telegramId}, '${r.isAvailable}')">Toggle</button> <button class="danger" onclick="window.deleteRider(${r.telegramId})">Delete</button></td>
-      </tr>`).join('');
-    } catch(e) { showToast('Failed to load riders', 'error'); }
-  }
-
-  async function loadMenu() {
-    const menuGrid = document.getElementById('menuGrid');
-    if (!menuGrid) return;
-    try {
-      const { items } = await fetchAPI('/api/menu/all');
-      if (!items || items.length === 0) {
-        menuGrid.innerHTML = '<div style="text-align:center; padding:20px;">No menu items yet. Add one using the button above.</div>';
-        return;
-      }
-      menuGrid.innerHTML = items.map(item => `<div class="menu-card"><div style="font-size:32px;">${item.emoji || '🍽️'}</div><strong>${escapeHtml(item.name)}</strong><br>GHS ${item.basePrice}<br><small>${item.category}</small><br><button onclick="window.editMenuItem(${item.id}, '${escapeHtml(item.name)}', ${item.basePrice}, '${item.category}')">Edit</button> <button class="danger" onclick="window.deleteMenuItem(${item.id})">Delete</button></div>`).join('');
-    } catch(e) { showToast('Failed to load menu', 'error'); }
-  }
-
-  function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m] || m)); }
-
-  const hamburger = document.getElementById('hamburger');
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  function toggleSidebar() {
-    sidebar.classList.toggle('open');
-    overlay.classList.toggle('active');
-  }
-  if (hamburger) hamburger.addEventListener('click', toggleSidebar);
-  if (overlay) overlay.addEventListener('click', () => {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('active');
+  // Show correct page
+  document.querySelectorAll('.page').forEach(el => {
+    el.classList.toggle('active', el.id === `page-${pageId}`);
   });
 
-  window.onload = () => {
-    const savedToken = localStorage.getItem('adminToken'), savedRole = localStorage.getItem('adminRole');
-    if (savedToken && savedRole) {
-      adminToken = savedToken; currentRole = savedRole;
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('dashboard').style.display = 'block';
-      document.getElementById('userRoleSpan').innerHTML = `Role: ${currentRole.toUpperCase()}`;
-      updateWelcomeMessage();
-      setupNav(); showPage('dashboard');
+  // Update topbar title
+  const pageEl = document.getElementById(`page-${pageId}`);
+  document.getElementById('topbar-title').textContent = pageEl?.dataset.title || 'Dashboard';
+
+  // Load page data
+  loadPageData(pageId);
+}
+
+async function loadPageData(pageId) {
+  try {
+    switch (pageId) {
+      case 'dashboard': await loadDashboard(); break;
+      case 'orders':    await loadAllOrders();  break;
+      case 'payments':  await loadPayments();   break;
+      case 'orderflow': await loadOrderFlow();  break;
+      case 'riders':    await loadRiders();     break;
+      case 'menu':      await loadMenu();       break;
+    }
+  } catch (err) {
+    if (err.message !== 'Unauthorized') {
+      console.error(`Error loading ${pageId}:`, err);
+    }
+  }
+}
+
+function refreshCurrentPage() {
+  loadPageData(currentPage);
+  toast('Refreshed', 'success');
+}
+
+
+/* =====================================================================
+   SIDEBAR (mobile)
+   ===================================================================== */
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('visible');
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('visible');
+}
+
+
+/* =====================================================================
+   TOAST NOTIFICATIONS
+   ===================================================================== */
+
+function toast(msg, icon = 'info') {
+  Swal.fire({
+    toast: true,
+    position: 'top-end',
+    icon,
+    title: msg,
+    showConfirmButton: false,
+    timer: 2500,
+    timerProgressBar: true,
+  });
+}
+
+
+/* =====================================================================
+   HELPER — format currency
+   ===================================================================== */
+
+function money(amount) {
+  return '₦' + Number(amount || 0).toLocaleString();
+}
+
+function statusBadge(status) {
+  const label = STATUS_LABELS[status] || status;
+  return `<span class="badge badge-${status}">${label}</span>`;
+}
+
+function truncate(str, len = 30) {
+  if (!str) return '—';
+  return str.length > len ? str.slice(0, len) + '…' : str;
+}
+
+function orderNumber(order) {
+  // Use last 6 chars of _id as order number
+  const id = order._id || order.id || '';
+  return '#' + id.slice(-6).toUpperCase();
+}
+
+
+/* =====================================================================
+   PAGE: DASHBOARD
+   ===================================================================== */
+
+async function loadDashboard() {
+  // Load stats
+  const statsGrid = document.getElementById('stats-grid');
+  statsGrid.innerHTML = '<div class="page-loader"><div class="spinner"></div>Loading stats…</div>';
+
+  try {
+    const stats = await fetchAPI('/api/orders/stats/summary');
+
+    const today   = stats.today   || stats.daily   || {};
+    const week    = stats.week    || stats.weekly   || {};
+    const month   = stats.month   || stats.monthly  || {};
+    const allTime = stats.allTime || stats.all      || {};
+
+    statsGrid.innerHTML = `
+      <div class="stat-card">
+        <div class="stat-icon orange"><i class="fa-solid fa-receipt"></i></div>
+        <div class="stat-label">Today</div>
+        <div class="stat-value">${today.count ?? 0}</div>
+        <div class="stat-sub">${money(today.revenue ?? today.total ?? 0)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue"><i class="fa-solid fa-calendar-week"></i></div>
+        <div class="stat-label">This Week</div>
+        <div class="stat-value">${week.count ?? 0}</div>
+        <div class="stat-sub">${money(week.revenue ?? week.total ?? 0)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><i class="fa-solid fa-calendar"></i></div>
+        <div class="stat-label">This Month</div>
+        <div class="stat-value">${month.count ?? 0}</div>
+        <div class="stat-sub">${money(month.revenue ?? month.total ?? 0)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon yellow"><i class="fa-solid fa-coins"></i></div>
+        <div class="stat-label">All Time</div>
+        <div class="stat-value">${allTime.count ?? 0}</div>
+        <div class="stat-sub">${money(allTime.revenue ?? allTime.total ?? 0)}</div>
+      </div>
+    `;
+  } catch (err) {
+    if (err.message !== 'Unauthorized') {
+      statsGrid.innerHTML = '<div class="table-empty"><i class="fa-solid fa-triangle-exclamation"></i>Failed to load stats</div>';
+    }
+    return;
+  }
+
+  // Load recent orders
+  try {
+    const data = await fetchAPI('/api/orders');
+    const orders = (data.orders || []).slice(0, 10);
+    renderRecentOrders(orders);
+  } catch (err) {
+    if (err.message !== 'Unauthorized') {
+      document.getElementById('recent-orders-body').innerHTML =
+        '<tr><td colspan="5" class="table-empty">Failed to load orders</td></tr>';
+    }
+  }
+}
+
+function renderRecentOrders(orders) {
+  const tbody = document.getElementById('recent-orders-body');
+  if (!orders.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="table-empty"><i class="fa-solid fa-inbox"></i>No orders yet</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = orders.map(o => `
+    <tr>
+      <td><strong>${orderNumber(o)}</strong></td>
+      <td>${o.customerName || o.customer?.name || '—'}</td>
+      <td><strong>${money(o.totalAmount || o.total)}</strong></td>
+      <td>${statusBadge(o.status)}</td>
+      <td><button class="btn btn-sm btn-outline" onclick="viewOrder('${o._id || o.id}')"><i class="fa-solid fa-eye"></i> View</button></td>
+    </tr>
+  `).join('');
+}
+
+
+/* =====================================================================
+   PAGE: ALL ORDERS
+   ===================================================================== */
+
+// Cache orders for view modal
+let ordersCache = [];
+
+async function loadAllOrders() {
+  const tbody = document.getElementById('all-orders-body');
+  tbody.innerHTML = '<tr><td colspan="6" class="page-loader"><div class="spinner"></div></td></tr>';
+
+  const data = await fetchAPI('/api/orders');
+  ordersCache = data.orders || [];
+  renderAllOrders(ordersCache);
+}
+
+function renderAllOrders(orders) {
+  const tbody = document.getElementById('all-orders-body');
+  if (!orders.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="table-empty"><i class="fa-solid fa-inbox"></i>No orders found</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = orders.map(o => {
+    const name  = o.customerName || o.customer?.name || '—';
+    const phone = o.customerPhone || o.customer?.phone || '';
+    const addr  = o.deliveryAddress || o.address || '';
+
+    return `<tr>
+      <td><strong>${orderNumber(o)}</strong></td>
+      <td>${name}${phone ? `<br><small style="color:var(--text-muted)">${phone}</small>` : ''}</td>
+      <td title="${addr}">${truncate(addr)}</td>
+      <td><strong>${money(o.totalAmount || o.total)}</strong></td>
+      <td>${statusBadge(o.status)}</td>
+      <td><button class="btn btn-sm btn-outline" onclick="viewOrder('${o._id || o.id}')"><i class="fa-solid fa-eye"></i> View</button></td>
+    </tr>`;
+  }).join('');
+}
+
+
+/* =====================================================================
+   VIEW ORDER MODAL
+   ===================================================================== */
+
+async function viewOrder(orderId) {
+  // Try to find in cache first, otherwise fetch
+  let order = ordersCache.find(o => (o._id || o.id) === orderId);
+
+  if (!order) {
+    try {
+      const data = await fetchAPI('/api/orders');
+      ordersCache = data.orders || [];
+      order = ordersCache.find(o => (o._id || o.id) === orderId);
+    } catch { return; }
+  }
+
+  if (!order) return toast('Order not found', 'error');
+
+  const name    = order.customerName || order.customer?.name || '—';
+  const phone   = order.customerPhone || order.customer?.phone || '—';
+  const addr    = order.deliveryAddress || order.address || '—';
+  const payRef  = order.paymentReference || order.paymentRef || '—';
+  const rider   = order.riderName ? `${order.riderName} (${order.riderPhone || '—'})` : '—';
+  const items   = order.items || order.orderItems || [];
+
+  const itemsHtml = items.map(i =>
+    `<tr>
+      <td>${i.name || i.itemName || '—'}</td>
+      <td style="text-align:center">${i.quantity || 1}</td>
+      <td style="text-align:right">${money(i.price || i.unitPrice || 0)}</td>
+    </tr>`
+  ).join('');
+
+  Swal.fire({
+    title: `Order ${orderNumber(order)}`,
+    html: `
+      <div style="text-align:left; font-size:14px; line-height:1.8">
+        <p><strong>Customer:</strong> ${name}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
+        <p><strong>Address:</strong> ${addr}</p>
+        <p><strong>Payment Ref:</strong> ${payRef}</p>
+        <p><strong>Status:</strong> ${STATUS_LABELS[order.status] || order.status}</p>
+        <p><strong>Rider:</strong> ${rider}</p>
+        <hr style="margin:12px 0; border:none; border-top:1px solid var(--border)">
+        <table style="width:100%; font-size:13px; border-collapse:collapse">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border)">
+              <th style="text-align:left; padding:6px 4px">Item</th>
+              <th style="text-align:center; padding:6px 4px">Qty</th>
+              <th style="text-align:right; padding:6px 4px">Price</th>
+            </tr>
+          </thead>
+          <tbody>${itemsHtml || '<tr><td colspan="3" style="padding:8px; color:var(--text-muted)">No items</td></tr>'}</tbody>
+        </table>
+        <hr style="margin:12px 0; border:none; border-top:1px solid var(--border)">
+        <p style="text-align:right; font-size:16px"><strong>Total: ${money(order.totalAmount || order.total)}</strong></p>
+      </div>
+    `,
+    width: 520,
+    confirmButtonText: 'Close',
+  });
+}
+
+
+/* =====================================================================
+   PAGE: PAYMENTS
+   ===================================================================== */
+
+async function loadPayments() {
+  const tbody = document.getElementById('payments-body');
+  tbody.innerHTML = '<tr><td colspan="6" class="page-loader"><div class="spinner"></div></td></tr>';
+
+  const data = await fetchAPI('/api/orders');
+  const orders = (data.orders || []).filter(o =>
+    o.status === 'pending_payment' || o.status === 'paid'
+  );
+  ordersCache = data.orders || [];
+  renderPayments(orders);
+}
+
+function renderPayments(orders) {
+  const tbody = document.getElementById('payments-body');
+  if (!orders.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="table-empty"><i class="fa-solid fa-check-circle"></i>No pending payments</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = orders.map(o => {
+    const name   = o.customerName || o.customer?.name || '—';
+    const payRef = o.paymentReference || o.paymentRef || '—';
+
+    let actionBtn = '';
+    if (o.status === 'paid') {
+      actionBtn = `<button class="btn btn-sm btn-success" onclick="updateOrderStatus('${o._id || o.id}', 'confirmed')">
+        <i class="fa-solid fa-check"></i> Confirm
+      </button>`;
     } else {
-      document.getElementById('loginScreen').style.display = 'flex';
-      document.getElementById('dashboard').style.display = 'none';
+      actionBtn = `<span style="color:var(--text-muted); font-size:12px">Awaiting ref</span>`;
     }
-    const loginBtn = document.getElementById('loginButton');
-    if (loginBtn) loginBtn.onclick = login;
+
+    return `<tr>
+      <td><strong>${orderNumber(o)}</strong></td>
+      <td>${name}</td>
+      <td><strong>${money(o.totalAmount || o.total)}</strong></td>
+      <td><code style="font-size:12px; background:var(--bg); padding:2px 8px; border-radius:4px">${payRef}</code></td>
+      <td>${statusBadge(o.status)}</td>
+      <td>${actionBtn}</td>
+    </tr>`;
+  }).join('');
+}
+
+
+/* =====================================================================
+   PAGE: ORDER FLOW
+   ===================================================================== */
+
+const FLOW_STATUSES = ['confirmed', 'processing', 'completed', 'assigned_to_rider'];
+
+async function loadOrderFlow() {
+  const tbody = document.getElementById('orderflow-body');
+  tbody.innerHTML = '<tr><td colspan="5" class="page-loader"><div class="spinner"></div></td></tr>';
+
+  const data = await fetchAPI('/api/orders');
+  const orders = (data.orders || []).filter(o => FLOW_STATUSES.includes(o.status));
+  ordersCache = data.orders || [];
+  renderOrderFlow(orders);
+}
+
+function renderOrderFlow(orders) {
+  const tbody = document.getElementById('orderflow-body');
+  if (!orders.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="table-empty"><i class="fa-solid fa-inbox"></i>No orders in pipeline</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = orders.map(o => {
+    const name = o.customerName || o.customer?.name || '—';
+    const id   = o._id || o.id;
+    let actionBtn = '';
+
+    switch (o.status) {
+      case 'confirmed':
+        actionBtn = `<button class="btn btn-sm btn-info" onclick="updateOrderStatus('${id}', 'processing')">
+          <i class="fa-solid fa-play"></i> Start Processing
+        </button>`;
+        break;
+      case 'processing':
+        actionBtn = `<button class="btn btn-sm btn-warning" onclick="updateOrderStatus('${id}', 'completed')">
+          <i class="fa-solid fa-box"></i> Ready for Delivery
+        </button>`;
+        break;
+      case 'completed':
+        actionBtn = `<button class="btn btn-sm btn-primary" onclick="showAssignRiderModal('${id}')">
+          <i class="fa-solid fa-motorcycle"></i> Assign Rider
+        </button>`;
+        break;
+      case 'assigned_to_rider':
+        actionBtn = `<button class="btn btn-sm btn-success" onclick="updateOrderStatus('${id}', 'delivered')">
+          <i class="fa-solid fa-check-double"></i> Mark Delivered
+        </button>`;
+        break;
+    }
+
+    return `<tr>
+      <td><strong>${orderNumber(o)}</strong></td>
+      <td>${name}</td>
+      <td><strong>${money(o.totalAmount || o.total)}</strong></td>
+      <td>${statusBadge(o.status)}</td>
+      <td>${actionBtn}</td>
+    </tr>`;
+  }).join('');
+}
+
+
+/* =====================================================================
+   ORDER STATUS UPDATE
+   ===================================================================== */
+
+async function updateOrderStatus(orderId, newStatus, extra = {}) {
+  try {
+    await fetchAPI(`/api/orders/${orderId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: newStatus, ...extra }),
+    });
+
+    toast(`Order updated to ${STATUS_LABELS[newStatus] || newStatus}`, 'success');
+
+    // Refresh current page data
+    loadPageData(currentPage);
+
+  } catch (err) {
+    if (err.message !== 'Unauthorized') {
+      toast(err.message, 'error');
+    }
+  }
+}
+
+
+/* =====================================================================
+   ASSIGN RIDER MODAL
+   ===================================================================== */
+
+function showAssignRiderModal(orderId) {
+  Swal.fire({
+    title: 'Assign Rider',
+    html: `
+      <div style="text-align:left">
+        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Rider Name</label>
+        <input id="swal-rider-name" class="swal2-input" placeholder="Enter rider name" style="margin-bottom:12px">
+        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">WhatsApp Number</label>
+        <input id="swal-rider-phone" class="swal2-input" placeholder="e.g. 08012345678">
+      </div>
+    `,
+    confirmButtonText: '<i class="fa-solid fa-motorcycle"></i> Assign',
+    showCancelButton: true,
+    preConfirm: () => {
+      const riderName  = document.getElementById('swal-rider-name').value.trim();
+      const riderPhone = document.getElementById('swal-rider-phone').value.trim();
+      if (!riderName || !riderPhone) {
+        Swal.showValidationMessage('Please fill in both fields');
+        return false;
+      }
+      return { riderName, riderPhone };
+    },
+  }).then(result => {
+    if (result.isConfirmed) {
+      updateOrderStatus(orderId, 'assigned_to_rider', result.value);
+    }
+  });
+}
+
+
+/* =====================================================================
+   PAGE: RIDERS
+   ===================================================================== */
+
+async function loadRiders() {
+  const tbody = document.getElementById('riders-body');
+  tbody.innerHTML = '<tr><td colspan="5" class="page-loader"><div class="spinner"></div></td></tr>';
+
+  const data = await fetchAPI('/api/riders');
+  const riders = data.riders || data || [];
+  renderRiders(Array.isArray(riders) ? riders : []);
+}
+
+function renderRiders(riders) {
+  const tbody = document.getElementById('riders-body');
+  if (!riders.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="table-empty"><i class="fa-solid fa-motorcycle"></i>No riders yet</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = riders.map(r => {
+    const id = r._id || r.id;
+    const available = r.isAvailable ?? r.available ?? true;
+    const statusClass = available ? 'badge-paid' : 'badge-cancelled';
+    const statusText  = available ? 'Available' : 'Busy';
+
+    return `<tr>
+      <td><code>${r.telegramId || '—'}</code></td>
+      <td>${r.name || '—'}</td>
+      <td>${r.phone || '—'}</td>
+      <td><span class="badge ${statusClass}">${statusText}</span></td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="toggleRiderAvailability('${id}', ${!available})">
+          <i class="fa-solid fa-${available ? 'pause' : 'play'}"></i> ${available ? 'Set Busy' : 'Set Available'}
+        </button>
+        <button class="btn btn-sm btn-danger" onclick="deleteRider('${id}', '${r.name || 'this rider'}')">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function showAddRiderModal() {
+  Swal.fire({
+    title: 'Add Rider',
+    html: `
+      <div style="text-align:left">
+        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Telegram ID</label>
+        <input id="swal-r-tid" class="swal2-input" placeholder="Numeric Telegram ID" inputmode="numeric" style="margin-bottom:12px">
+        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Name</label>
+        <input id="swal-r-name" class="swal2-input" placeholder="Rider name" style="margin-bottom:12px">
+        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Phone (optional)</label>
+        <input id="swal-r-phone" class="swal2-input" placeholder="Phone number">
+      </div>
+    `,
+    confirmButtonText: '<i class="fa-solid fa-plus"></i> Add Rider',
+    showCancelButton: true,
+    preConfirm: () => {
+      const telegramId = Number(document.getElementById('swal-r-tid').value.trim());
+      const name       = document.getElementById('swal-r-name').value.trim();
+      const phone      = document.getElementById('swal-r-phone').value.trim();
+      if (!telegramId || !name) {
+        Swal.showValidationMessage('Telegram ID and name are required');
+        return false;
+      }
+      return { telegramId, name, phone: phone || undefined };
+    },
+  }).then(async result => {
+    if (result.isConfirmed) {
+      try {
+        await fetchAPI('/api/riders', {
+          method: 'POST',
+          body: JSON.stringify(result.value),
+        });
+        toast('Rider added', 'success');
+        loadRiders();
+      } catch (err) {
+        if (err.message !== 'Unauthorized') toast(err.message, 'error');
+      }
+    }
+  });
+}
+
+async function toggleRiderAvailability(riderId, newAvailability) {
+  try {
+    await fetchAPI(`/api/riders/${riderId}/availability`, {
+      method: 'PATCH',
+      body: JSON.stringify({ isAvailable: newAvailability }),
+    });
+    toast('Rider status updated', 'success');
+    loadRiders();
+  } catch (err) {
+    if (err.message !== 'Unauthorized') toast(err.message, 'error');
+  }
+}
+
+async function deleteRider(riderId, riderName) {
+  const result = await Swal.fire({
+    title: 'Delete Rider',
+    text: `Remove ${riderName}? This cannot be undone.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Delete',
+    confirmButtonColor: '#D32F2F',
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await fetchAPI(`/api/riders/${riderId}`, { method: 'DELETE' });
+      toast('Rider deleted', 'success');
+      loadRiders();
+    } catch (err) {
+      if (err.message !== 'Unauthorized') toast(err.message, 'error');
+    }
+  }
+}
+
+
+/* =====================================================================
+   PAGE: MENU
+   ===================================================================== */
+
+let menuCache = [];
+
+async function loadMenu() {
+  const grid = document.getElementById('menu-grid');
+  grid.innerHTML = '<div class="page-loader"><div class="spinner"></div>Loading menu…</div>';
+
+  const data = await fetchAPI('/api/menu/all');
+  menuCache = data.items || data || [];
+  renderMenu(Array.isArray(menuCache) ? menuCache : []);
+}
+
+function getCategoryEmoji(category) {
+  const map = {
+    food: '🍛', drink: '🥤', drinks: '🥤', beverage: '🥤', beverages: '🥤',
+    snack: '🍿', snacks: '🍿', dessert: '🍰', desserts: '🍰',
+    main: '🍽️', sides: '🥗', breakfast: '🥞',
   };
+  return map[(category || '').toLowerCase()] || '🍴';
+}
+
+function renderMenu(items) {
+  const grid = document.getElementById('menu-grid');
+  if (!items.length) {
+    grid.innerHTML = '<div class="table-empty" style="grid-column:1/-1"><i class="fa-solid fa-utensils"></i>No menu items yet</div>';
+    return;
+  }
+
+  grid.innerHTML = items.map(item => {
+    const id = item._id || item.id;
+    return `
+      <div class="menu-card">
+        <div class="menu-card-emoji">${getCategoryEmoji(item.category)}</div>
+        <div class="menu-card-name">${item.name || '—'}</div>
+        <div class="menu-card-category">${item.category || 'Uncategorized'}</div>
+        <div class="menu-card-price">${money(item.price)}</div>
+        <div class="menu-card-actions">
+          <button class="btn btn-sm btn-outline" onclick="showEditMenuModal('${id}')">
+            <i class="fa-solid fa-pen"></i> Edit
+          </button>
+          <button class="btn btn-sm btn-danger" onclick="deleteMenuItem('${id}', '${(item.name || '').replace(/'/g, "\\'")}')">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function showAddMenuModal() {
+  Swal.fire({
+    title: 'Add Menu Item',
+    html: `
+      <div style="text-align:left">
+        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Name</label>
+        <input id="swal-m-name" class="swal2-input" placeholder="Item name" style="margin-bottom:12px">
+        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Price (₦)</label>
+        <input id="swal-m-price" class="swal2-input" placeholder="e.g. 2500" inputmode="numeric" style="margin-bottom:12px">
+        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Category</label>
+        <input id="swal-m-cat" class="swal2-input" placeholder="e.g. Food, Drink, Snack">
+      </div>
+    `,
+    confirmButtonText: '<i class="fa-solid fa-plus"></i> Add Item',
+    showCancelButton: true,
+    preConfirm: () => {
+      const name     = document.getElementById('swal-m-name').value.trim();
+      const price    = Number(document.getElementById('swal-m-price').value.trim());
+      const category = document.getElementById('swal-m-cat').value.trim();
+      if (!name || !price) {
+        Swal.showValidationMessage('Name and price are required');
+        return false;
+      }
+      return { name, price, category: category || 'Food' };
+    },
+  }).then(async result => {
+    if (result.isConfirmed) {
+      try {
+        await fetchAPI('/api/menu', {
+          method: 'POST',
+          body: JSON.stringify(result.value),
+        });
+        toast('Menu item added', 'success');
+        loadMenu();
+      } catch (err) {
+        if (err.message !== 'Unauthorized') toast(err.message, 'error');
+      }
+    }
+  });
+}
+
+function showEditMenuModal(itemId) {
+  const item = menuCache.find(i => (i._id || i.id) === itemId);
+  if (!item) return toast('Item not found', 'error');
+
+  Swal.fire({
+    title: 'Edit Menu Item',
+    html: `
+      <div style="text-align:left">
+        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Name</label>
+        <input id="swal-m-name" class="swal2-input" value="${item.name || ''}" style="margin-bottom:12px">
+        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Price (₦)</label>
+        <input id="swal-m-price" class="swal2-input" value="${item.price || ''}" inputmode="numeric" style="margin-bottom:12px">
+        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Category</label>
+        <input id="swal-m-cat" class="swal2-input" value="${item.category || ''}">
+      </div>
+    `,
+    confirmButtonText: '<i class="fa-solid fa-save"></i> Save',
+    showCancelButton: true,
+    preConfirm: () => {
+      const name     = document.getElementById('swal-m-name').value.trim();
+      const price    = Number(document.getElementById('swal-m-price').value.trim());
+      const category = document.getElementById('swal-m-cat').value.trim();
+      if (!name || !price) {
+        Swal.showValidationMessage('Name and price are required');
+        return false;
+      }
+      return { name, price, category: category || 'Food' };
+    },
+  }).then(async result => {
+    if (result.isConfirmed) {
+      try {
+        await fetchAPI(`/api/menu/${itemId}`, {
+          method: 'PATCH',
+          body: JSON.stringify(result.value),
+        });
+        toast('Menu item updated', 'success');
+        loadMenu();
+      } catch (err) {
+        if (err.message !== 'Unauthorized') toast(err.message, 'error');
+      }
+    }
+  });
+}
+
+async function deleteMenuItem(itemId, itemName) {
+  const result = await Swal.fire({
+    title: 'Delete Menu Item',
+    text: `Remove "${itemName}"? This cannot be undone.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Delete',
+    confirmButtonColor: '#D32F2F',
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await fetchAPI(`/api/menu/${itemId}`, { method: 'DELETE' });
+      toast('Menu item deleted', 'success');
+      loadMenu();
+    } catch (err) {
+      if (err.message !== 'Unauthorized') toast(err.message, 'error');
+    }
+  }
+}
+
+
+/* =====================================================================
+   INITIALIZATION — check for stored session on page load
+   ===================================================================== */
+
+(function init() {
+  if (token && role) {
+    showDashboard();
+  }
+})();
+
 </script>
 </body>
 </html>
