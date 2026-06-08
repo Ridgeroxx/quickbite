@@ -341,13 +341,17 @@ function getBotInstance() {
 }
 
 function setupBotHandlers(bot) {
+  // ✅ FIXED: welcome message without link, instructs to use the blue Open button
   bot.onText(/\/start/, (msg) => {
-    bot.sendMessage(msg.chat.id, `🇬🇭 Welcome to QuickBite!\nOrder authentic Ghanaian dishes from our web app:\nhttps://ridgeroxx.github.io/quickbite/\n\nAdmins: Use the admin panel for order management.`, { parse_mode: 'Markdown' });
+    bot.sendMessage(msg.chat.id, `🇬🇭 Welcome to QuickBite!\nAuthentic Ghanaian dishes delivered to your door.\n\n👉 Tap the blue **Open** button below to start ordering!`, { parse_mode: 'Markdown' });
   });
 
+  // ✅ FIXED: /order command shows a button that opens the web app
   bot.onText(/\/order/, (msg) => {
-    bot.sendMessage(msg.chat.id, '🍔 Click below to order:', {
-      reply_markup: { inline_keyboard: [[{ text: '🛒 Open QuickBite', web_app: { url: 'https://ridgeroxx.github.io/quickbite/' } }]] }
+    bot.sendMessage(msg.chat.id, '🍔 Tap the button below to open our ordering app:', {
+      reply_markup: {
+        inline_keyboard: [[{ text: '🛒 Open QuickBite', web_app: { url: 'https://ridgeroxx.github.io/quickbite/' } }]]
+      }
     });
   });
 
