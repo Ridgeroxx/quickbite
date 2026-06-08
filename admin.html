@@ -12,7 +12,6 @@
       background: #f4f6fb;
       min-height: 100vh;
     }
-    /* Login container – unchanged */
     .login-container {
       max-width: 400px;
       margin: 100px auto;
@@ -44,7 +43,7 @@
     .error { color: #e74c3c; margin-top: 12px; }
     #dashboard { display: none; width: 100%; }
 
-    /* Sidebar drawer for mobile */
+    /* Sidebar */
     .sidebar {
       position: fixed;
       top: 0;
@@ -58,9 +57,7 @@
       display: flex;
       flex-direction: column;
     }
-    .sidebar.open {
-      transform: translateX(0);
-    }
+    .sidebar.open { transform: translateX(0); }
     .sidebar-logo { padding: 28px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.07); }
     .sidebar-logo .logo-text { font-size: 22px; font-weight: 800; color: white; }
     .sidebar-logo .logo-text span { color: #ff6b35; }
@@ -99,8 +96,6 @@
       font-size: 12px;
       color: rgba(255,255,255,0.4);
     }
-
-    /* Overlay when sidebar is open */
     .sidebar-overlay {
       position: fixed;
       top: 0;
@@ -111,30 +106,17 @@
       z-index: 999;
       display: none;
     }
-    .sidebar-overlay.active {
-      display: block;
-    }
-
-    /* Main content area */
+    .sidebar-overlay.active { display: block; }
     .main {
       margin-left: 0;
       padding: 16px;
       transition: margin-left 0.3s;
     }
-    /* On desktop we keep sidebar always visible */
     @media (min-width: 768px) {
-      .main {
-        margin-left: 260px;
-      }
-      .sidebar {
-        transform: translateX(0);
-      }
-      .hamburger, .sidebar-overlay {
-        display: none;
-      }
+      .main { margin-left: 260px; }
+      .sidebar { transform: translateX(0); }
+      .hamburger, .sidebar-overlay { display: none; }
     }
-
-    /* Top bar with hamburger – sleek horizontal */
     .topbar {
       background: white;
       border-radius: 24px;
@@ -166,11 +148,7 @@
       align-items: center;
       justify-content: center;
     }
-    .topbar h2 {
-      font-size: 18px;
-      margin: 0;
-      font-weight: 600;
-    }
+    .topbar h2 { font-size: 18px; margin: 0; font-weight: 600; }
     .welcome-message {
       font-size: 13px;
       color: #e67e22;
@@ -193,11 +171,7 @@
       cursor: pointer;
       font-size: 12px;
     }
-    .logout-btn {
-      background: #e74c3c;
-    }
-
-    /* Stats grid – responsive */
+    .logout-btn { background: #e74c3c; }
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -212,8 +186,6 @@
     }
     .stat-card h3 { font-size: 12px; color: #666; margin-bottom: 4px; }
     .stat-card .value { font-size: 22px; font-weight: bold; color: #e67e22; }
-
-    /* Tables – scroll horizontally on mobile */
     .table-wrap {
       background: white;
       border-radius: 20px;
@@ -232,13 +204,7 @@
       border-bottom: 1px solid #eee;
       font-size: 13px;
     }
-    th {
-      background: #fafafa;
-      font-weight: 600;
-      font-size: 12px;
-    }
-
-    /* Badges */
+    th { background: #fafafa; font-weight: 600; font-size: 12px; }
     .badge {
       display: inline-block;
       padding: 4px 10px;
@@ -253,7 +219,6 @@
     .badge.completed { background: #d4edda; color: #155724; }
     .badge.assigned_to_rider { background: #cce5ff; color: #004085; }
     .badge.delivered { background: #d4edda; color: #155724; }
-
     button {
       background: #e67e22;
       border: none;
@@ -333,11 +298,11 @@
       </div>
     </div>
 
-    <div id="page-dashboard" class="page"><div class="stats-grid" id="statsGrid"></div><div class="table-wrap"><h3 style="margin-bottom:16px;">Recent Orders</h3><table><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="dashboardOrdersBody"></tbody></table></div></div>
-    <div id="page-orders" class="page" style="display:none;"><div class="table-wrap"><table><thead><tr><th>#</th><th>Customer</th><th>Address</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div></div>
-    <div id="page-payments" class="page" style="display:none;"><div class="table-wrap"><table><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Reference</th><th>Status</th><th>Action</th></tr></thead><tbody id="paymentsBody"></tbody><tr></div></div>
-    <div id="page-orderFlow" class="page" style="display:none;"><div class="table-wrap"><tr><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="orderFlowBody"></tbody></table></div></div>
-    <div id="page-riders" class="page" style="display:none;"><button onclick="window.addRider()" style="margin-bottom:16px;"><i class="fa fa-plus"></i> Add Rider</button><div class="table-wrap"><table><thead><tr><th>Telegram ID</th><th>Name</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ridersBody"></tbody></td></div></div>
+    <div id="page-dashboard" class="page"><div class="stats-grid" id="statsGrid"></div><div class="table-wrap"><h3 style="margin-bottom:16px;">Recent Orders</h3><tr><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="dashboardOrdersBody"></tbody></table></div></div>
+    <div id="page-orders" class="page" style="display:none;"><div class="table-wrap"><table><thead><tr><th>#</th><th>Customer</th><th>Address</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="allOrdersBody"></tbody></td></div></div>
+    <div id="page-payments" class="page" style="display:none;"><div class="table-wrap"></td><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Reference</th><th>Status</th><th>Action</th></tr></thead><tbody id="paymentsBody"></tbody></table></div></div>
+    <div id="page-orderFlow" class="page" style="display:none;"><div class="table-wrap"></td><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="orderFlowBody"></tbody></table></div></div>
+    <div id="page-riders" class="page" style="display:none;"><button onclick="window.addRider()" style="margin-bottom:16px;"><i class="fa fa-plus"></i> Add Rider</button><div class="table-wrap"><table><thead><tr><th>Telegram ID</th><th>Name</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ridersBody"></tbody></table></div></div>
     <div id="page-menu" class="page" style="display:none;"><button onclick="window.openAddMenuItem()" style="margin-bottom:16px;"><i class="fa fa-plus"></i> Add Menu Item</button><div class="cards-grid" id="menuGrid"></div></div>
     <div id="page-admins" class="page" style="display:none;"><div class="table-wrap"><p>Use Telegram command <code>/set_role &lt;id&gt; &lt;role&gt;</code> to manage admins.</p></div></div>
   </div>
@@ -361,7 +326,6 @@
     const headers = { 'Content-Type': 'application/json', 'x-admin-token': adminToken, ...options.headers };
     const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
     if (res.status === 401) {
-      // Token expired – logout and ask to login again
       window.logout();
       Swal.fire('Session expired', 'Please login again.', 'error');
       throw new Error('Unauthorized');
@@ -438,7 +402,6 @@
     currentPage = page;
     const titleEl = document.getElementById('pageTitle');
     if (titleEl) titleEl.innerText = page.charAt(0).toUpperCase() + page.slice(1);
-    // Close sidebar after navigation on mobile
     closeSidebar();
     if (page === 'dashboard') loadDashboard();
     else if (page === 'orders') loadAllOrders();
@@ -448,9 +411,8 @@
     else if (page === 'menu') loadMenu();
   };
 
-  // Attach navigation click handlers with closing sidebar
   document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', (e) => {
+    item.addEventListener('click', () => {
       const page = item.dataset.page;
       if (page) window.showPage(page);
     });
@@ -478,7 +440,6 @@
     } catch(e) { showToast('Error fetching order details', 'error'); }
   };
 
-  window.confirmPayment = async (orderId) => { await updateOrderStatus(orderId, 'confirmed'); loadPayments(); loadDashboard(); };
   window.updateOrderStatus = async (orderId, newStatus) => {
     await fetchAPI(`/api/orders/${orderId}/status`, { method: 'PATCH', body: JSON.stringify({ status: newStatus }) });
     showToast(`Order #${orderId} updated to ${newStatus}`, 'success');
@@ -486,6 +447,13 @@
     if (currentPage === 'payments') loadPayments();
     loadDashboard();
   };
+
+  window.confirmPayment = async (orderId) => {
+    await updateOrderStatus(orderId, 'confirmed');
+    loadPayments();
+    loadDashboard();
+  };
+
   window.markAssignedManually = async (orderId) => {
     const { value: formValues } = await Swal.fire({
       title: `Assign Rider for Order #${orderId}`,
@@ -504,11 +472,13 @@
       loadOrderFlow(); loadDashboard();
     }
   };
+
   window.markOrderDelivered = async (orderId) => {
     await fetchAPI(`/api/orders/${orderId}/status`, { method: 'PATCH', body: JSON.stringify({ status: 'delivered' }) });
     showToast(`Order #${orderId} marked as delivered!`, 'success');
     loadOrderFlow(); loadDashboard();
   };
+
   window.addRider = async () => {
     const { value: formValues } = await Swal.fire({
       title: 'Add Rider',
@@ -555,7 +525,7 @@
         <td>${escapeHtml(o.customerName)}</div></td>
         <td>GHS ${o.total}</td>
         <td><span class="badge ${o.status}">${o.status}</span></td>
-        <td><button onclick="window.viewOrderDetails(${o.id})">View</button></td>
+        <td><button onclick="window.viewOrderDetails(${o.id})">View</button></div></td>
       </tr>`).join('');
     } catch(e) { showToast('Failed to load dashboard', 'error'); }
   }
@@ -566,7 +536,7 @@
     try {
       const { orders } = await fetchAPI('/api/orders');
       if (!orders || orders.length === 0) {
-        allOrdersBody.innerHTML = '<tr><td colspan="6">No orders found.</td></tr>';
+        allOrdersBody.innerHTML = '<tr><td colspan="6">No orders found.缓解</tr>';
         return;
       }
       allOrdersBody.innerHTML = orders.map(o => `<tr>
@@ -580,6 +550,7 @@
     } catch(e) { showToast('Failed to load orders', 'error'); }
   }
 
+  // PAYMENTS tab: only pending_payment and paid (waiting for admin confirmation)
   async function loadPayments() {
     const paymentsBody = document.getElementById('paymentsBody');
     if (!paymentsBody) return;
@@ -587,7 +558,7 @@
       const { orders } = await fetchAPI('/api/orders');
       const pending = orders.filter(o => o.status === 'pending_payment' || o.status === 'paid');
       if (pending.length === 0) {
-        paymentsBody.innerHTML = '<tr><td colspan="6">No pending payments.</td></tr>';
+        paymentsBody.innerHTML = '<tr><td colspan="6">No pending payments.缓解</tr>';
         return;
       }
       paymentsBody.innerHTML = pending.map(o => `<tr>
@@ -601,30 +572,30 @@
     } catch(e) { showToast('Failed to load payments', 'error'); }
   }
 
+  // ORDER FLOW tab: only confirmed, processing, completed, assigned_to_rider
   async function loadOrderFlow() {
     const orderFlowBody = document.getElementById('orderFlowBody');
     if (!orderFlowBody) return;
     try {
       const { orders } = await fetchAPI('/api/orders');
-      const active = orders.filter(o => ['paid', 'confirmed', 'processing', 'completed', 'assigned_to_rider'].includes(o.status));
-      if (active.length === 0) {
-        orderFlowBody.innerHTML = '<tr><td colspan="5">No orders in the processing queue.</td></tr>';
+      const flowOrders = orders.filter(o => ['confirmed', 'processing', 'completed', 'assigned_to_rider'].includes(o.status));
+      if (flowOrders.length === 0) {
+        orderFlowBody.innerHTML = '<tr><td colspan="5">No orders in the processing queue.缓解</tr>';
         return;
       }
-      orderFlowBody.innerHTML = active.map(o => {
+      orderFlowBody.innerHTML = flowOrders.map(o => {
         let buttons = '';
-        if (o.status === 'paid') buttons = `<button onclick="window.updateOrderStatus(${o.id}, 'confirmed')">Confirm</button>`;
-        else if (o.status === 'confirmed') buttons = `<button onclick="window.updateOrderStatus(${o.id}, 'processing')">Process</button>`;
-        else if (o.status === 'processing') buttons = `<button onclick="window.updateOrderStatus(${o.id}, 'completed')">Ready</button>`;
+        if (o.status === 'confirmed') buttons = `<button onclick="window.updateOrderStatus(${o.id}, 'processing')">Start Processing</button>`;
+        else if (o.status === 'processing') buttons = `<button onclick="window.updateOrderStatus(${o.id}, 'completed')">Ready for Delivery</button>`;
         else if (o.status === 'completed') buttons = `<button onclick="window.markAssignedManually(${o.id})">Assign Rider</button>`;
         else if (o.status === 'assigned_to_rider') buttons = `<button onclick="window.markOrderDelivered(${o.id})">Mark Delivered</button>`;
         return `<tr>
-          <td><strong>#${o.id}</strong></td>
+          <td><strong>#${o.id}</strong></div></td>
           <td>${escapeHtml(o.customerName)}</div></td>
-        <td>GHS ${o.total}</td>
-        <td><span class="badge ${o.status}">${o.status.replace(/_/g, ' ')}</span></td>
-        <td>${buttons}</td>
-      </tr>`;
+          <td>GHS ${o.total}</td>
+          <td><span class="badge ${o.status}">${o.status.replace(/_/g, ' ')}</span></td>
+          <td>${buttons}</div></td>
+        </tr>`;
       }).join('');
     } catch(e) { showToast('Failed to load order flow', 'error'); }
   }
@@ -635,7 +606,7 @@
     try {
       const { riders } = await fetchAPI('/api/riders');
       if (!riders || riders.length === 0) {
-        ridersBody.innerHTML = '<tr><td colspan="4">No riders added yet.</td></tr>';
+        ridersBody.innerHTML = '</tr><td colspan="4">No riders added yet.缓解</tr>';
         return;
       }
       ridersBody.innerHTML = riders.map(r => `<tr>
@@ -663,7 +634,6 @@
 
   function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m] || m)); }
 
-  // Hamburger menu logic
   const hamburger = document.getElementById('hamburger');
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('sidebarOverlay');
