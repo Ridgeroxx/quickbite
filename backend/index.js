@@ -100,7 +100,7 @@ function saveRiders() { fs.writeFileSync(RIDERS_FILE, JSON.stringify(riders, nul
 const app = express();
 app.use(express.json());
 
-// CORS – allow all origins (you can restrict later)
+// CORS – allow all origins
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, x-admin-token');
@@ -170,17 +170,7 @@ app.post('/api/orders', async (req, res) => {
     orders.push(newOrder);
     saveOrders();
 
-    // Notify payment admins only
-    const bot = getBotInstance();
-    const itemsText = processedItems.map(i => `${i.name}${i.addons?.length ? ` (${i.addons.map(a => a.name).join(', ')})` : ''}`).join('\n');
-    for (const [adminId, role] of Object.entries(adminRoles)) {
-      if (role === 'payment' || role === 'super') {
-        bot.sendMessage(parseInt(adminId), `🆕 *New Order #${orderId}*\nCustomer: ${customerName}\nPhone: ${customerPhone}\nItems:\n${itemsText}\nSubtotal: ${CURRENCY}${subtotal}\nDelivery: ${CURRENCY}${DELIVERY_FEE}\nTotal: ${CURRENCY}${total}\nAddress: ${address}`, {
-          parse_mode: 'Markdown',
-          reply_markup: { inline_keyboard: [[{ text: '✅ Confirm Payment', callback_data: `confirm_${orderId}` }]] }
-        }).catch(e => console.error('Failed to send admin notification:', e.message));
-      }
-    }
+    // No Telegram notifications to admins – removed
 
     res.json({ orderId, total, momoNumber: MOMO_NUMBER, riderContact: RIDER_CONTACT });
   } catch (err) {
@@ -205,15 +195,7 @@ app.post('/api/orders/:orderId/payment-reference', (req, res) => {
     order.status = 'paid';
     saveOrders();
 
-    // Notify payment admins
-    const bot = getBotInstance();
-    for (const [adminId, role] of Object.entries(adminRoles)) {
-      if (role === 'payment' || role === 'super') {
-        bot.sendMessage(parseInt(adminId), `💳 Payment reference received for order #${orderId}\nRef: ${reference}\nCustomer: ${order.customerName}\nAmount: ${CURRENCY}${order.total}`, {
-          reply_markup: { inline_keyboard: [[{ text: '✅ Confirm Payment', callback_data: `confirm_${orderId}` }]] }
-        });
-      }
-    }
+    // No Telegram notifications to admins – removed
 
     res.json({ success: true, message: 'Payment reference submitted. Awaiting admin confirmation.' });
   } catch (err) {
@@ -268,8 +250,6 @@ app.patch('/api/orders/:id/status', adminAuth, (req, res) => {
     order.riderPhone = riderPhone;
     order.riderId = null;
   }
-  // If status is assigned_to_rider but no rider info, do nothing
-  // (preserve existing rider info)
   
   saveOrders();
   res.json({ success: true });
@@ -326,27 +306,27 @@ app.delete('/api/riders/:id', adminAuth, (req, res) => {
 
 app.get('/health', (req, res) => res.send('OK'));
 
-// ---------- Telegram Bot (admin only) ----------
+// ---------- Telegram Bot (user only: start, order, admin_panel) ----------
 let botInstance = null;
 
 function getBotInstance() {
   if (!botInstance) {
-    console.log('Initializing Telegram bot...');
+    console.log('Initializing Telegram bot (user only)...');
     const bot = new TelegramBot(BOT_TOKEN, { polling: true });
     setupBotHandlers(bot);
     botInstance = bot;
-    console.log('🤖 Telegram bot started (admin only)');
+    console.log('🤖 Telegram bot started (user only)');
   }
   return botInstance;
 }
 
 function setupBotHandlers(bot) {
-  // ✅ FIXED: welcome message without link, instructs to use the blue Open button
+  // Welcome message – no link, just instruct to use the Open button
   bot.onText(/\/start/, (msg) => {
     bot.sendMessage(msg.chat.id, `🇬🇭 Welcome to QuickBite!\nAuthentic Ghanaian dishes delivered to your door.\n\n👉 Tap the blue **Open** button below to start ordering!`, { parse_mode: 'Markdown' });
   });
 
-  // ✅ FIXED: /order command shows a button that opens the web app
+  // /order command – gives a button to open the web app
   bot.onText(/\/order/, (msg) => {
     bot.sendMessage(msg.chat.id, '🍔 Tap the button below to open our ordering app:', {
       reply_markup: {
@@ -355,147 +335,14 @@ function setupBotHandlers(bot) {
     });
   });
 
-  // Admin commands (unchanged, but they rely on hasRole)
-  bot.onText(/\/admin_orders/, (msg) => {
-    if (!hasRole(msg.from.id, null)) return;
-    if (orders.length === 0) return bot.sendMessage(msg.chat.id, "No orders.");
-    let text = "*📋 Orders*\n";
-    orders.slice(-10).forEach(o => { text += `#${o.id} – ${o.status} – GHS ${o.total}\nCustomer: ${o.customerName || '?'}\n`; });
-    bot.sendMessage(msg.chat.id, text, { parse_mode: 'Markdown' });
-  });
-
-  bot.onText(/\/pending/, (msg) => {
-    if (!hasRole(msg.from.id, 'payment')) return;
-    const pending = orders.filter(o => o.status === 'pending_payment');
-    if (!pending.length) return bot.sendMessage(msg.chat.id, "No pending payments.");
-    let text = "*⏳ Pending Payments*\n";
-    pending.forEach(o => { text += `#${o.id} – ${o.customerName} – GHS ${o.total}\n`; });
-    bot.sendMessage(msg.chat.id, text, { parse_mode: 'Markdown' });
-  });
-
-  bot.onText(/\/order (\d+)/, (msg, match) => {
-    if (!hasRole(msg.from.id, null)) return;
-    const order = orders.find(o => o.id == match[1]);
-    if (!order) return bot.sendMessage(msg.chat.id, "Not found");
-    let items = order.items.map(i => `${i.name} ${i.addons?.map(a=>a.name).join(',')} x${i.qty}`).join('\n');
-    bot.sendMessage(msg.chat.id, `*Order #${order.id}*\nCustomer: ${order.customerName}\nPhone: ${order.customerPhone}\nStatus: ${order.status}\nTotal: GHS ${order.total}\nAddress: ${order.address}\nItems:\n${items}`, { parse_mode: 'Markdown' });
-  });
-
-  bot.onText(/\/stats/, (msg) => {
-    if (!hasRole(msg.from.id, null)) return;
-    const total = orders.reduce((s,o)=> s+o.total, 0);
-    bot.sendMessage(msg.chat.id, `📊 *Stats*\nTotal orders: ${orders.length}\nRevenue: GHS ${total}\nPending: ${orders.filter(o=>o.status==='pending_payment').length}`, { parse_mode: 'Markdown' });
-  });
-
-  bot.onText(/\/add_rider (\d+) (.+)/, (msg, match) => {
-    if (!hasRole(msg.from.id, 'rider')) return;
-    const id = parseInt(match[1]), name = match[2];
-    if (!riders.find(r => r.telegramId === id)) {
-      riders.push({ telegramId: id, name, phone: '', isAvailable: 'true' });
-      saveRiders();
-      bot.sendMessage(msg.chat.id, `Rider ${name} added. Use /rider_phone ${id} <number> to add phone.`);
-    } else bot.sendMessage(msg.chat.id, 'Rider already exists.');
-  });
-
-  bot.onText(/\/rider_phone (\d+) (.+)/, (msg, match) => {
-    if (!hasRole(msg.from.id, 'rider')) return;
-    const id = parseInt(match[1]), phone = match[2];
-    const rider = riders.find(r => r.telegramId === id);
-    if (rider) { rider.phone = phone; saveRiders(); bot.sendMessage(msg.chat.id, `Phone for ${rider.name} set to ${phone}`); }
-    else bot.sendMessage(msg.chat.id, 'Rider not found.');
-  });
-
-  bot.onText(/\/riders/, (msg) => {
-    if (!hasRole(msg.from.id, 'rider')) return;
-    if (riders.length === 0) return bot.sendMessage(msg.chat.id, "No riders.");
-    let text = "*🛵 Riders*\n";
-    riders.forEach(r => { text += `${r.name} – ${r.isAvailable === 'true' ? 'Available' : 'Busy'} – ${r.phone || 'No phone'}\n`; });
-    bot.sendMessage(msg.chat.id, text, { parse_mode: 'Markdown' });
-  });
-
-  bot.onText(/\/set_role (\d+) (\w+)/, (msg, match) => {
-    if (!hasRole(msg.from.id, 'super')) return;
-    const targetId = parseInt(match[1]), role = match[2];
-    if (!['payment', 'order', 'rider', 'super'].includes(role)) return bot.sendMessage(msg.chat.id, 'Invalid role.');
-    adminRoles[targetId] = role;
-    saveAdminRoles();
-    bot.sendMessage(msg.chat.id, `User ${targetId} is now a ${role} admin.`);
-  });
-
+  // /admin_panel – optional, gives a button to open the admin portal (only if the user is an admin, but the web app login will check anyway)
   bot.onText(/\/admin_panel/, (msg) => {
-    if (!hasRole(msg.from.id, null)) return;
+    // We can still send the button; the login page will validate the Telegram ID.
     bot.sendMessage(msg.chat.id, '📊 Admin Dashboard', {
-      reply_markup: { inline_keyboard: [[{ text: '📋 Open Admin Panel', web_app: { url: 'https://ridgeroxx.github.io/quickbite/admin.html' } }]] }
+      reply_markup: {
+        inline_keyboard: [[{ text: '📋 Open Admin Panel', web_app: { url: 'https://ridgeroxx.github.io/quickbite/admin.html' } }]]
+      }
     });
-  });
-
-  bot.on('callback_query', async (cq) => {
-    const chatId = cq.message.chat.id;
-    const data = cq.data;
-    if (data.startsWith('confirm_')) {
-      if (!hasRole(cq.from.id, 'payment')) return bot.answerCallbackQuery(cq.id, { text: '❌ Only payment managers can confirm payments.' });
-      const orderId = parseInt(data.split('_')[1]);
-      const order = orders.find(o => o.id === orderId);
-      if (order && order.status === 'paid') {
-        order.status = 'confirmed';
-        saveOrders();
-        bot.sendMessage(chatId, `✅ Order #${orderId} confirmed.`);
-        for (const [adminId, role] of Object.entries(adminRoles)) {
-          if (role === 'order' || role === 'super') bot.sendMessage(parseInt(adminId), `🔄 Order #${orderId} is now confirmed.`);
-        }
-      } else bot.sendMessage(chatId, 'Order not found or not paid.');
-    } else if (data.startsWith('assign_')) {
-      if (!hasRole(cq.from.id, 'order')) return bot.answerCallbackQuery(cq.id, { text: '❌ Only order managers can assign riders.' });
-      const parts = data.split('_');
-      const orderId = parseInt(parts[1]), riderId = parseInt(parts[2]);
-      const order = orders.find(o => o.id === orderId);
-      const rider = riders.find(r => r.telegramId === riderId);
-      if (order && rider && order.status === 'completed') {
-        order.status = 'assigned_to_rider';
-        order.riderId = riderId;
-        order.riderName = rider.name;
-        order.riderPhone = rider.phone || 'No phone';
-        saveOrders();
-        bot.sendMessage(riderId, `📦 *New delivery* Order #${orderId}\nCustomer: ${order.customerName}\nPhone: ${order.customerPhone}\nAddress: ${order.address}\nItems: ${order.items.map(i => i.name).join(', ')}\nTotal: ${CURRENCY}${order.total}`, {
-          parse_mode: 'Markdown',
-          reply_markup: { inline_keyboard: [[{ text: '✅ Mark Delivered', callback_data: `deliver_${orderId}` }]] }
-        });
-        bot.sendMessage(chatId, `Order #${orderId} assigned to ${rider.name}.`);
-      } else bot.sendMessage(chatId, 'Order not ready for rider assignment.');
-    } else if (data.startsWith('deliver_')) {
-      const orderId = parseInt(data.split('_')[1]);
-      const order = orders.find(o => o.id === orderId);
-      if (order && order.status === 'assigned_to_rider') {
-        order.status = 'delivered';
-        saveOrders();
-        bot.sendMessage(chatId, `Order #${orderId} delivered.`);
-      }
-    }
-  });
-
-  bot.onText(/\/process (\d+)/, (msg, match) => {
-    if (!hasRole(msg.from.id, 'order')) return;
-    const orderId = parseInt(match[1]);
-    const order = orders.find(o => o.id === orderId);
-    if (order && order.status === 'confirmed') {
-      order.status = 'processing';
-      saveOrders();
-      bot.sendMessage(msg.chat.id, `Order #${orderId} is now processing.`);
-    } else bot.sendMessage(msg.chat.id, 'Order not found or not confirmed.');
-  });
-
-  bot.onText(/\/ready (\d+)/, (msg, match) => {
-    if (!hasRole(msg.from.id, 'order')) return;
-    const orderId = parseInt(match[1]);
-    const order = orders.find(o => o.id === orderId);
-    if (order && order.status === 'processing') {
-      order.status = 'completed';
-      saveOrders();
-      bot.sendMessage(msg.chat.id, `Order #${orderId} is ready.`);
-      for (const [adminId, role] of Object.entries(adminRoles)) {
-        if (role === 'rider' || role === 'super') bot.sendMessage(parseInt(adminId), `🚚 Order #${orderId} is ready for rider assignment.`);
-      }
-    } else bot.sendMessage(msg.chat.id, 'Order not found or not processing.');
   });
 }
 
@@ -503,4 +350,4 @@ function setupBotHandlers(bot) {
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`🚀 Server on port ${port}`));
 getBotInstance();
-console.log('🤖 Bot running (admin only)');
+console.log('🤖 Bot running (user only, no admin messages)');
