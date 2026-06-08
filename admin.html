@@ -109,8 +109,23 @@
       align-items: center;
       margin-bottom: 24px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      flex-wrap: wrap;
+      gap: 12px;
     }
-    .topbar h2 { font-size: 18px; }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .topbar h2 { font-size: 18px; margin: 0; }
+    .welcome-message {
+      font-size: 14px;
+      color: #e67e22;
+      font-weight: 500;
+      background: #fff5f0;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
     .refresh-btn {
       background: #e67e22;
       color: white;
@@ -118,7 +133,6 @@
       padding: 6px 12px;
       border-radius: 20px;
       cursor: pointer;
-      margin-left: 12px;
       font-size: 12px;
     }
     .logout-btn {
@@ -206,6 +220,7 @@
       .sidebar { transform: translateX(-100%); }
       .sidebar.open { transform: translateX(0); }
       .main { margin-left: 0; }
+      .topbar { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
@@ -237,7 +252,10 @@
 
   <div class="main">
     <div class="topbar">
-      <h2 id="pageTitle">Dashboard</h2>
+      <div class="topbar-left">
+        <h2 id="pageTitle">Dashboard</h2>
+        <span id="welcomeMessage" class="welcome-message"></span>
+      </div>
       <div>
         <button class="refresh-btn" onclick="window.refreshCurrentPage()"><i class="fa fa-rotate-right"></i> Refresh</button>
         <button class="logout-btn" onclick="window.logout()"><i class="fa fa-sign-out-alt"></i> Logout</button>
@@ -245,10 +263,10 @@
     </div>
 
     <div id="page-dashboard" class="page"><div class="stats-grid" id="statsGrid"></div><div class="table-wrap"><h3 style="margin-bottom:16px;">Recent Orders</h3><table><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="dashboardOrdersBody"></tbody></table></div></div>
-    <div id="page-orders" class="page" style="display:none;"><div class="table-wrap"><table><thead><tr><th>#</th><th>Customer</th><th>Address</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div></div>
-    <div id="page-payments" class="page" style="display:none;"><div class="table-wrap"><table><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Reference</th><th>Status</th><th>Action</th></tr></thead><tbody id="paymentsBody"></tbody></table></div></div>
+    <div id="page-orders" class="page" style="display:none;"><div class="table-wrap"><table><thead><tr><th>#</th><th>Customer</th><th>Address</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="allOrdersBody"></tbody></td></div></div>
+    <div id="page-payments" class="page" style="display:none;"><div class="table-wrap"></tr><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Reference</th><th>Status</th><th>Action</th></tr></thead><tbody id="paymentsBody"></tbody></table></div></div>
     <div id="page-orderFlow" class="page" style="display:none;"><div class="table-wrap"><table><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="orderFlowBody"></tbody></table></div></div>
-    <div id="page-riders" class="page" style="display:none;"><button onclick="window.addRider()" style="margin-bottom:16px;"><i class="fa fa-plus"></i> Add Rider</button><div class="table-wrap"><table><thead><tr><th>Telegram ID</th><th>Name</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ridersBody"></tbody></table></div></div>
+    <div id="page-riders" class="page" style="display:none;"><button onclick="window.addRider()" style="margin-bottom:16px;"><i class="fa fa-plus"></i> Add Rider</button><div class="table-wrap"><tr><thead><tr><th>Telegram ID</th><th>Name</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ridersBody"></tbody></table></div></div>
     <div id="page-menu" class="page" style="display:none;"><button onclick="window.openAddMenuItem()" style="margin-bottom:16px;"><i class="fa fa-plus"></i> Add Menu Item</button><div class="cards-grid" id="menuGrid"></div></div>
     <div id="page-admins" class="page" style="display:none;"><div class="table-wrap"><p>Use Telegram command <code>/set_role &lt;id&gt; &lt;role&gt;</code> to manage admins.</p></div></div>
   </div>
@@ -287,9 +305,24 @@
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('dashboard').style.display = 'block';
         document.getElementById('userRoleSpan').innerHTML = `Role: ${currentRole.toUpperCase()}`;
+        updateWelcomeMessage();
         setupNav(); showPage('dashboard');
       } else document.getElementById('loginError').innerText = data.error || 'Login failed';
     } catch(err) { document.getElementById('loginError').innerText = 'Network error'; }
+  }
+
+  function updateWelcomeMessage() {
+    const welcomeSpan = document.getElementById('welcomeMessage');
+    if (!welcomeSpan) return;
+    let roleText = '';
+    switch (currentRole) {
+      case 'super': roleText = 'Super Admin'; break;
+      case 'payment': roleText = 'Payment Manager'; break;
+      case 'order': roleText = 'Order Manager'; break;
+      case 'rider': roleText = 'Rider Manager'; break;
+      default: roleText = 'Admin';
+    }
+    welcomeSpan.innerText = `👋 Welcome, ${roleText}`;
   }
 
   window.login = login;
@@ -428,7 +461,6 @@
     } catch(e) { showToast('Failed to load dashboard', 'error'); }
   }
 
-  // FIXED: All Orders - improved error handling and empty state
   async function loadAllOrders() {
     const allOrdersBody = document.getElementById('allOrdersBody');
     if (!allOrdersBody) return;
@@ -448,7 +480,7 @@
       </tr>`).join('');
     } catch(e) {
       console.error(e);
-      allOrdersBody.innerHTML = '<tr><td colspan="6">Error loading orders. Please refresh or contact support.</td></tr>';
+      allOrdersBody.innerHTML = '<tr><td colspan="6">Error loading orders. Please refresh or contact support.缓解</tr>';
       showToast('Failed to load orders', 'error');
     }
   }
@@ -460,7 +492,7 @@
       const { orders } = await fetchAPI('/api/orders');
       const pending = orders.filter(o => o.status === 'pending_payment' || o.status === 'paid');
       if (pending.length === 0) {
-        paymentsBody.innerHTML = '<tr><td colspan="6">No pending payments.</td></tr>';
+        paymentsBody.innerHTML = '<tr><td colspan="6">No pending payments.缓解</tr>';
         return;
       }
       paymentsBody.innerHTML = pending.map(o => `<tr>
@@ -481,7 +513,7 @@
       const { orders } = await fetchAPI('/api/orders');
       const active = orders.filter(o => ['paid', 'confirmed', 'processing', 'completed', 'assigned_to_rider'].includes(o.status));
       if (active.length === 0) {
-        orderFlowBody.innerHTML = '<tr><td colspan="5">No orders in the processing queue. Try creating a test order or changing order status.</td></tr>';
+        orderFlowBody.innerHTML = '<tr><td colspan="5">No orders in the processing queue. Try creating a test order or changing order status.缓解</tr>';
         return;
       }
       orderFlowBody.innerHTML = active.map(o => {
@@ -501,7 +533,7 @@
       }).join('');
     } catch(e) {
       console.error(e);
-      orderFlowBody.innerHTML = '<tr><td colspan="5">Error loading orders. Please refresh.</td></tr>';
+      orderFlowBody.innerHTML = '<tr><td colspan="5">Error loading orders. Please refresh.缓解</tr>';
       showToast('Failed to load order flow', 'error');
     }
   }
@@ -512,7 +544,7 @@
     try {
       const { riders } = await fetchAPI('/api/riders');
       if (!riders || riders.length === 0) {
-        ridersBody.innerHTML = '<tr><td colspan="4">No riders added yet. Use "Add Rider" button.</td></tr>';
+        ridersBody.innerHTML = '<tr><td colspan="4">No riders added yet. Use "Add Rider" button.缓解</tr>';
         return;
       }
       ridersBody.innerHTML = riders.map(r => `<tr>
@@ -520,7 +552,7 @@
         <td>${escapeHtml(r.name)}</td>
         <td>${r.phone || '—'}</td>
         <td>${r.isAvailable === 'true' ? 'Available' : 'Busy'}</td>
-        <td><button onclick="window.toggleRider(${r.telegramId}, '${r.isAvailable}')">Toggle</button> <button class="danger" onclick="window.deleteRider(${r.telegramId})">Delete</button></td>
+        <td><button onclick="window.toggleRider(${r.telegramId}, '${r.isAvailable}')">Toggle</button> <button class="danger" onclick="window.deleteRider(${r.telegramId})">Delete</button></div></td>
       </tr>`).join('');
     } catch(e) { showToast('Failed to load riders', 'error'); }
   }
@@ -547,6 +579,7 @@
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('dashboard').style.display = 'block';
       document.getElementById('userRoleSpan').innerHTML = `Role: ${currentRole.toUpperCase()}`;
+      updateWelcomeMessage();
       setupNav(); showPage('dashboard');
     } else {
       document.getElementById('loginScreen').style.display = 'flex';
