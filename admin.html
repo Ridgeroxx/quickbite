@@ -12,6 +12,7 @@
       background: #f4f6fb;
       min-height: 100vh;
     }
+    /* Login container – unchanged */
     .login-container {
       max-width: 400px;
       margin: 100px auto;
@@ -43,7 +44,7 @@
     .error { color: #e74c3c; margin-top: 12px; }
     #dashboard { display: none; width: 100%; }
 
-    /* Sidebar drawer – sleek design */
+    /* Sidebar drawer for mobile */
     .sidebar {
       position: fixed;
       top: 0;
@@ -56,32 +57,31 @@
       transition: transform 0.3s ease;
       display: flex;
       flex-direction: column;
-      box-shadow: 2px 0 8px rgba(0,0,0,0.1);
     }
     .sidebar.open {
       transform: translateX(0);
     }
-    .sidebar-logo { padding: 20px 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .sidebar-logo .logo-text { font-size: 18px; font-weight: 700; color: white; }
+    .sidebar-logo { padding: 28px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .sidebar-logo .logo-text { font-size: 22px; font-weight: 800; color: white; }
     .sidebar-logo .logo-text span { color: #ff6b35; }
-    .sidebar-logo .logo-sub { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px; }
-    .nav-section { padding: 8px 0; }
+    .sidebar-logo .logo-sub { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+    .nav-section { padding: 16px 0; }
     .nav-label {
-      font-size: 10px;
-      font-weight: 600;
-      color: rgba(255,255,255,0.4);
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.35);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding: 0 20px 6px;
+      letter-spacing: 1px;
+      padding: 0 24px 8px;
     }
     .nav-item {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 10px 20px;
+      gap: 14px;
+      padding: 12px 24px;
       color: rgba(255,255,255,0.7);
       cursor: pointer;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 500;
       transition: all 0.2s;
       border-left: 3px solid transparent;
@@ -92,15 +92,15 @@
       color: #ff6b35;
       border-left-color: #ff6b35;
     }
-    .nav-item i { width: 20px; text-align: center; font-size: 14px; }
     .sidebar-footer {
       margin-top: auto;
-      padding: 16px 20px;
+      padding: 20px 24px;
       border-top: 1px solid rgba(255,255,255,0.07);
-      font-size: 11px;
+      font-size: 12px;
       color: rgba(255,255,255,0.4);
     }
 
+    /* Overlay when sidebar is open */
     .sidebar-overlay {
       position: fixed;
       top: 0;
@@ -111,14 +111,17 @@
       z-index: 999;
       display: none;
     }
-    .sidebar-overlay.active { display: block; }
+    .sidebar-overlay.active {
+      display: block;
+    }
 
-    /* Main content */
+    /* Main content area */
     .main {
       margin-left: 0;
       padding: 16px;
       transition: margin-left 0.3s;
     }
+    /* On desktop we keep sidebar always visible */
     @media (min-width: 768px) {
       .main {
         margin-left: 260px;
@@ -131,17 +134,17 @@
       }
     }
 
+    /* Top bar with hamburger – sleek horizontal */
     .topbar {
       background: white;
-      border-radius: 20px;
+      border-radius: 24px;
       padding: 10px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      flex-wrap: wrap;
-      gap: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      gap: 12px;
     }
     .topbar-left {
       display: flex;
@@ -153,23 +156,29 @@
       border: none;
       font-size: 20px;
       cursor: pointer;
-      width: 36px;
-      height: 36px;
-      border-radius: 18px;
+      padding: 8px;
+      width: 40px;
+      height: 40px;
+      border-radius: 20px;
       background: #e67e22;
       color: white;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    .topbar h2 { font-size: 18px; margin: 0; }
+    .topbar h2 {
+      font-size: 18px;
+      margin: 0;
+      font-weight: 600;
+    }
     .welcome-message {
-      font-size: 12px;
+      font-size: 13px;
       color: #e67e22;
       font-weight: 500;
       background: #fff5f0;
-      padding: 4px 10px;
+      padding: 4px 12px;
       border-radius: 20px;
+      white-space: nowrap;
     }
     .topbar-actions {
       display: flex;
@@ -184,9 +193,11 @@
       cursor: pointer;
       font-size: 12px;
     }
-    .logout-btn { background: #e74c3c; }
+    .logout-btn {
+      background: #e74c3c;
+    }
 
-    /* Stats grid */
+    /* Stats grid – responsive */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -197,16 +208,18 @@
       background: white;
       border-radius: 16px;
       padding: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
     .stat-card h3 { font-size: 12px; color: #666; margin-bottom: 4px; }
     .stat-card .value { font-size: 22px; font-weight: bold; color: #e67e22; }
 
+    /* Tables – scroll horizontally on mobile */
     .table-wrap {
       background: white;
-      border-radius: 16px;
+      border-radius: 20px;
       overflow-x: auto;
       margin-bottom: 16px;
+      padding: 0;
     }
     table {
       width: 100%;
@@ -217,17 +230,18 @@
       text-align: left;
       padding: 10px 12px;
       border-bottom: 1px solid #eee;
+      font-size: 13px;
     }
     th {
       background: #fafafa;
       font-weight: 600;
       font-size: 12px;
     }
-    td { font-size: 13px; }
 
+    /* Badges */
     .badge {
       display: inline-block;
-      padding: 3px 8px;
+      padding: 4px 10px;
       border-radius: 50px;
       font-size: 11px;
       font-weight: 600;
@@ -251,10 +265,9 @@
       margin: 2px;
     }
     button.danger { background: #e74c3c; }
-
     .cards-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
       gap: 12px;
     }
     .menu-card {
@@ -262,19 +275,20 @@
       border-radius: 16px;
       padding: 12px;
       text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
     .toast {
       position: fixed;
-      bottom: 20px;
-      right: 20px;
+      bottom: 24px;
+      right: 24px;
       background: #27ae60;
       color: white;
-      padding: 8px 16px;
-      border-radius: 30px;
+      padding: 10px 16px;
+      border-radius: 40px;
       z-index: 1100;
       opacity: 0;
       transition: opacity 0.2s;
-      font-size: 12px;
+      font-size: 13px;
     }
     .toast.show { opacity: 1; }
   </style>
@@ -296,28 +310,13 @@
     <div class="nav-section">
       <div class="nav-label">Main</div>
       <div class="nav-item" data-page="dashboard"><i class="fa fa-chart-line"></i> Dashboard</div>
-      <div class="nav-item" data-page="orders"><i class="fa fa-receipt"></i> Orders</div>
+      <div class="nav-item" data-page="orders"><i class="fa fa-receipt"></i> All Orders</div>
     </div>
-    <div class="nav-section" id="navPaymentsSection" style="display:none;">
-      <div class="nav-label">Payments</div>
-      <div class="nav-item" data-page="payments"><i class="fa fa-credit-card"></i> Pending Payments</div>
-    </div>
-    <div class="nav-section" id="navOrderFlowSection" style="display:none;">
-      <div class="nav-label">Order Flow</div>
-      <div class="nav-item" data-page="orderFlow"><i class="fa fa-cogs"></i> Process Orders</div>
-    </div>
-    <div class="nav-section" id="navRidersSection" style="display:none;">
-      <div class="nav-label">Riders</div>
-      <div class="nav-item" data-page="riders"><i class="fa fa-motorcycle"></i> Manage Riders</div>
-    </div>
-    <div class="nav-section" id="navMenuSection" style="display:none;">
-      <div class="nav-label">Menu</div>
-      <div class="nav-item" data-page="menu"><i class="fa fa-utensils"></i> Menu Items</div>
-    </div>
-    <div class="nav-section" id="navAdminsSection" style="display:none;">
-      <div class="nav-label">System</div>
-      <div class="nav-item" data-page="admins"><i class="fa fa-users"></i> Admins</div>
-    </div>
+    <div class="nav-section" id="navPaymentsSection" style="display:none;"><div class="nav-label">Payments</div><div class="nav-item" data-page="payments"><i class="fa fa-credit-card"></i> Pending Payments</div></div>
+    <div class="nav-section" id="navOrderFlowSection" style="display:none;"><div class="nav-label">Order Processing</div><div class="nav-item" data-page="orderFlow"><i class="fa fa-cogs"></i> Order Flow</div></div>
+    <div class="nav-section" id="navRidersSection" style="display:none;"><div class="nav-label">Riders</div><div class="nav-item" data-page="riders"><i class="fa fa-motorcycle"></i> Manage Riders</div></div>
+    <div class="nav-section" id="navMenuSection" style="display:none;"><div class="nav-label">Menu</div><div class="nav-item" data-page="menu"><i class="fa fa-utensils"></i> Menu Items</div></div>
+    <div class="nav-section" id="navAdminsSection" style="display:none;"><div class="nav-label">System</div><div class="nav-item" data-page="admins"><i class="fa fa-users"></i> Admins</div></div>
     <div class="sidebar-footer"><span id="userRoleSpan"></span></div>
   </div>
 
@@ -334,13 +333,13 @@
       </div>
     </div>
 
-    <div id="page-dashboard" class="page"><div class="stats-grid" id="statsGrid"></div><div class="table-wrap"><h3 style="margin-bottom:12px;">Recent Orders</h3><table><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="dashboardOrdersBody"></tbody></table></div></div>
+    <div id="page-dashboard" class="page"><div class="stats-grid" id="statsGrid"></div><div class="table-wrap"><h3 style="margin-bottom:16px;">Recent Orders</h3><table><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="dashboardOrdersBody"></tbody></table></div></div>
     <div id="page-orders" class="page" style="display:none;"><div class="table-wrap"><table><thead><tr><th>#</th><th>Customer</th><th>Address</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div></div>
-    <div id="page-payments" class="page" style="display:none;"><div class="table-wrap"><table><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Reference</th><th>Status</th><th>Action</th></tr></thead><tbody id="paymentsBody"></tbody></table></div></div>
-    <div id="page-orderFlow" class="page" style="display:none;"><div class="table-wrap"></table><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="orderFlowBody"></tbody></table></div></div>
-    <div id="page-riders" class="page" style="display:none;"><button onclick="window.addRider()" style="margin-bottom:12px;"><i class="fa fa-plus"></i> Add Rider</button><div class="table-wrap"><tr><thead><tr><th>Telegram ID</th><th>Name</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ridersBody"></tbody><table></div></div>
-    <div id="page-menu" class="page" style="display:none;"><button onclick="window.openAddMenuItem()" style="margin-bottom:12px;"><i class="fa fa-plus"></i> Add Menu Item</button><div class="cards-grid" id="menuGrid"></div></div>
-    <div id="page-admins" class="page" style="display:none;"><div class="table-wrap"><p>Use Telegram command <code>/set_role</code> to manage admins.</p></div></div>
+    <div id="page-payments" class="page" style="display:none;"><div class="table-wrap"><table><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Reference</th><th>Status</th><th>Action</th></tr></thead><tbody id="paymentsBody"></tbody><tr></div></div>
+    <div id="page-orderFlow" class="page" style="display:none;"><div class="table-wrap"><tr><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="orderFlowBody"></tbody></table></div></div>
+    <div id="page-riders" class="page" style="display:none;"><button onclick="window.addRider()" style="margin-bottom:16px;"><i class="fa fa-plus"></i> Add Rider</button><div class="table-wrap"><table><thead><tr><th>Telegram ID</th><th>Name</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ridersBody"></tbody></td></div></div>
+    <div id="page-menu" class="page" style="display:none;"><button onclick="window.openAddMenuItem()" style="margin-bottom:16px;"><i class="fa fa-plus"></i> Add Menu Item</button><div class="cards-grid" id="menuGrid"></div></div>
+    <div id="page-admins" class="page" style="display:none;"><div class="table-wrap"><p>Use Telegram command <code>/set_role &lt;id&gt; &lt;role&gt;</code> to manage admins.</p></div></div>
   </div>
 </div>
 <div id="toast" class="toast"></div>
@@ -359,16 +358,11 @@
   }
 
   async function fetchAPI(endpoint, options={}) {
-    const headers = { 'Content-Type': 'application/json', ...options.headers };
-    if (adminToken) headers['x-admin-token'] = adminToken;
+    const headers = { 'Content-Type': 'application/json', 'x-admin-token': adminToken, ...options.headers };
     const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
     if (res.status === 401) {
-      localStorage.removeItem('adminToken');
-      localStorage.removeItem('adminRole');
-      adminToken = null;
-      currentRole = null;
-      document.getElementById('loginScreen').style.display = 'flex';
-      document.getElementById('dashboard').style.display = 'none';
+      // Token expired – logout and ask to login again
+      window.logout();
       Swal.fire('Session expired', 'Please login again.', 'error');
       throw new Error('Unauthorized');
     }
@@ -383,14 +377,12 @@
       const data = await res.json();
       if (res.ok) {
         adminToken = data.token; currentRole = data.role;
-        localStorage.setItem('adminToken', adminToken);
-        localStorage.setItem('adminRole', currentRole);
+        localStorage.setItem('adminToken', adminToken); localStorage.setItem('adminRole', currentRole);
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('dashboard').style.display = 'block';
         document.getElementById('userRoleSpan').innerHTML = `Role: ${currentRole.toUpperCase()}`;
         updateWelcomeMessage();
-        setupNav();
-        showPage('dashboard');
+        setupNav(); showPage('dashboard');
       } else document.getElementById('loginError').innerText = data.error || 'Login failed';
     } catch(err) { document.getElementById('loginError').innerText = 'Network error'; }
   }
@@ -411,10 +403,8 @@
 
   window.login = login;
   window.logout = function() {
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminRole');
-    adminToken = null;
-    currentRole = null;
+    localStorage.removeItem('adminToken'); localStorage.removeItem('adminRole');
+    adminToken = null; currentRole = null;
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('dashboard').style.display = 'none';
   };
@@ -433,17 +423,14 @@
     if (admins) admins.style.display = (currentRole === 'super') ? 'block' : 'none';
   }
 
-  // Close sidebar on mobile after navigation
-  function closeSidebarOnMobile() {
-    if (window.innerWidth < 768) {
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('sidebarOverlay');
-      if (sidebar) sidebar.classList.remove('open');
-      if (overlay) overlay.classList.remove('active');
-    }
+  function closeSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (sidebar) sidebar.classList.remove('open');
+    if (overlay) overlay.classList.remove('active');
   }
 
-  window.showPage = function(page) {
+  window.showPage = async function(page) {
     const pages = ['dashboard', 'orders', 'payments', 'orderFlow', 'riders', 'menu', 'admins'];
     pages.forEach(p => { const el = document.getElementById(`page-${p}`); if (el) el.style.display = 'none'; });
     const activePage = document.getElementById(`page-${page}`);
@@ -451,22 +438,22 @@
     currentPage = page;
     const titleEl = document.getElementById('pageTitle');
     if (titleEl) titleEl.innerText = page.charAt(0).toUpperCase() + page.slice(1);
+    // Close sidebar after navigation on mobile
+    closeSidebar();
     if (page === 'dashboard') loadDashboard();
     else if (page === 'orders') loadAllOrders();
     else if (page === 'payments') loadPayments();
     else if (page === 'orderFlow') loadOrderFlow();
     else if (page === 'riders') loadRiders();
     else if (page === 'menu') loadMenu();
-    closeSidebarOnMobile();
   };
 
-  // Attach nav item clicks
-  document.addEventListener('click', (e) => {
-    const navItem = e.target.closest('.nav-item');
-    if (navItem && navItem.dataset.page) {
-      e.preventDefault();
-      window.showPage(navItem.dataset.page);
-    }
+  // Attach navigation click handlers with closing sidebar
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      const page = item.dataset.page;
+      if (page) window.showPage(page);
+    });
   });
 
   window.viewOrderDetails = async (orderId) => {
@@ -560,15 +547,12 @@
     if (!statsGrid || !dashboardBody) return;
     try {
       const stats = await fetchAPI('/api/orders/stats/summary');
-      statsGrid.innerHTML = `<div class="stat-card"><h3>Today</h3><div class="value">${stats.today.count}</div><div>GHS ${stats.today.total}</div></div>
-                             <div class="stat-card"><h3>Week</h3><div class="value">${stats.week.count}</div><div>GHS ${stats.week.total}</div></div>
-                             <div class="stat-card"><h3>Month</h3><div class="value">${stats.month.count}</div><div>GHS ${stats.month.total}</div></div>
-                             <div class="stat-card"><h3>Revenue</h3><div class="value">GHS ${stats.all.total}</div></div>`;
+      statsGrid.innerHTML = `<div class="stat-card"><h3>Today's Orders</h3><div class="value">${stats.today.count}</div><div>GHS ${stats.today.total}</div></div><div class="stat-card"><h3>This Week</h3><div class="value">${stats.week.count}</div><div>GHS ${stats.week.total}</div></div><div class="stat-card"><h3>This Month</h3><div class="value">${stats.month.count}</div><div>GHS ${stats.month.total}</div></div><div class="stat-card"><h3>All Time Revenue</h3><div class="value">GHS ${stats.all.total}</div></div>`;
       const { orders } = await fetchAPI('/api/orders');
-      const recent = orders.slice(0, 8);
+      const recent = orders.slice(0, 10);
       dashboardBody.innerHTML = recent.map(o => `<tr>
         <td><strong>#${o.id}</strong></td>
-        <td>${escapeHtml(o.customerName)}</td>
+        <td>${escapeHtml(o.customerName)}</div></td>
         <td>GHS ${o.total}</td>
         <td><span class="badge ${o.status}">${o.status}</span></td>
         <td><button onclick="window.viewOrderDetails(${o.id})">View</button></td>
@@ -582,12 +566,12 @@
     try {
       const { orders } = await fetchAPI('/api/orders');
       if (!orders || orders.length === 0) {
-        allOrdersBody.innerHTML = '<td><td colspan="6">No orders found.缓解</td>';
+        allOrdersBody.innerHTML = '<tr><td colspan="6">No orders found.</td></tr>';
         return;
       }
       allOrdersBody.innerHTML = orders.map(o => `<tr>
         <td><strong>#${o.id}</strong></td>
-        <td>${escapeHtml(o.customerName)} (${escapeHtml(o.customerPhone)})</td>
+        <td>${escapeHtml(o.customerName)} (${escapeHtml(o.customerPhone)})</div></td>
         <td>${escapeHtml(o.address.substring(0, 50))}${o.address.length > 50 ? '…' : ''}</td>
         <td>GHS ${o.total}</td>
         <td><span class="badge ${o.status}">${o.status.replace(/_/g, ' ')}</span></td>
@@ -603,12 +587,12 @@
       const { orders } = await fetchAPI('/api/orders');
       const pending = orders.filter(o => o.status === 'pending_payment' || o.status === 'paid');
       if (pending.length === 0) {
-        paymentsBody.innerHTML = '<td><td colspan="6">No pending payments.缓解</td>';
+        paymentsBody.innerHTML = '<tr><td colspan="6">No pending payments.</td></tr>';
         return;
       }
       paymentsBody.innerHTML = pending.map(o => `<tr>
         <td><strong>#${o.id}</strong></td>
-        <td>${escapeHtml(o.customerName)}</td>
+        <td>${escapeHtml(o.customerName)}</div></td>
         <td>GHS ${o.total}</td>
         <td>${o.paymentReference || '—'}</td>
         <td><span class="badge ${o.status}">${o.status}</span></td>
@@ -624,7 +608,7 @@
       const { orders } = await fetchAPI('/api/orders');
       const active = orders.filter(o => ['paid', 'confirmed', 'processing', 'completed', 'assigned_to_rider'].includes(o.status));
       if (active.length === 0) {
-        orderFlowBody.innerHTML = '<tr><td colspan="5">No orders in the processing queue.缓解</tr>';
+        orderFlowBody.innerHTML = '<tr><td colspan="5">No orders in the processing queue.</td></tr>';
         return;
       }
       orderFlowBody.innerHTML = active.map(o => {
@@ -636,11 +620,11 @@
         else if (o.status === 'assigned_to_rider') buttons = `<button onclick="window.markOrderDelivered(${o.id})">Mark Delivered</button>`;
         return `<tr>
           <td><strong>#${o.id}</strong></td>
-          <td>${escapeHtml(o.customerName)}</td>
-          <td>GHS ${o.total}</td>
-          <td><span class="badge ${o.status}">${o.status.replace(/_/g, ' ')}</span></td>
-          <td>${buttons}</td>
-        </tr>`;
+          <td>${escapeHtml(o.customerName)}</div></td>
+        <td>GHS ${o.total}</td>
+        <td><span class="badge ${o.status}">${o.status.replace(/_/g, ' ')}</span></td>
+        <td>${buttons}</td>
+      </tr>`;
       }).join('');
     } catch(e) { showToast('Failed to load order flow', 'error'); }
   }
@@ -651,12 +635,12 @@
     try {
       const { riders } = await fetchAPI('/api/riders');
       if (!riders || riders.length === 0) {
-        ridersBody.innerHTML = '<td><td colspan="4">No riders added yet.缓解</td>';
+        ridersBody.innerHTML = '<tr><td colspan="4">No riders added yet.</td></tr>';
         return;
       }
       ridersBody.innerHTML = riders.map(r => `<tr>
         <td>${r.telegramId}</td>
-        <td>${escapeHtml(r.name)}</td>
+        <td>${escapeHtml(r.name)}</div></td>
         <td>${r.phone || '—'}</td>
         <td>${r.isAvailable === 'true' ? 'Available' : 'Busy'}</td>
         <td><button onclick="window.toggleRider(${r.telegramId}, '${r.isAvailable}')">Toggle</button> <button class="danger" onclick="window.deleteRider(${r.telegramId})">Delete</button></td>
@@ -670,29 +654,28 @@
     try {
       const { items } = await fetchAPI('/api/menu/all');
       if (!items || items.length === 0) {
-        menuGrid.innerHTML = '<div style="text-align:center; padding:16px;">No menu items yet. Add one.</div>';
+        menuGrid.innerHTML = '<div style="text-align:center; padding:20px;">No menu items yet. Add one using the button above.</div>';
         return;
       }
-      menuGrid.innerHTML = items.map(item => `<div class="menu-card"><div style="font-size:28px;">${item.emoji || '🍽️'}</div><strong>${escapeHtml(item.name)}</strong><br>GHS ${item.basePrice}<br><small>${item.category}</small><br><button onclick="window.editMenuItem(${item.id}, '${escapeHtml(item.name)}', ${item.basePrice}, '${item.category}')">Edit</button> <button class="danger" onclick="window.deleteMenuItem(${item.id})">Delete</button></div>`).join('');
+      menuGrid.innerHTML = items.map(item => `<div class="menu-card"><div style="font-size:32px;">${item.emoji || '🍽️'}</div><strong>${escapeHtml(item.name)}</strong><br>GHS ${item.basePrice}<br><small>${item.category}</small><br><button onclick="window.editMenuItem(${item.id}, '${escapeHtml(item.name)}', ${item.basePrice}, '${item.category}')">Edit</button> <button class="danger" onclick="window.deleteMenuItem(${item.id})">Delete</button></div>`).join('');
     } catch(e) { showToast('Failed to load menu', 'error'); }
   }
 
   function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m] || m)); }
 
-  // Hamburger toggle
+  // Hamburger menu logic
   const hamburger = document.getElementById('hamburger');
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('sidebarOverlay');
   function toggleSidebar() {
-    if (sidebar) sidebar.classList.toggle('open');
-    if (overlay) overlay.classList.toggle('active');
-  }
-  function closeSidebar() {
-    if (sidebar) sidebar.classList.remove('open');
-    if (overlay) overlay.classList.remove('active');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('active');
   }
   if (hamburger) hamburger.addEventListener('click', toggleSidebar);
-  if (overlay) overlay.addEventListener('click', closeSidebar);
+  if (overlay) overlay.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+  });
 
   window.onload = () => {
     const savedToken = localStorage.getItem('adminToken'), savedRole = localStorage.getItem('adminRole');
@@ -702,8 +685,7 @@
       document.getElementById('dashboard').style.display = 'block';
       document.getElementById('userRoleSpan').innerHTML = `Role: ${currentRole.toUpperCase()}`;
       updateWelcomeMessage();
-      setupNav();
-      showPage('dashboard');
+      setupNav(); showPage('dashboard');
     } else {
       document.getElementById('loginScreen').style.display = 'flex';
       document.getElementById('dashboard').style.display = 'none';
