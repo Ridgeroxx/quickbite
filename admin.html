@@ -1208,7 +1208,7 @@ function toast(msg, icon = 'info') {
    ===================================================================== */
 
 function money(amount) {
-  return '₦' + Number(amount || 0).toLocaleString();
+  return 'GHS ' + Number(amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function statusBadge(status) {
@@ -1222,8 +1222,8 @@ function truncate(str, len = 30) {
 }
 
 function orderNumber(order) {
-  // Use last 6 chars of _id as order number
-  const id = order._id || order.id || '';
+  // Use last 6 chars of _id as order number — convert to string first (id may be numeric)
+  const id = String(order._id || order.id || '');
   return '#' + id.slice(-6).toUpperCase();
 }
 
@@ -1243,32 +1243,32 @@ async function loadDashboard() {
     const today   = stats.today   || stats.daily   || {};
     const week    = stats.week    || stats.weekly   || {};
     const month   = stats.month   || stats.monthly  || {};
-    const allTime = stats.allTime || stats.all      || {};
+    const allTime = stats.all     || stats.allTime  || {};
 
     statsGrid.innerHTML = `
       <div class="stat-card">
         <div class="stat-icon orange"><i class="fa-solid fa-receipt"></i></div>
         <div class="stat-label">Today</div>
         <div class="stat-value">${today.count ?? 0}</div>
-        <div class="stat-sub">${money(today.revenue ?? today.total ?? 0)}</div>
+        <div class="stat-sub">${money(today.total ?? today.revenue ?? 0)}</div>
       </div>
       <div class="stat-card">
         <div class="stat-icon blue"><i class="fa-solid fa-calendar-week"></i></div>
         <div class="stat-label">This Week</div>
         <div class="stat-value">${week.count ?? 0}</div>
-        <div class="stat-sub">${money(week.revenue ?? week.total ?? 0)}</div>
+        <div class="stat-sub">${money(week.total ?? week.revenue ?? 0)}</div>
       </div>
       <div class="stat-card">
         <div class="stat-icon green"><i class="fa-solid fa-calendar"></i></div>
         <div class="stat-label">This Month</div>
         <div class="stat-value">${month.count ?? 0}</div>
-        <div class="stat-sub">${money(month.revenue ?? month.total ?? 0)}</div>
+        <div class="stat-sub">${money(month.total ?? month.revenue ?? 0)}</div>
       </div>
       <div class="stat-card">
         <div class="stat-icon yellow"><i class="fa-solid fa-coins"></i></div>
         <div class="stat-label">All Time</div>
         <div class="stat-value">${allTime.count ?? 0}</div>
-        <div class="stat-sub">${money(allTime.revenue ?? allTime.total ?? 0)}</div>
+        <div class="stat-sub">${money(allTime.total ?? allTime.revenue ?? 0)}</div>
       </div>
     `;
   } catch (err) {
@@ -1356,13 +1356,14 @@ function renderAllOrders(orders) {
 
 async function viewOrder(orderId) {
   // Try to find in cache first, otherwise fetch
-  let order = ordersCache.find(o => (o._id || o.id) === orderId);
+  // Compare as strings since ID may be numeric
+  let order = ordersCache.find(o => String(o._id || o.id) === String(orderId));
 
   if (!order) {
     try {
       const data = await fetchAPI('/api/orders');
       ordersCache = data.orders || [];
-      order = ordersCache.find(o => (o._id || o.id) === orderId);
+      order = ordersCache.find(o => String(o._id || o.id) === String(orderId));
     } catch { return; }
   }
 
@@ -1379,7 +1380,7 @@ async function viewOrder(orderId) {
     `<tr>
       <td>${i.name || i.itemName || '—'}</td>
       <td style="text-align:center">${i.quantity || 1}</td>
-      <td style="text-align:right">${money(i.price || i.unitPrice || 0)}</td>
+      <td style="text-align:right">${money(i.basePrice || i.price || i.unitPrice || 0)}</td>
     </tr>`
   ).join('');
 
@@ -1734,12 +1735,16 @@ function renderMenu(items) {
 
   grid.innerHTML = items.map(item => {
     const id = item._id || item.id;
+    // Backend provides emoji directly; fall back to category-based guess
+    const emoji = item.emoji || getCategoryEmoji(item.category);
+    // Backend uses basePrice, fall back to price
+    const price = item.basePrice ?? item.price ?? 0;
     return `
       <div class="menu-card">
-        <div class="menu-card-emoji">${getCategoryEmoji(item.category)}</div>
+        <div class="menu-card-emoji">${emoji}</div>
         <div class="menu-card-name">${item.name || '—'}</div>
         <div class="menu-card-category">${item.category || 'Uncategorized'}</div>
-        <div class="menu-card-price">${money(item.price)}</div>
+        <div class="menu-card-price">${money(price)}</div>
         <div class="menu-card-actions">
           <button class="btn btn-sm btn-outline" onclick="showEditMenuModal('${id}')">
             <i class="fa-solid fa-pen"></i> Edit
@@ -1760,23 +1765,26 @@ function showAddMenuModal() {
       <div style="text-align:left">
         <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Name</label>
         <input id="swal-m-name" class="swal2-input" placeholder="Item name" style="margin-bottom:12px">
-        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Price (₦)</label>
-        <input id="swal-m-price" class="swal2-input" placeholder="e.g. 2500" inputmode="numeric" style="margin-bottom:12px">
+        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Price (GHS)</label>
+        <input id="swal-m-price" class="swal2-input" placeholder="e.g. 25" inputmode="numeric" style="margin-bottom:12px">
         <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Category</label>
-        <input id="swal-m-cat" class="swal2-input" placeholder="e.g. Food, Drink, Snack">
+        <input id="swal-m-cat" class="swal2-input" placeholder="e.g. Food, Drink, Snack" style="margin-bottom:12px">
+        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Emoji</label>
+        <input id="swal-m-emoji" class="swal2-input" placeholder="e.g. 🍛">
       </div>
     `,
     confirmButtonText: '<i class="fa-solid fa-plus"></i> Add Item',
     showCancelButton: true,
     preConfirm: () => {
-      const name     = document.getElementById('swal-m-name').value.trim();
-      const price    = Number(document.getElementById('swal-m-price').value.trim());
-      const category = document.getElementById('swal-m-cat').value.trim();
-      if (!name || !price) {
+      const name      = document.getElementById('swal-m-name').value.trim();
+      const basePrice = Number(document.getElementById('swal-m-price').value.trim());
+      const category  = document.getElementById('swal-m-cat').value.trim();
+      const emoji     = document.getElementById('swal-m-emoji').value.trim();
+      if (!name || !basePrice) {
         Swal.showValidationMessage('Name and price are required');
         return false;
       }
-      return { name, price, category: category || 'Food' };
+      return { name, basePrice, category: category || 'Food', emoji: emoji || '🍴' };
     },
   }).then(async result => {
     if (result.isConfirmed) {
@@ -1795,7 +1803,7 @@ function showAddMenuModal() {
 }
 
 function showEditMenuModal(itemId) {
-  const item = menuCache.find(i => (i._id || i.id) === itemId);
+  const item = menuCache.find(i => String(i._id || i.id) === String(itemId));
   if (!item) return toast('Item not found', 'error');
 
   Swal.fire({
@@ -1804,23 +1812,26 @@ function showEditMenuModal(itemId) {
       <div style="text-align:left">
         <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Name</label>
         <input id="swal-m-name" class="swal2-input" value="${item.name || ''}" style="margin-bottom:12px">
-        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Price (₦)</label>
-        <input id="swal-m-price" class="swal2-input" value="${item.price || ''}" inputmode="numeric" style="margin-bottom:12px">
+        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Price (GHS)</label>
+        <input id="swal-m-price" class="swal2-input" value="${item.basePrice ?? item.price ?? ''}" inputmode="numeric" style="margin-bottom:12px">
         <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Category</label>
-        <input id="swal-m-cat" class="swal2-input" value="${item.category || ''}">
+        <input id="swal-m-cat" class="swal2-input" value="${item.category || ''}" style="margin-bottom:12px">
+        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Emoji</label>
+        <input id="swal-m-emoji" class="swal2-input" value="${item.emoji || ''}">
       </div>
     `,
     confirmButtonText: '<i class="fa-solid fa-save"></i> Save',
     showCancelButton: true,
     preConfirm: () => {
-      const name     = document.getElementById('swal-m-name').value.trim();
-      const price    = Number(document.getElementById('swal-m-price').value.trim());
-      const category = document.getElementById('swal-m-cat').value.trim();
-      if (!name || !price) {
+      const name      = document.getElementById('swal-m-name').value.trim();
+      const basePrice = Number(document.getElementById('swal-m-price').value.trim());
+      const category  = document.getElementById('swal-m-cat').value.trim();
+      const emoji     = document.getElementById('swal-m-emoji').value.trim();
+      if (!name || !basePrice) {
         Swal.showValidationMessage('Name and price are required');
         return false;
       }
-      return { name, price, category: category || 'Food' };
+      return { name, basePrice, category: category || 'Food', emoji: emoji || '🍴' };
     },
   }).then(async result => {
     if (result.isConfirmed) {
