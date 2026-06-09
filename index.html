@@ -6,6 +6,7 @@
   <title>QuickBite | Ghanaian Eatery</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -382,6 +383,21 @@
     }
     .rider-info-card p { color: var(--bark) !important; margin-bottom: 2px !important; font-size: 0.88rem; }
 
+    .item-img img {
+      width: 100%; height: 110px; object-fit: cover; display: block;
+      position: relative; z-index: 1;
+    }
+    .item-vendor {
+      font-size: 0.7rem; font-weight: 600; color: var(--orange);
+      display: flex; align-items: center; gap: 4px; margin-bottom: 2px;
+    }
+    .item-vendor i { font-size: 0.6rem; }
+    .item-hours {
+      font-size: 0.65rem; color: var(--bark-muted);
+      display: flex; align-items: center; gap: 4px; margin-bottom: 4px;
+    }
+    .item-hours i { font-size: 0.58rem; color: var(--bark-faint); }
+
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
@@ -506,6 +522,38 @@
   let notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
   let unreadCount = notifications.filter(n => !n.read).length;
 
+  /* ── Category display labels (data-cat values stay unchanged) ── */
+  const categoryLabels = {
+    'all':           '🍽️ All',
+    'Rice Dishes':   '🍚 Rice (Times, Hajia)',
+    'Local Dishes':  '🍛 Waakye, Banku, Kenkey',
+    'Noodles':       '🍜 Indomie / Spaghetti',
+    'Drinks':        '🥤 Juices & Beverages',
+    'Snacks':        '🍿 Snacks & Sides',
+    'Soups':         '🥘 Soups & Stews',
+    'Grills':        '🔥 Grills & BBQ',
+    'Breakfast':     '🥞 Breakfast',
+    'Desserts':      '🍰 Desserts'
+  };
+
+  /* ── Demo vendor/hours/image data (keyed by item name) ── */
+  const vendorInfo = {
+    'Jollof Rice':       { vendor: 'Auntie Ama Kitchen', hours: '8am – 9pm',  imageUrl: 'https://images.unsplash.com/photo-1587116861219-230ac19df971?w=300&h=200&fit=crop' },
+    'Fried Rice':        { vendor: 'Times Restaurant',   hours: '10am – 10pm', imageUrl: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=300&h=200&fit=crop' },
+    'Plain Rice':        { vendor: 'Times Restaurant',   hours: '10am – 10pm', imageUrl: 'https://images.unsplash.com/photo-1516684732162-798a0062be99?w=300&h=200&fit=crop' },
+    'Waakye':            { vendor: 'Hajia Waakye Joint', hours: '6am – 2pm',   imageUrl: 'https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?w=300&h=200&fit=crop' },
+    'Banku':             { vendor: 'Auntie Ama Kitchen', hours: '8am – 9pm',   imageUrl: 'https://images.unsplash.com/photo-1567982047351-76b6f93e38ee?w=300&h=200&fit=crop' },
+    'Kenkey':            { vendor: 'Ga Kenkey Spot',     hours: '7am – 6pm',   imageUrl: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=300&h=200&fit=crop' },
+    'Fufu':              { vendor: 'Auntie Ama Kitchen', hours: '10am – 9pm',  imageUrl: 'https://images.unsplash.com/photo-1574484284002-952d92456975?w=300&h=200&fit=crop' },
+    'Indomie':           { vendor: 'Quick Noodle Bar',   hours: '24 Hours',    imageUrl: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=300&h=200&fit=crop' },
+    'Spaghetti':         { vendor: 'Quick Noodle Bar',   hours: '10am – 10pm', imageUrl: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=300&h=200&fit=crop' },
+    'Sobolo':            { vendor: 'Fresh Juice Corner',  hours: '8am – 7pm',  imageUrl: 'https://images.unsplash.com/photo-1534353473418-4cfa6c56fd38?w=300&h=200&fit=crop' },
+    'Fresh Juice':       { vendor: 'Fresh Juice Corner',  hours: '8am – 7pm',  imageUrl: 'https://images.unsplash.com/photo-1622597467836-f3285f2131b8?w=300&h=200&fit=crop' },
+    'Malt':              { vendor: 'Fresh Juice Corner',  hours: '8am – 10pm', imageUrl: 'https://images.unsplash.com/photo-1581006852262-e4307cf6283a?w=300&h=200&fit=crop' },
+    'Water':             { vendor: 'Fresh Juice Corner',  hours: '24 Hours',   imageUrl: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&h=200&fit=crop' },
+    'Soft Drink':        { vendor: 'Fresh Juice Corner',  hours: '8am – 10pm', imageUrl: 'https://images.unsplash.com/photo-1527960471264-932f39eb5846?w=300&h=200&fit=crop' }
+  };
+
   /* FIX: 'paid' = ref submitted, NOT admin-confirmed */
   function getStatusText(status) {
     const map = {
@@ -599,7 +647,10 @@
   function renderCategories() {
     const cats = ['all', ...new Set(menu.map(i => i.category))];
     const container = document.getElementById('categories');
-    container.innerHTML = cats.map(c => '<div class="cat-btn ' + (c === activeCategory ? 'active' : '') + '" data-cat="' + c + '">' + (c === 'all' ? 'All' : c) + '</div>').join('');
+    container.innerHTML = cats.map(c => {
+      const label = categoryLabels[c] || (c === 'all' ? '🍽️ All' : c);
+      return '<div class="cat-btn ' + (c === activeCategory ? 'active' : '') + '" data-cat="' + c + '">' + label + '</div>';
+    }).join('');
     document.querySelectorAll('.cat-btn').forEach(btn => btn.addEventListener('click', () => {
       activeCategory = btn.dataset.cat; renderCategories(); renderMenu();
     }));
@@ -608,18 +659,27 @@
   function renderMenu() {
     let filtered = activeCategory === 'all' ? menu : menu.filter(i => i.category === activeCategory);
     const grid = document.getElementById('menuGrid');
-    grid.innerHTML = filtered.map(item =>
-      '<div class="item-card">' +
-        '<div class="item-img">' + (item.emoji || '🍽️') + '</div>' +
+    grid.innerHTML = filtered.map(item => {
+      const info = vendorInfo[item.name] || {};
+      const vendor = item.vendor || info.vendor || '';
+      const hours = item.hours || info.hours || '';
+      const imageUrl = item.imageUrl || info.imageUrl || '';
+      const imgContent = imageUrl
+        ? '<img src="' + imageUrl + '" alt="' + escapeHtml(item.name) + '" style="width:100%;height:110px;object-fit:cover;" onerror="this.style.display=\'none\';this.parentNode.textContent=\'' + (item.emoji || '🍽️') + '\'">'
+        : (item.emoji || '🍽️');
+      return '<div class="item-card">' +
+        '<div class="item-img">' + imgContent + '</div>' +
         '<div class="item-details">' +
           '<div class="item-name">' + escapeHtml(item.name) + '</div>' +
+          (vendor ? '<div class="item-vendor"><i class="fa-solid fa-store"></i> ' + escapeHtml(vendor) + '</div>' : '') +
+          (hours ? '<div class="item-hours"><i class="fa-regular fa-clock"></i> ' + escapeHtml(hours) + '</div>' : '') +
           '<div class="item-price">GHS ' + item.basePrice + '</div>' +
           '<div class="addons" id="addons-' + item.id + '"></div>' +
           '<div class="item-total" id="total-' + item.id + '">Item total: GHS ' + item.basePrice + '</div>' +
           '<button class="btn-add" data-id="' + item.id + '">Add to Cart</button>' +
         '</div>' +
-      '</div>'
-    ).join('');
+      '</div>';
+    }).join('');
     menu.forEach(item => {
       const container = document.getElementById('addons-' + item.id);
       if (container && item.addons && item.addons.length) {

@@ -64,18 +64,89 @@ function verifyToken(token) {
   return data;
 }
 
-// ---------- Advanced Menu ----------
+// ---------- Advanced Menu (with vendor, hours, imageUrl) ----------
 const DEFAULT_MENU = [
-  { id: 1, name: 'Jollof Rice', category: 'Rice Dishes', basePrice: 25, emoji: '🍚', addons: [{ id: 'egg', name: 'Egg', price: 3 }, { id: 'plantain', name: 'Plantain', price: 4 }, { id: 'spaghetti', name: 'Spaghetti', price: 4 }, { id: 'salad', name: 'Salad', price: 3 }, { id: 'meat', name: 'Meat (beef)', price: 8 }, { id: 'chicken', name: 'Chicken', price: 10 }] },
-  { id: 2, name: 'Plain Rice', category: 'Rice Dishes', basePrice: 15, emoji: '🍚', addons: [{ id: 'egg', name: 'Egg', price: 3 }, { id: 'plantain', name: 'Plantain', price: 4 }, { id: 'spaghetti', name: 'Spaghetti', price: 4 }, { id: 'salad', name: 'Salad', price: 3 }, { id: 'meat', name: 'Meat (beef)', price: 8 }] },
-  { id: 3, name: 'Beans and Gari', category: 'Local Dishes', basePrice: 20, emoji: '🍛', addons: [{ id: 'egg', name: 'Egg', price: 3 }, { id: 'plantain', name: 'Plantain', price: 4 }, { id: 'spaghetti', name: 'Spaghetti', price: 4 }, { id: 'salad', name: 'Salad', price: 3 }, { id: 'meat', name: 'Meat (beef)', price: 8 }] },
-  { id: 4, name: 'Indomie', category: 'Noodles', basePrice: 12, emoji: '🍜', addons: [{ id: 'egg', name: 'Egg', price: 3 }, { id: 'plantain', name: 'Plantain', price: 4 }, { id: 'spaghetti', name: 'Spaghetti', price: 4 }, { id: 'salad', name: 'Salad', price: 3 }] },
-  { id: 5, name: 'Banku', category: 'Local Dishes', basePrice: 18, emoji: '🍲', addons: [{ id: 'meat', name: 'Meat (beef)', price: 8 }, { id: 'chicken', name: 'Chicken', price: 10 }, { id: 'fish', name: 'Fried Fish', price: 12 }] },
-  { id: 6, name: 'Kenkey', category: 'Local Dishes', basePrice: 18, emoji: '🌽', addons: [{ id: 'meat', name: 'Meat (beef)', price: 8 }, { id: 'chicken', name: 'Chicken', price: 10 }, { id: 'fish', name: 'Fried Fish', price: 12 }] },
-  { id: 7, name: 'Coca Cola', category: 'Drinks', basePrice: 5, emoji: '🥤', addons: [] },
-  { id: 8, name: 'Sprite', category: 'Drinks', basePrice: 5, emoji: '🥤', addons: [] },
-  { id: 9, name: 'Water (1L)', category: 'Drinks', basePrice: 4, emoji: '💧', addons: [] },
-  { id: 10, name: 'Palm Wine', category: 'Drinks', basePrice: 8, emoji: '🍷', addons: [] }
+  {
+    id: 1, name: 'Jollof Rice', category: 'Rice Dishes', basePrice: 25, emoji: '🍚',
+    vendor: 'Auntie Ama Kitchen', hours: '8am – 9pm',
+    imageUrl: 'https://images.unsplash.com/photo-1587116861219-230ac19df971?w=400&h=300&fit=crop',
+    addons: [
+      { id: 'egg', name: 'Egg', price: 3 }, { id: 'plantain', name: 'Plantain', price: 4 },
+      { id: 'spaghetti', name: 'Spaghetti', price: 4 }, { id: 'salad', name: 'Salad', price: 3 },
+      { id: 'meat', name: 'Meat (beef)', price: 8 }, { id: 'chicken', name: 'Chicken', price: 10 }
+    ]
+  },
+  {
+    id: 2, name: 'Plain Rice', category: 'Rice Dishes', basePrice: 15, emoji: '🍚',
+    vendor: 'Times Restaurant', hours: '10am – 10pm',
+    imageUrl: 'https://images.unsplash.com/photo-1516684732162-798a0062be99?w=400&h=300&fit=crop',
+    addons: [
+      { id: 'egg', name: 'Egg', price: 3 }, { id: 'plantain', name: 'Plantain', price: 4 },
+      { id: 'spaghetti', name: 'Spaghetti', price: 4 }, { id: 'salad', name: 'Salad', price: 3 },
+      { id: 'meat', name: 'Meat (beef)', price: 8 }
+    ]
+  },
+  {
+    id: 3, name: 'Beans and Gari', category: 'Local Dishes', basePrice: 20, emoji: '🍛',
+    vendor: 'Awudome Gobe', hours: '6am – 3pm',
+    imageUrl: 'https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?w=400&h=300&fit=crop',
+    addons: [
+      { id: 'egg', name: 'Egg', price: 3 }, { id: 'plantain', name: 'Plantain', price: 4 },
+      { id: 'spaghetti', name: 'Spaghetti', price: 4 }, { id: 'salad', name: 'Salad', price: 3 },
+      { id: 'meat', name: 'Meat (beef)', price: 8 }
+    ]
+  },
+  {
+    id: 4, name: 'Indomie', category: 'Noodles', basePrice: 12, emoji: '🍜',
+    vendor: 'Quick Noodle Bar', hours: '24 Hours',
+    imageUrl: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&h=300&fit=crop',
+    addons: [
+      { id: 'egg', name: 'Egg', price: 3 }, { id: 'plantain', name: 'Plantain', price: 4 },
+      { id: 'spaghetti', name: 'Spaghetti', price: 4 }, { id: 'salad', name: 'Salad', price: 3 }
+    ]
+  },
+  {
+    id: 5, name: 'Banku', category: 'Local Dishes', basePrice: 18, emoji: '🍲',
+    vendor: 'Chop Bar', hours: '8am – 9pm',
+    imageUrl: 'https://images.unsplash.com/photo-1567982047351-76b6f93e38ee?w=400&h=300&fit=crop',
+    addons: [
+      { id: 'meat', name: 'Meat (beef)', price: 8 }, { id: 'chicken', name: 'Chicken', price: 10 },
+      { id: 'fish', name: 'Fried Fish', price: 12 }
+    ]
+  },
+  {
+    id: 6, name: 'Kenkey', category: 'Local Dishes', basePrice: 18, emoji: '🌽',
+    vendor: 'Ga Kenkey Spot', hours: '7am – 6pm',
+    imageUrl: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&h=300&fit=crop',
+    addons: [
+      { id: 'meat', name: 'Meat (beef)', price: 8 }, { id: 'chicken', name: 'Chicken', price: 10 },
+      { id: 'fish', name: 'Fried Fish', price: 12 }
+    ]
+  },
+  {
+    id: 7, name: 'Coca Cola', category: 'Drinks', basePrice: 5, emoji: '🥤',
+    vendor: 'Fresh Juice Corner', hours: '8am – 10pm',
+    imageUrl: 'https://images.unsplash.com/photo-1527960471264-932f39eb5846?w=400&h=300&fit=crop',
+    addons: []
+  },
+  {
+    id: 8, name: 'Sprite', category: 'Drinks', basePrice: 5, emoji: '🥤',
+    vendor: 'Fresh Juice Corner', hours: '8am – 10pm',
+    imageUrl: 'https://images.unsplash.com/photo-1527960471264-932f39eb5846?w=400&h=300&fit=crop',
+    addons: []
+  },
+  {
+    id: 9, name: 'Water (1L)', category: 'Drinks', basePrice: 4, emoji: '💧',
+    vendor: 'Fresh Juice Corner', hours: '24 Hours',
+    imageUrl: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&h=300&fit=crop',
+    addons: []
+  },
+  {
+    id: 10, name: 'Palm Wine', category: 'Drinks', basePrice: 8, emoji: '🍷',
+    vendor: 'Shugallina', hours: '10am – 8pm',
+    imageUrl: 'https://images.unsplash.com/photo-1534353473418-4cfa6c56fd38?w=400&h=300&fit=crop',
+    addons: []
+  }
 ];
 
 let menu = [];
@@ -170,8 +241,6 @@ app.post('/api/orders', async (req, res) => {
     orders.push(newOrder);
     saveOrders();
 
-    // No Telegram notifications to admins – removed
-
     res.json({ orderId, total, momoNumber: MOMO_NUMBER, riderContact: RIDER_CONTACT });
   } catch (err) {
     console.error('Order error:', err);
@@ -194,8 +263,6 @@ app.post('/api/orders/:orderId/payment-reference', (req, res) => {
     order.paymentReference = reference;
     order.status = 'paid';
     saveOrders();
-
-    // No Telegram notifications to admins – removed
 
     res.json({ success: true, message: 'Payment reference submitted. Awaiting admin confirmation.' });
   } catch (err) {
@@ -230,12 +297,11 @@ app.patch('/api/orders/:id/status', adminAuth, (req, res) => {
   const id = parseInt(req.params.id);
   const order = orders.find(o => o.id === id);
   if (!order) return res.status(404).json({ error: 'Order not found' });
-  
+
   const { status, riderTelegramId, riderName, riderPhone } = req.body;
-  
+
   if (status) order.status = status;
-  
-  // If riderTelegramId is provided, look up from riders list
+
   if (riderTelegramId) {
     const rider = riders.find(r => r.telegramId == riderTelegramId);
     if (rider) {
@@ -243,28 +309,40 @@ app.patch('/api/orders/:id/status', adminAuth, (req, res) => {
       order.riderName = rider.name;
       order.riderPhone = rider.phone || 'No phone';
     }
-  } 
-  // If manual assignment with name and phone
-  else if (riderName && riderPhone) {
+  } else if (riderName && riderPhone) {
     order.riderName = riderName;
     order.riderPhone = riderPhone;
     order.riderId = null;
   }
-  
+
   saveOrders();
   res.json({ success: true });
 });
 
 app.get('/api/menu/all', adminAuth, (req, res) => { res.json({ items: menu }); });
+
+// POST /api/menu — now accepts vendor, hours, imageUrl
 app.post('/api/menu', adminAuth, (req, res) => {
-  const { name, price, category } = req.body;
-  if (!name || !price) return res.status(400).json({ error: 'Missing fields' });
+  const { name, price, basePrice, category, emoji, vendor, hours, imageUrl } = req.body;
+  if (!name || (!price && !basePrice)) return res.status(400).json({ error: 'Missing fields' });
   const newId = Math.max(...menu.map(i => i.id), 0) + 1;
-  const newItem = { id: newId, name, category: category || 'Other', basePrice: parseFloat(price), emoji: '🍽️', addons: [] };
+  const newItem = {
+    id: newId,
+    name,
+    category: category || 'Other',
+    basePrice: parseFloat(price || basePrice),
+    emoji: emoji || '🍽️',
+    vendor: vendor || '',
+    hours: hours || '',
+    imageUrl: imageUrl || '',
+    addons: []
+  };
   menu.push(newItem);
   saveMenu();
-  res.json({ success: true });
+  res.json({ success: true, item: newItem });
 });
+
+// PATCH /api/menu/:id — Object.assign handles vendor, hours, imageUrl automatically
 app.patch('/api/menu/:id', adminAuth, (req, res) => {
   const id = parseInt(req.params.id);
   const idx = menu.findIndex(i => i.id === id);
@@ -273,6 +351,7 @@ app.patch('/api/menu/:id', adminAuth, (req, res) => {
   saveMenu();
   res.json({ success: true });
 });
+
 app.delete('/api/menu/:id', adminAuth, (req, res) => {
   const id = parseInt(req.params.id);
   menu = menu.filter(i => i.id !== id);
@@ -321,12 +400,10 @@ function getBotInstance() {
 }
 
 function setupBotHandlers(bot) {
-  // Welcome message – no link, just instruct to use the Open button
   bot.onText(/\/start/, (msg) => {
     bot.sendMessage(msg.chat.id, `🇬🇭 Welcome to QuickBite!\nAuthentic Ghanaian dishes delivered to your door.\n\n👉 Tap the blue **Open** button below to start ordering!`, { parse_mode: 'Markdown' });
   });
 
-  // /order command – gives a button to open the web app
   bot.onText(/\/order/, (msg) => {
     bot.sendMessage(msg.chat.id, '🍔 Tap the button below to open our ordering app:', {
       reply_markup: {
@@ -335,9 +412,7 @@ function setupBotHandlers(bot) {
     });
   });
 
-  // /admin_panel – optional, gives a button to open the admin portal (only if the user is an admin, but the web app login will check anyway)
   bot.onText(/\/admin_panel/, (msg) => {
-    // We can still send the button; the login page will validate the Telegram ID.
     bot.sendMessage(msg.chat.id, '📊 Admin Dashboard', {
       reply_markup: {
         inline_keyboard: [[{ text: '📋 Open Admin Panel', web_app: { url: 'https://ridgeroxx.github.io/quickbite/admin.html' } }]]
