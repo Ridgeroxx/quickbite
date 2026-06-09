@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
   <title>QuickBite | Ghanaian Eatery</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&display=swap" rel="stylesheet">
@@ -133,47 +133,74 @@
       color: var(--white); border-color: transparent; box-shadow: 0 3px 14px rgba(212,96,10,0.25);
     }
 
-    /* MENU GRID */
-    .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-    @media (min-width: 600px) { .menu-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; } }
-    @media (min-width: 900px) { .menu-grid { grid-template-columns: repeat(4, 1fr); gap: 18px; } }
+    /* MENU GRID – FIXED FOR MOBILE */
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+    @media (min-width: 600px) {
+      .menu-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    }
+    @media (min-width: 900px) {
+      .menu-grid { grid-template-columns: repeat(4, 1fr); gap: 18px; }
+    }
     .loading { grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--bark-muted); font-size: 0.9rem; }
 
-    /* ITEM CARD */
+    /* ITEM CARD – ensures no overflow */
     .item-card {
       background: var(--white); border-radius: var(--r-xl); overflow: hidden;
       box-shadow: var(--sh-card); border: 1px solid var(--border-light);
       transition: transform 0.22s var(--ease), box-shadow 0.22s;
       animation: cardIn 0.4s var(--ease) both;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 100%;
     }
     .item-card:hover { transform: translateY(-3px) scale(1.01); box-shadow: var(--sh-md); }
     .item-card:active { transform: translateY(-1px) scale(1.0); }
     @keyframes cardIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-    .item-card:nth-child(1) { animation-delay: 0.02s; } .item-card:nth-child(2) { animation-delay: 0.06s; }
-    .item-card:nth-child(3) { animation-delay: 0.10s; } .item-card:nth-child(4) { animation-delay: 0.14s; }
-    .item-card:nth-child(5) { animation-delay: 0.18s; } .item-card:nth-child(6) { animation-delay: 0.22s; }
-    .item-card:nth-child(7) { animation-delay: 0.26s; } .item-card:nth-child(8) { animation-delay: 0.30s; }
     .item-img {
       background: linear-gradient(145deg, var(--orange-pale), #FFF5EA);
       text-align: center; font-size: 2.8rem; padding: 20px 0 16px; position: relative;
+      min-height: 110px;
+    }
+    .item-img img {
+      width: 100%;
+      height: 110px;
+      object-fit: cover;
+      display: block;
+      position: relative;
+      z-index: 1;
     }
     .item-img::after {
       content: ''; position: absolute; width: 52px; height: 52px; border-radius: 50%;
       background: rgba(255,255,255,0.55); top: 50%; left: 50%; transform: translate(-50%, -50%);
+      pointer-events: none;
     }
-    .item-details { padding: 12px 14px 14px; }
+    .item-details { padding: 12px 14px 14px; flex: 1; display: flex; flex-direction: column; }
     .item-name { font-weight: 700; font-size: 0.86rem; color: var(--bark); line-height: 1.3; margin-bottom: 2px; }
-    .item-price { font-family: var(--f-display); color: var(--orange); font-weight: 800; font-size: 0.95rem; margin-bottom: 6px; }
-    .addons { margin: 6px 0; display: flex; flex-wrap: wrap; gap: 5px; font-size: 0.72rem; }
-    .addon-check {
-      background: var(--cream-mid); border-radius: var(--r-pill); padding: 4px 10px;
-      display: inline-flex; align-items: center; gap: 4px; cursor: pointer; font-size: 0.68rem;
-      color: var(--bark-mid); border: 1px solid transparent; transition: all 0.2s;
-      -webkit-tap-highlight-color: transparent;
+    .item-vendor {
+      font-size: 0.7rem; font-weight: 600; color: var(--orange);
+      display: flex; align-items: center; gap: 4px; margin-bottom: 2px;
     }
-    .addon-check:has(input:checked) { background: var(--orange-pale); border-color: var(--orange-light); color: var(--orange); }
-    .addon-check input[type="checkbox"] { width: 12px; height: 12px; accent-color: var(--orange); }
-    .item-total { font-size: 0.72rem; font-weight: 600; margin: 6px 0; text-align: right; color: var(--bark-light); }
+    .item-vendor i { font-size: 0.6rem; }
+    .item-hours {
+      font-size: 0.65rem; color: var(--bark-muted);
+      display: flex; align-items: center; gap: 4px; margin-bottom: 4px;
+    }
+    .item-hours i { font-size: 0.58rem; color: var(--bark-faint); }
+    .item-price { font-family: var(--f-display); color: var(--orange); font-weight: 800; font-size: 0.95rem; margin-bottom: 6px; }
+    .special-instructions {
+      width: 100%; padding: 8px 10px; border: 1.5px solid var(--border);
+      border-radius: var(--r-sm); font-family: var(--f-body); font-size: 0.72rem;
+      color: var(--bark-mid); background: var(--cream); resize: vertical;
+      outline: none; transition: border-color 0.2s; min-height: 38px;
+      margin: 6px 0;
+    }
+    .special-instructions:focus { border-color: var(--orange); background: var(--white); }
+    .special-instructions::placeholder { color: var(--bark-faint); }
     .btn-add {
       background: linear-gradient(135deg, var(--orange), var(--orange-mid));
       color: var(--white); border: none; width: 100%; padding: 10px; border-radius: var(--r-pill);
@@ -220,6 +247,10 @@
     .cart-item:last-child { border-bottom: none; margin-bottom: 0; }
     .cart-item-info { flex: 1; min-width: 0; }
     .cart-item-name { font-weight: 600; font-size: 0.86rem; color: var(--bark); line-height: 1.3; word-break: break-word; }
+    .cart-item-note {
+      font-size: 0.68rem; color: var(--bark-muted); font-style: italic;
+      margin-top: 2px; line-height: 1.3;
+    }
     .cart-item-addons { font-size: 0.72rem; color: var(--bark-muted); margin-top: 2px; }
     .cart-item-qty { display: flex; align-items: center; gap: 6px; margin: 0 10px; flex-shrink: 0; }
     .cart-item-qty button {
@@ -274,8 +305,6 @@
     .order-history-item:hover { box-shadow: var(--sh-sm); }
     .order-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
     .order-card-id { font-family: var(--f-display); font-weight: 700; font-size: 1rem; color: var(--orange); }
-
-    /* STATUS BADGES */
     .status-badge {
       display: inline-block; padding: 3px 10px; border-radius: var(--r-pill);
       font-size: 0.68rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase;
@@ -288,7 +317,6 @@
     .status-assigned_to_rider { background: var(--orange-pale); color: var(--orange); }
     .status-delivered { background: var(--green-bg); color: var(--green); }
     .status-cancelled { background: var(--red-bg); color: var(--red); }
-
     .order-card-meta { font-size: 0.72rem; color: var(--bark-muted); margin-bottom: 4px; }
     .order-card-total { font-family: var(--f-display); font-weight: 700; font-size: 1.05rem; color: var(--bark); margin-bottom: 4px; }
     .order-card-rider {
@@ -309,7 +337,7 @@
     .btn-track { background: var(--green); }
     .btn-reorder:active, .btn-view-details:active, .btn-track:active { transform: scale(0.93); }
 
-    /* MODALS — bottom sheet on mobile, centered dialog on desktop */
+    /* MODALS */
     .modal {
       position: fixed; inset: 0; background: rgba(44,24,16,0.5);
       backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
@@ -317,7 +345,6 @@
     }
     .modal.active { display: flex; animation: modalBgIn 0.3s var(--ease); }
     @keyframes modalBgIn { from { opacity: 0; } to { opacity: 1; } }
-
     .modal-content {
       background: var(--white); border-radius: var(--r-xl) var(--r-xl) 0 0;
       padding: 24px 20px 32px; width: 100%; max-width: 500px; max-height: 88vh;
@@ -326,13 +353,10 @@
       -webkit-overflow-scrolling: touch;
     }
     @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-    /* Drag handle */
     .modal-content::before {
       content: ''; display: block; width: 36px; height: 4px;
       background: var(--border); border-radius: 4px; margin: 0 auto 16px;
     }
-
     @media (min-width: 600px) {
       .modal { align-items: center; padding: 20px; }
       .modal-content {
@@ -345,7 +369,6 @@
         to { transform: translateY(0) scale(1); opacity: 1; }
       }
     }
-
     .modal-content h3 { font-family: var(--f-display); font-size: 1.2rem; margin-bottom: 10px; color: var(--bark); }
     .modal-content p { margin-bottom: 5px; color: var(--bark-mid); }
     .modal-content strong { color: var(--bark); }
@@ -359,7 +382,6 @@
       transition: background 0.2s; line-height: 1;
     }
     .modal-close:hover { background: var(--border); }
-
     .payment-field { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border); }
     .payment-field p { font-size: 0.85rem; margin-bottom: 8px; }
     .payment-field input {
@@ -377,39 +399,10 @@
     .payment-field button:hover { box-shadow: 0 4px 18px rgba(212,96,10,0.25); }
     .payment-field button:active { transform: scale(0.97); }
     .payment-field button:disabled { opacity: 0.5; cursor: not-allowed; }
-
     .rider-info-card {
       background: var(--orange-pale); border-radius: var(--r-md); padding: 12px 16px; margin-top: 10px;
     }
     .rider-info-card p { color: var(--bark) !important; margin-bottom: 2px !important; font-size: 0.88rem; }
-
-    .item-img img {
-      width: 100%; height: 110px; object-fit: cover; display: block;
-      position: relative; z-index: 1;
-    }
-    .item-vendor {
-      font-size: 0.7rem; font-weight: 600; color: var(--orange);
-      display: flex; align-items: center; gap: 4px; margin-bottom: 2px;
-    }
-    .item-vendor i { font-size: 0.6rem; }
-    .item-hours {
-      font-size: 0.65rem; color: var(--bark-muted);
-      display: flex; align-items: center; gap: 4px; margin-bottom: 4px;
-    }
-    .item-hours i { font-size: 0.58rem; color: var(--bark-faint); }
-    .special-instructions {
-      width: 100%; padding: 8px 10px; border: 1.5px solid var(--border);
-      border-radius: var(--r-sm); font-family: var(--f-body); font-size: 0.72rem;
-      color: var(--bark-mid); background: var(--cream); resize: none;
-      outline: none; transition: border-color 0.2s; min-height: 38px;
-      margin: 6px 0;
-    }
-    .special-instructions:focus { border-color: var(--orange); background: var(--white); }
-    .special-instructions::placeholder { color: var(--bark-faint); }
-    .cart-item-note {
-      font-size: 0.68rem; color: var(--bark-muted); font-style: italic;
-      margin-top: 2px; line-height: 1.3;
-    }
 
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -453,7 +446,7 @@
     .footer a {
       color: #e67e22;
       text-decoration: none;
-    }    
+    }
   </style>
 </head>
 <body>
@@ -558,7 +551,6 @@
   let notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
   let unreadCount = notifications.filter(n => !n.read).length;
 
-  /* ── Category display labels (data-cat values stay unchanged) ── */
   const categoryLabels = {
     'all':           '🍽️ All',
     'Rice Dishes':   '🍚 Rice (Times, Hajia)',
@@ -572,7 +564,7 @@
     'Desserts':      '🍰 Desserts'
   };
 
-  /* ── Demo vendor/hours/image data (keyed by item name) ── */
+  // Demo vendor info – replace with your actual backend data
   const vendorInfo = {
     'Jollof Rice':       { vendor: 'Auntie Ama Kitchen', hours: '8am – 9pm',  imageUrl: 'https://images.unsplash.com/photo-1587116861219-230ac19df971?w=300&h=200&fit=crop' },
     'Fried Rice':        { vendor: 'Times Restaurant',   hours: '10am – 10pm', imageUrl: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=300&h=200&fit=crop' },
@@ -590,7 +582,6 @@
     'Soft Drink':        { vendor: 'Fresh Juice Corner',  hours: '8am – 10pm', imageUrl: 'https://images.unsplash.com/photo-1527960471264-932f39eb5846?w=300&h=200&fit=crop' }
   };
 
-  /* FIX: 'paid' = ref submitted, NOT admin-confirmed */
   function getStatusText(status) {
     const map = {
       'pending_payment': 'Awaiting Payment',
@@ -700,11 +691,11 @@
       const vendor = item.vendor || info.vendor || '';
       const hours = item.hours || info.hours || '';
       const imageUrl = item.imageUrl || info.imageUrl || '';
-      const imgContent = imageUrl
-        ? '<img src="' + imageUrl + '" alt="' + escapeHtml(item.name) + '" style="width:100%;height:110px;object-fit:cover;" onerror="this.style.display=\'none\';this.parentNode.textContent=\'' + (item.emoji || '🍽️') + '\'">'
+      const imgHtml = imageUrl
+        ? '<img src="' + imageUrl + '" alt="' + escapeHtml(item.name) + '" onerror="this.style.display=\'none\';this.parentNode.textContent=\'' + (item.emoji || '🍽️') + '\'">'
         : (item.emoji || '🍽️');
       return '<div class="item-card">' +
-        '<div class="item-img">' + imgContent + '</div>' +
+        '<div class="item-img">' + imgHtml + '</div>' +
         '<div class="item-details">' +
           '<div class="item-name">' + escapeHtml(item.name) + '</div>' +
           (vendor ? '<div class="item-vendor"><i class="fa-solid fa-store"></i> ' + escapeHtml(vendor) + '</div>' : '') +
@@ -721,10 +712,6 @@
     });
   }
 
-  function updateItemTotal(itemId) {
-    // No longer needed with special instructions (no addon prices)
-  }
-
   function addToCart(itemId) {
     const item = menu.find(i => i.id === itemId);
     if (!item) return;
@@ -735,12 +722,10 @@
       addons: [], totalPrice: item.basePrice, qty: 1,
       specialInstructions: specialInstructions
     };
-    // Match by id AND instructions (different instructions = different cart line)
     const existing = cart.find(c => c.id === itemId && c.specialInstructions === specialInstructions);
     if (existing) existing.qty++;
     else cart.push(cartItem);
     saveCart();
-    // Clear the textarea after adding
     if (instrEl) instrEl.value = '';
     showToast('➕ ' + item.name + ' added');
   }
@@ -775,7 +760,6 @@
     saveCart();
   };
 
-  /* FIX: Removed dummy rider contact from order alert */
   async function placeOrder(customerName, customerPhone, address) {
     if (isCheckingOut) return;
     isCheckingOut = true;
@@ -800,7 +784,6 @@
     finally { isCheckingOut = false; btn.disabled = false; btn.innerText = 'Checkout →'; }
   }
 
-  /* FIX: Blur input before closing to prevent viewport sticking */
   async function submitPaymentReference(orderId, reference) {
     const btn = document.querySelector('#orderDetailsModal .payment-field button');
     if (btn) { btn.disabled = true; btn.innerText = 'Submitting...'; }
@@ -821,7 +804,6 @@
     finally { if (btn) { btn.disabled = false; btn.innerText = 'Submit Reference'; } }
   }
 
-  /* FIX: Rider only shown when status is assigned_to_rider or delivered */
   const RIDER_STATUSES = ['assigned_to_rider', 'delivered'];
 
   async function loadOrderHistory() {
@@ -878,7 +860,6 @@
     });
   }
 
-  /* FIX: Rider section only when admin has assigned one */
   function showOrderDetails(order) {
     const itemsHtml = order.items.map(item => {
       const noteText = item.specialInstructions ? '<br><em style="color:var(--bark-muted);font-size:0.78rem;">📝 ' + escapeHtml(item.specialInstructions) + '</em>' : '';
@@ -931,7 +912,6 @@
     }
   }
 
-  /* FIX: Blur + viewport reset on close */
   window.closeOrderDetailsModal = () => {
     if (document.activeElement) document.activeElement.blur();
     document.getElementById('orderDetailsModal').classList.remove('active');
@@ -1004,10 +984,10 @@
   loadMenu(); updateCartUI(); loadOrderHistory().then(() => startPolling());
   updateNotificationUI();
 </script>
-<footer style="text-align: center; padding: 20px; font-size: 12px; color: #888;">
+<div class="footer">
   © 2025 QuickBite. All rights reserved. 
-  <a href="/privacy.html" style="color: #e67e22;">Privacy</a> | 
-  <a href="/terms.html" style="color: #e67e22;">Terms</a>
-</footer>
+  <a href="/privacy.html">Privacy</a> | 
+  <a href="/terms.html">Terms</a>
+</div>
 </body>
 </html>
