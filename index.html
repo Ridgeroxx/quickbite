@@ -431,6 +431,29 @@
       .header { border-radius: var(--r-lg); margin-top: 10px; }
       .history-section { padding: 24px 28px; }
     }
+
+    /* Footer – always at bottom */
+    html, body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .container {
+      flex: 1;
+    }
+    .footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 12px;
+      color: #888;
+      border-top: 1px solid rgba(0,0,0,0.05);
+      margin-top: 20px;
+      background: rgba(255,255,255,0.5);
+    }
+    .footer a {
+      color: #e67e22;
+      text-decoration: none;
+    }    
   </style>
 </head>
 <body>
@@ -981,5 +1004,10 @@
   loadMenu(); updateCartUI(); loadOrderHistory().then(() => startPolling());
   updateNotificationUI();
 </script>
+<footer style="text-align: center; padding: 20px; font-size: 12px; color: #888;">
+  © 2025 QuickBite. All rights reserved. 
+  <a href="/privacy.html" style="color: #e67e22;">Privacy</a> | 
+  <a href="/terms.html" style="color: #e67e22;">Terms</a>
+</footer>
 </body>
 </html>
