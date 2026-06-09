@@ -225,7 +225,7 @@ app.post('/api/orders', async (req, res) => {
       let itemTotal = item.basePrice;
       if (item.addons) itemTotal += item.addons.reduce((sum, a) => sum + a.price, 0);
       subtotal += itemTotal * (item.qty || 1);
-      return { ...item, totalPrice: itemTotal };
+      return { ...item, totalPrice: itemTotal, specialInstructions: item.specialInstructions || '' };
     });
 
     const total = subtotal + DELIVERY_FEE + SERVICE_FEE;

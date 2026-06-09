@@ -1768,9 +1768,15 @@ function showAddMenuModal() {
         <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Price (GHS)</label>
         <input id="swal-m-price" class="swal2-input" placeholder="e.g. 25" inputmode="numeric" style="margin-bottom:12px">
         <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Category</label>
-        <input id="swal-m-cat" class="swal2-input" placeholder="e.g. Food, Drink, Snack" style="margin-bottom:12px">
+        <input id="swal-m-cat" class="swal2-input" placeholder="e.g. Rice Dishes, Local Dishes, Drinks" style="margin-bottom:12px">
         <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Emoji</label>
-        <input id="swal-m-emoji" class="swal2-input" placeholder="e.g. 🍛">
+        <input id="swal-m-emoji" class="swal2-input" placeholder="e.g. 🍛" style="margin-bottom:12px">
+        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Vendor</label>
+        <input id="swal-m-vendor" class="swal2-input" placeholder="e.g. Times, Hajia Waakye, Chop Bar" style="margin-bottom:12px">
+        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Hours</label>
+        <input id="swal-m-hours" class="swal2-input" placeholder="e.g. 8am – 9pm" style="margin-bottom:12px">
+        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Image URL</label>
+        <input id="swal-m-imageurl" class="swal2-input" placeholder="https://example.com/photo.jpg">
       </div>
     `,
     confirmButtonText: '<i class="fa-solid fa-plus"></i> Add Item',
@@ -1780,11 +1786,14 @@ function showAddMenuModal() {
       const basePrice = Number(document.getElementById('swal-m-price').value.trim());
       const category  = document.getElementById('swal-m-cat').value.trim();
       const emoji     = document.getElementById('swal-m-emoji').value.trim();
+      const vendor    = document.getElementById('swal-m-vendor').value.trim();
+      const hours     = document.getElementById('swal-m-hours').value.trim();
+      const imageUrl  = document.getElementById('swal-m-imageurl').value.trim();
       if (!name || !basePrice) {
         Swal.showValidationMessage('Name and price are required');
         return false;
       }
-      return { name, basePrice, category: category || 'Food', emoji: emoji || '🍴' };
+      return { name, basePrice, category: category || 'Food', emoji: emoji || '🍴', vendor: vendor || '', hours: hours || '', imageUrl: imageUrl || '' };
     },
   }).then(async result => {
     if (result.isConfirmed) {
@@ -1817,7 +1826,13 @@ function showEditMenuModal(itemId) {
         <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Category</label>
         <input id="swal-m-cat" class="swal2-input" value="${item.category || ''}" style="margin-bottom:12px">
         <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Emoji</label>
-        <input id="swal-m-emoji" class="swal2-input" value="${item.emoji || ''}">
+        <input id="swal-m-emoji" class="swal2-input" value="${item.emoji || ''}" style="margin-bottom:12px">
+        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Vendor</label>
+        <input id="swal-m-vendor" class="swal2-input" value="${item.vendor || ''}" style="margin-bottom:12px">
+        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Hours</label>
+        <input id="swal-m-hours" class="swal2-input" value="${item.hours || ''}" style="margin-bottom:12px">
+        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:13px">Image URL</label>
+        <input id="swal-m-imageurl" class="swal2-input" value="${item.imageUrl || ''}">
       </div>
     `,
     confirmButtonText: '<i class="fa-solid fa-save"></i> Save',
@@ -1827,11 +1842,14 @@ function showEditMenuModal(itemId) {
       const basePrice = Number(document.getElementById('swal-m-price').value.trim());
       const category  = document.getElementById('swal-m-cat').value.trim();
       const emoji     = document.getElementById('swal-m-emoji').value.trim();
+      const vendor    = document.getElementById('swal-m-vendor').value.trim();
+      const hours     = document.getElementById('swal-m-hours').value.trim();
+      const imageUrl  = document.getElementById('swal-m-imageurl').value.trim();
       if (!name || !basePrice) {
         Swal.showValidationMessage('Name and price are required');
         return false;
       }
-      return { name, basePrice, category: category || 'Food', emoji: emoji || '🍴' };
+      return { name, basePrice, category: category || 'Food', emoji: emoji || '🍴', vendor: vendor || '', hours: hours || '', imageUrl: imageUrl || '' };
     },
   }).then(async result => {
     if (result.isConfirmed) {

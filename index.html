@@ -397,6 +397,19 @@
       display: flex; align-items: center; gap: 4px; margin-bottom: 4px;
     }
     .item-hours i { font-size: 0.58rem; color: var(--bark-faint); }
+    .special-instructions {
+      width: 100%; padding: 8px 10px; border: 1.5px solid var(--border);
+      border-radius: var(--r-sm); font-family: var(--f-body); font-size: 0.72rem;
+      color: var(--bark-mid); background: var(--cream); resize: none;
+      outline: none; transition: border-color 0.2s; min-height: 38px;
+      margin: 6px 0;
+    }
+    .special-instructions:focus { border-color: var(--orange); background: var(--white); }
+    .special-instructions::placeholder { color: var(--bark-faint); }
+    .cart-item-note {
+      font-size: 0.68rem; color: var(--bark-muted); font-style: italic;
+      margin-top: 2px; line-height: 1.3;
+    }
 
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -674,46 +687,38 @@
           (vendor ? '<div class="item-vendor"><i class="fa-solid fa-store"></i> ' + escapeHtml(vendor) + '</div>' : '') +
           (hours ? '<div class="item-hours"><i class="fa-regular fa-clock"></i> ' + escapeHtml(hours) + '</div>' : '') +
           '<div class="item-price">GHS ' + item.basePrice + '</div>' +
-          '<div class="addons" id="addons-' + item.id + '"></div>' +
-          '<div class="item-total" id="total-' + item.id + '">Item total: GHS ' + item.basePrice + '</div>' +
+          '<textarea class="special-instructions" id="instructions-' + item.id + '" placeholder="Special requests (e.g. no onions, extra pepper)" rows="2"></textarea>' +
           '<button class="btn-add" data-id="' + item.id + '">Add to Cart</button>' +
         '</div>' +
       '</div>';
     }).join('');
     menu.forEach(item => {
-      const container = document.getElementById('addons-' + item.id);
-      if (container && item.addons && item.addons.length) {
-        container.innerHTML = item.addons.map(addon =>
-          '<label class="addon-check"><input type="checkbox" class="addon-cb" data-item="' + item.id + '" data-addon=\'' + JSON.stringify(addon) + '\'> ' + addon.name + ' +GHS ' + addon.price + '</label>'
-        ).join('');
-        document.querySelectorAll('#addons-' + item.id + ' .addon-cb').forEach(cb => cb.addEventListener('change', () => updateItemTotal(item.id)));
-      }
-      updateItemTotal(item.id);
       const btn = document.querySelector('.btn-add[data-id="' + item.id + '"]');
       if (btn) btn.addEventListener('click', () => addToCart(item.id));
     });
   }
 
   function updateItemTotal(itemId) {
-    const item = menu.find(i => i.id === itemId);
-    if (!item) return;
-    let total = item.basePrice;
-    document.querySelectorAll('#addons-' + itemId + ' .addon-cb:checked').forEach(cb => total += JSON.parse(cb.dataset.addon).price);
-    const span = document.getElementById('total-' + itemId);
-    if (span) span.innerText = 'Item total: GHS ' + total;
+    // No longer needed with special instructions (no addon prices)
   }
 
   function addToCart(itemId) {
     const item = menu.find(i => i.id === itemId);
     if (!item) return;
-    const selectedAddons = [];
-    document.querySelectorAll('#addons-' + itemId + ' .addon-cb:checked').forEach(cb => selectedAddons.push(JSON.parse(cb.dataset.addon)));
-    const itemTotal = item.basePrice + selectedAddons.reduce((s,a) => s + a.price, 0);
-    const cartItem = { id: item.id, name: item.name, basePrice: item.basePrice, addons: selectedAddons, totalPrice: itemTotal, qty: 1 };
-    const existing = cart.find(c => c.id === itemId && JSON.stringify(c.addons) === JSON.stringify(selectedAddons));
+    const instrEl = document.getElementById('instructions-' + itemId);
+    const specialInstructions = instrEl ? instrEl.value.trim() : '';
+    const cartItem = {
+      id: item.id, name: item.name, basePrice: item.basePrice,
+      addons: [], totalPrice: item.basePrice, qty: 1,
+      specialInstructions: specialInstructions
+    };
+    // Match by id AND instructions (different instructions = different cart line)
+    const existing = cart.find(c => c.id === itemId && c.specialInstructions === specialInstructions);
     if (existing) existing.qty++;
     else cart.push(cartItem);
     saveCart();
+    // Clear the textarea after adding
+    if (instrEl) instrEl.value = '';
     showToast('➕ ' + item.name + ' added');
   }
 
@@ -727,11 +732,11 @@
     }
     let html = '', subtotal = 0;
     cart.forEach((item, idx) => {
-      const addonText = item.addons.length ? ' (' + item.addons.map(a => a.name).join(', ') + ')' : '';
       const lineTotal = item.totalPrice * item.qty;
       subtotal += lineTotal;
+      const noteHtml = item.specialInstructions ? '<div class="cart-item-note">📝 ' + escapeHtml(item.specialInstructions) + '</div>' : '';
       html += '<div class="cart-item" data-idx="' + idx + '">' +
-        '<div class="cart-item-info"><div class="cart-item-name">' + escapeHtml(item.name) + addonText + '</div><div class="cart-item-addons">GHS ' + item.totalPrice + ' each</div></div>' +
+        '<div class="cart-item-info"><div class="cart-item-name">' + escapeHtml(item.name) + '</div>' + noteHtml + '<div class="cart-item-addons">GHS ' + item.totalPrice + ' each</div></div>' +
         '<div class="cart-item-qty"><button onclick="changeQty(' + idx + ', -1)">-</button><span>' + item.qty + '</span><button onclick="changeQty(' + idx + ', 1)">+</button></div>' +
         '<div class="cart-item-price">GHS ' + lineTotal.toFixed(2) + '</div></div>';
     });
@@ -753,7 +758,7 @@
     isCheckingOut = true;
     const btn = document.getElementById('checkoutDrawerBtn');
     btn.disabled = true; btn.innerText = 'Placing order...';
-    const items = cart.map(i => ({ id: i.id, name: i.name, basePrice: i.basePrice, addons: i.addons, qty: i.qty }));
+    const items = cart.map(i => ({ id: i.id, name: i.name, basePrice: i.basePrice, addons: i.addons || [], qty: i.qty, specialInstructions: i.specialInstructions || '' }));
     try {
       const res = await fetch(API_BASE + '/api/orders', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -853,8 +858,8 @@
   /* FIX: Rider section only when admin has assigned one */
   function showOrderDetails(order) {
     const itemsHtml = order.items.map(item => {
-      const addonsText = item.addons && item.addons.length ? ' (' + item.addons.map(a => a.name).join(', ') + ')' : '';
-      return '<li><strong>' + escapeHtml(item.name) + addonsText + '</strong> x' + item.qty + ' = GHS ' + (item.totalPrice * item.qty) + '</li>';
+      const noteText = item.specialInstructions ? '<br><em style="color:var(--bark-muted);font-size:0.78rem;">📝 ' + escapeHtml(item.specialInstructions) + '</em>' : '';
+      return '<li><strong>' + escapeHtml(item.name) + '</strong> x' + item.qty + ' = GHS ' + (item.totalPrice * item.qty) + noteText + '</li>';
     }).join('');
 
     let paymentSection = '';
@@ -913,7 +918,8 @@
   function reorder(order) {
     const newCart = order.items.map(item => ({
       id: item.id, name: item.name, basePrice: item.basePrice,
-      addons: item.addons || [], totalPrice: item.totalPrice, qty: item.qty || 1
+      addons: [], totalPrice: item.totalPrice || item.basePrice, qty: item.qty || 1,
+      specialInstructions: item.specialInstructions || ''
     }));
     cart = newCart; saveCart();
     showToast('Order copied to cart');
